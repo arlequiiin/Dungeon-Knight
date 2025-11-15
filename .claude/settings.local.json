@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version:*)",
+      "Bash(where:*)",
+      "Bash(Get-Command dotnet -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Source)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
