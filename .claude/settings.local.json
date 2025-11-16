@@ -4,7 +4,11 @@
       "Bash(dotnet --version:*)",
       "Bash(where:*)",
       "Bash(Get-Command dotnet -ErrorAction SilentlyContinue)",
-      "Bash(Select-Object Source)"
+      "Bash(Select-Object Source)",
+      "Bash(dir)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
