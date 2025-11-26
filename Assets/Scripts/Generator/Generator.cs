@@ -33,7 +33,7 @@ public class Generator : MonoBehaviour
 
         if (dungeonRenderer == null)
         {
-            dungeonRenderer = FindObjectOfType<DungeonRenderer>();
+            dungeonRenderer = FindAnyObjectByType<DungeonRenderer>();
             if (dungeonRenderer == null)
             {
                 Debug.LogError("[Generator] DungeonRenderer не найден на сцене!");
