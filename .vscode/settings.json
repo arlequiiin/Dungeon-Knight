@@ -66,7 +66,7 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "Dungeon-Knight.sln",
+    "dotnet.defaultSolution": "Dungeon Knight.sln",
     "omnisharp.useModernNet": true,
     "omnisharp.enableRoslynAnalyzers": true,
     "omnisharp.enableEditorConfigSupport": true,

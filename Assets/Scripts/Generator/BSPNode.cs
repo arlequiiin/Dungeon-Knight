@@ -1,14 +1,11 @@
 using UnityEngine;
 
-/// <summary>
-/// Узел Binary Space Partition дерева
-/// </summary>
 public class BSPNode
 {
     public RectInt rect;
     public BSPNode left;
     public BSPNode right;
-    public Room room; // null для внутренних узлов, заполнено для листьев
+    public Room room; 
 
     public bool IsLeaf => left == null && right == null;
 

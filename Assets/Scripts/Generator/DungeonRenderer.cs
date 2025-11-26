@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-/// <summary>
-/// Визуализация сгенерированного подземелья на Tilemap
-/// </summary>
+// Визуализация сгенерированного подземелья на Tilemap
 public class DungeonRenderer : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
@@ -14,19 +12,17 @@ public class DungeonRenderer : MonoBehaviour
     {
         if (tilemap == null)
         {
-            Debug.LogError("[DungeonRenderer] Tilemap не назначен!");
+            Debug.LogError("Tilemap не назначен!");
             return;
         }
 
         if (floorTile == null)
         {
-            Debug.LogWarning("[DungeonRenderer] floorTile не назначен, используем первый доступный");
+            Debug.LogWarning("floorTile не назначен!");
         }
     }
 
-    /// <summary>
-    /// Нарисовать подземелье на карте
-    /// </summary>
+    // Нарисовать подземелье на карте
     public void RenderDungeon(BSPGenerator generator)
     {
         // Очищаем тайлмап
@@ -36,8 +32,7 @@ public class DungeonRenderer : MonoBehaviour
             new DungeonConfig() : null;
 
         // Заполняем стены (всю карту)
-        // (В будущем заполним только край карты)
-        // Пока оставляем пусто - можно заполнить после
+        // В будущем заполнить только край карты
 
         // Рисуем комнаты
         foreach (var room in generator.Rooms)
@@ -45,12 +40,10 @@ public class DungeonRenderer : MonoBehaviour
             RenderRoom(room);
         }
 
-        Debug.Log("[DungeonRenderer] Подземелье отрисовано");
+        Debug.Log("Комнаты отрисованы");
     }
 
-    /// <summary>
-    /// Рисует одну комнату
-    /// </summary>
+    // Рисует одну комнату
     private void RenderRoom(Room room)
     {
         // Рисуем пол в комнате
@@ -66,13 +59,11 @@ public class DungeonRenderer : MonoBehaviour
             }
         }
 
-        // Рисуем контур комнаты (опционально, для визуализации)
+        // Рисуем контур комнаты 
         RenderRoomBorder(room);
     }
 
-    /// <summary>
-    /// Рисует контур комнаты для визуализации
-    /// </summary>
+    // Рисует контур комнаты
     private void RenderRoomBorder(Room room)
     {
         // Верхняя и нижняя граница
@@ -104,22 +95,17 @@ public class DungeonRenderer : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Получить тайл для типа комнаты
-    /// </summary>
+    // тайл для типа комнаты
     private TileBase GetTileForRoom(Room room)
     {
-        // Используем простой тайл, в будущем можно добавить разные цвета
+        // в будущем можно добавить разные цвета
         if (floorTile != null)
             return floorTile;
 
-        // Если тайлов нет, просто возвращаем null (комната останется прозрачной)
         return null;
     }
 
-    /// <summary>
-    /// Нарисовать комнату контрастно (для отладки)
-    /// </summary>
+    // Нарисовать комнату для отладки
     public void DebugRenderRooms(BSPGenerator generator)
     {
         tilemap.ClearAllTiles();
@@ -140,6 +126,6 @@ public class DungeonRenderer : MonoBehaviour
             RenderRoomBorder(room);
         }
 
-        Debug.Log($"[DungeonRenderer] Debug-отрисовано {generator.Rooms.Count} комнат");
+        Debug.Log($"Отрисовано {generator.Rooms.Count} комнат");
     }
 }

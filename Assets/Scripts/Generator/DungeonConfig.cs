@@ -1,8 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Конфигурация параметров генерации подземелья
-/// </summary>
+// Конфигурация параметров генерации подземелья
 [System.Serializable]
 public class DungeonConfig
 {
@@ -28,7 +26,6 @@ public class DungeonConfig
 
     public void ValidateAndFix()
     {
-        // Валидация параметров
         mapWidth = Mathf.Max(50, mapWidth);
         mapHeight = Mathf.Max(50, mapHeight);
         normalRoomsCount = Mathf.Max(1, normalRoomsCount);
