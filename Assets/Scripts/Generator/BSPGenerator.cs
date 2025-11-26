@@ -1,9 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// Генератор подземелья с использованием Binary Space Partition
-/// </summary>
 public class BSPGenerator
 {
     private DungeonConfig config;
@@ -25,42 +22,34 @@ public class BSPGenerator
         }
         random = new System.Random(config.seed);
 
-        Debug.Log($"[DungeonGenerator] Seed: {config.seed}");
+        Debug.Log($"Seed: {config.seed}");
     }
 
-    /// <summary>
-    /// Основной метод генерации подземелья
-    /// </summary>
     public void Generate()
     {
         rooms.Clear();
 
-        // Шаг 1: BSP разбиение пространства
-        Debug.Log("[DungeonGenerator] Начало BSP разбиения...");
+        Debug.Log("Начало BSP разбиения");
         bspRoot = new BSPNode(new RectInt(0, 0, config.mapWidth, config.mapHeight));
         RecursiveBSPSplit(bspRoot);
 
-        // Шаг 2: Создание комнат для каждого листа BSP
-        Debug.Log("[DungeonGenerator] Создание комнат из листьев BSP...");
+        Debug.Log("Создание комнат BSP");
         CreateRoomsFromLeaves(bspRoot);
 
-        // Шаг 3: Построение графа и распределение типов комнат
-        Debug.Log("[DungeonGenerator] Построение графа комнат...");
+        Debug.Log("Построение графа комнат");
         BuildRoomGraph();
 
-        Debug.Log($"[DungeonGenerator] Генерация завершена. Всего комнат: {rooms.Count}");
+        Debug.Log($"Готово, всего комнат: {rooms.Count}");
     }
 
-    /// <summary>
-    /// Рекурсивное разбиение пространства BSP
-    /// </summary>
+    // Рекурсивное разбиение пространства BSP
     private void RecursiveBSPSplit(BSPNode node, int depth = 0)
     {
         // Критерии остановки
         int minWidth = config.minRoomSize.x + 2;
         int minHeight = config.minRoomSize.y + 2;
 
-        // Не разбиваем слишком маленькие комнаты и слишком глубокие уровни
+        // Не разбивать слишком маленькие комнаты и слишком глубокие уровни
         if (node.rect.width <= minWidth * 2 || node.rect.height <= minHeight * 2 || depth > 8)
         {
             return;
@@ -118,23 +107,21 @@ public class BSPGenerator
         RecursiveBSPSplit(node.right, depth + 1);
     }
 
-    /// <summary>
-    /// Создание комнат из листьев BSP дерева
-    /// </summary>
+    // Создание комнат BSP дерева
     private void CreateRoomsFromLeaves(BSPNode node)
     {
         if (node == null) return;
 
         if (node.IsLeaf)
         {
-            // Создаём комнату размером меньше узла, оставляя "стены"
+            // Создаём комнату размером меньше узла, оставляя стены
             int maxWidth = Mathf.Min(config.maxRoomSize.x, node.rect.width - 2);
             int maxHeight = Mathf.Min(config.maxRoomSize.y, node.rect.height - 2);
 
             // Проверка на минимальный размер
             if (maxWidth < config.minRoomSize.x || maxHeight < config.minRoomSize.y)
             {
-                Debug.LogWarning($"[BSPGenerator] Узел слишком мал для комнаты: {node.rect}");
+                Debug.LogWarning($"Узел слишком мал для комнаты: {node.rect}");
                 return;
             }
 
@@ -160,9 +147,7 @@ public class BSPGenerator
         }
     }
 
-    /// <summary>
-    /// Построение графа комнат и распределение типов
-    /// </summary>
+    // Построение графа комнат и распределение типов
     private void BuildRoomGraph()
     {
         if (rooms.Count < 2)
@@ -172,7 +157,7 @@ public class BSPGenerator
         }
 
         // Соединяем соседние комнаты в BSP дереве (корридорами)
-        ConnectBSPRooms(bspRoot);
+        ConnectBSPRooms(bspRoot); // Пока заглушка
 
         // Распределяем типы комнат
         AssignRoomTypes();
@@ -181,9 +166,7 @@ public class BSPGenerator
         CalculateDistancesToBoss();
     }
 
-    /// <summary>
-    /// Соединение соседних комнат в BSP дереве
-    /// </summary>
+    // Соединение соседних комнат в BSP дереве (заглушка)
     private void ConnectBSPRooms(BSPNode node)
     {
         if (node == null || node.IsLeaf) return;
@@ -194,17 +177,14 @@ public class BSPGenerator
 
         if (leftRoom != null && rightRoom != null)
         {
-            // Создаём логическую связь между комнатами
-            // (В будущем здесь будут коридоры)
+            // Тут коридоры
         }
 
-        ConnectBSPRooms(node.left);
+        ConnectBSPRooms(node.left); 
         ConnectBSPRooms(node.right);
     }
 
-    /// <summary>
-    /// Получить главную комнату из поддерева
-    /// </summary>
+    // Получить главную комнату из поддерева
     private Room GetMainRoom(BSPNode node)
     {
         if (node == null) return null;
@@ -215,9 +195,7 @@ public class BSPGenerator
         return leftRoom ?? GetMainRoom(node.right);
     }
 
-    /// <summary>
-    /// Распределение типов комнат
-    /// </summary>
+    // Распределение типов комнат
     private void AssignRoomTypes()
     {
         // Стартовая комната - первая
@@ -238,12 +216,10 @@ public class BSPGenerator
         }
     }
 
-    /// <summary>
-    /// Вычисление расстояния до комнаты босса (простая версия)
-    /// </summary>
+    // Вычисление расстояния до комнаты босса 
     private void CalculateDistancesToBoss()
     {
-        // В простой версии используем индекс как приблизительное расстояние
+        // используем индекс как приблизительное расстояние
         Room bossRoom = rooms[rooms.Count - 1];
         for (int i = 0; i < rooms.Count; i++)
         {
@@ -251,9 +227,7 @@ public class BSPGenerator
         }
     }
 
-    /// <summary>
-    /// Получить случайную комнату (для тестирования)
-    /// </summary>
+    /// Получить случайную комнату
     public Room GetRandomRoom(RoomType type = RoomType.Normal)
     {
         var filtered = rooms.FindAll(r => r.type == type);

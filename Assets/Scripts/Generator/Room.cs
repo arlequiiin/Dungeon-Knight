@@ -1,17 +1,15 @@
 using UnityEngine;
 
-/// <summary>
-/// Представляет отдельную комнату в подземелье
-/// </summary>
+// Представляет отдельную комнату в подземелье
 public class Room
 {
     public RoomType type;
-    public RectInt bounds; // Координаты и размер комнаты в пиксель-координатах
+    public RectInt bounds; // координаты и размер комнаты в пиксель-координатах
     public Vector2 center => bounds.center;
 
     // Для графа
-    public int nodeId = -1; // ID узла в графе комнат
-    public int distanceToBoss = int.MaxValue; // Расстояние до комнаты босса
+    public int nodeId = -1; // айди узла в графе комнат
+    public int distanceToBoss = int.MaxValue; // расстояние до комнаты босса
 
     public Room(RoomType type, RectInt bounds, int nodeId = -1)
     {
