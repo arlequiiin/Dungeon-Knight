@@ -490,9 +490,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 735536ff5ad31f04d8a9005c5ba571bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonRenderer
-  tilemap: {fileID: 0}
-  wallTile: {fileID: 0}
-  floorTile: {fileID: 0}
+  tilemap: {fileID: 1172224629}
+  wallTile: {fileID: 11400000, guid: ad68ca89e6600fa41b73d413e8afa420, type: 2}
+  floorTile: {fileID: 11400000, guid: a98dd5dc35feeee40a10da2d2d3ddc6a, type: 2}
 --- !u!483693784 &1172224628
 TilemapRenderer:
   m_ObjectHideFlags: 0
