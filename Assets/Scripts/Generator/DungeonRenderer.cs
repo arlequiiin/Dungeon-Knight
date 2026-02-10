@@ -4,128 +4,99 @@ using UnityEngine.Tilemaps;
 // Визуализация сгенерированного подземелья на Tilemap
 public class DungeonRenderer : MonoBehaviour
 {
-    [SerializeField] private Tilemap tilemap;
-    [SerializeField] private TileBase wallTile;
-    [SerializeField] private TileBase floorTile;
+    [Header("Tilemap слои")]
+    [SerializeField] private Tilemap groundTilemap;
+    [SerializeField] private Tilemap lavaTilemap;
+
+    [Header("Тайлы")]
+    [SerializeField] private TileBase groundTile;   // Rule Tile для земли
+    [SerializeField] private TileBase lavaTile;     // Тайл лавы
 
     private void Start()
     {
-        if (tilemap == null)
-        {
-            Debug.LogError("Tilemap не назначен!");
-            return;
-        }
+        if (groundTilemap == null)
+            Debug.LogError("Ground Tilemap не назначен!");
 
-        if (floorTile == null)
-        {
-            Debug.LogWarning("floorTile не назначен!");
-        }
+        if (lavaTilemap == null)
+            Debug.LogError("Lava Tilemap не назначен!");
+
+        if (groundTile == null)
+            Debug.LogWarning("Ground Tile (Rule Tile) не назначен!");
+
+        if (lavaTile == null)
+            Debug.LogWarning("Lava Tile не назначен!");
     }
 
     // Нарисовать подземелье на карте
-    public void RenderDungeon(BSPGenerator generator)
+    public void RenderDungeon(BSPGenerator generator, DungeonConfig config)
     {
-        // Очищаем тайлмап
-        tilemap.ClearAllTiles();
+        // Очищаем тайлмапы
+        groundTilemap.ClearAllTiles();
+        lavaTilemap.ClearAllTiles();
 
-        var config = generator.Rooms.Count > 0 ?
-            new DungeonConfig() : null;
+        // Заполняем всю область лавой
+        FillWithLava(config.mapWidth, config.mapHeight);
 
-        // Заполняем стены (всю карту)
-        // В будущем заполнить только край карты
+        // Рисуем коридоры
+        foreach (var corridor in generator.Corridors)
+        {
+            RenderCorridor(corridor);
+        }
 
-        // Рисуем комнаты
+        // Рисуем комнаты поверх лавы
         foreach (var room in generator.Rooms)
         {
             RenderRoom(room);
         }
 
-        Debug.Log("Комнаты отрисованы");
+        Debug.Log($"Отрисовано: лава {config.mapWidth}x{config.mapHeight}, комнат: {generator.Rooms.Count}, коридоров: {generator.Corridors.Count}");
+    }
+
+    // Заполняет всю карту лавой
+    private void FillWithLava(int width, int height)
+    {
+        if (lavaTile == null) return;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Vector3Int tilePos = new Vector3Int(x, y, 0);
+                lavaTilemap.SetTile(tilePos, lavaTile);
+            }
+        }
+    }
+
+    // Рисует один коридор
+    private void RenderCorridor(Corridor corridor)
+    {
+        if (groundTile == null) return;
+
+        foreach (var tile in corridor.tiles)
+        {
+            Vector3Int tilePos = new Vector3Int(tile.x, tile.y, 0);
+            groundTilemap.SetTile(tilePos, groundTile);
+        }
     }
 
     // Рисует одну комнату
     private void RenderRoom(Room room)
     {
-        // Рисуем пол в комнате
+        if (groundTile == null) return;
+
         for (int x = room.bounds.x; x < room.bounds.x + room.bounds.width; x++)
         {
             for (int y = room.bounds.y; y < room.bounds.y + room.bounds.height; y++)
             {
                 Vector3Int tilePos = new Vector3Int(x, y, 0);
-
-                // Выбираем тайл в зависимости от типа комнаты
-                TileBase tile = GetTileForRoom(room);
-                tilemap.SetTile(tilePos, tile);
+                groundTilemap.SetTile(tilePos, groundTile);
             }
         }
-
-        // Рисуем контур комнаты 
-        RenderRoomBorder(room);
     }
 
-    // Рисует контур комнаты
-    private void RenderRoomBorder(Room room)
+    // Отладочная отрисовка
+    public void DebugRenderRooms(BSPGenerator generator, DungeonConfig config)
     {
-        // Верхняя и нижняя граница
-        for (int x = room.bounds.x - 1; x <= room.bounds.x + room.bounds.width; x++)
-        {
-            // Верх
-            Vector3Int topPos = new Vector3Int(x, room.bounds.y + room.bounds.height, 0);
-            if (tilemap.GetTile(topPos) == null && wallTile != null)
-                tilemap.SetTile(topPos, wallTile);
-
-            // Низ
-            Vector3Int bottomPos = new Vector3Int(x, room.bounds.y - 1, 0);
-            if (tilemap.GetTile(bottomPos) == null && wallTile != null)
-                tilemap.SetTile(bottomPos, wallTile);
-        }
-
-        // Левая и правая граница
-        for (int y = room.bounds.y; y < room.bounds.y + room.bounds.height; y++)
-        {
-            // Слева
-            Vector3Int leftPos = new Vector3Int(room.bounds.x - 1, y, 0);
-            if (tilemap.GetTile(leftPos) == null && wallTile != null)
-                tilemap.SetTile(leftPos, wallTile);
-
-            // Справа
-            Vector3Int rightPos = new Vector3Int(room.bounds.x + room.bounds.width, y, 0);
-            if (tilemap.GetTile(rightPos) == null && wallTile != null)
-                tilemap.SetTile(rightPos, wallTile);
-        }
-    }
-
-    // тайл для типа комнаты
-    private TileBase GetTileForRoom(Room room)
-    {
-        // в будущем можно добавить разные цвета
-        if (floorTile != null)
-            return floorTile;
-
-        return null;
-    }
-
-    // Нарисовать комнату для отладки
-    public void DebugRenderRooms(BSPGenerator generator)
-    {
-        tilemap.ClearAllTiles();
-
-        foreach (var room in generator.Rooms)
-        {
-            // Рисуем все тайлы комнаты
-            for (int x = room.bounds.x; x < room.bounds.x + room.bounds.width; x++)
-            {
-                for (int y = room.bounds.y; y < room.bounds.y + room.bounds.height; y++)
-                {
-                    Vector3Int tilePos = new Vector3Int(x, y, 0);
-                    tilemap.SetTile(tilePos, floorTile);
-                }
-            }
-
-            // Рисуем стены вокруг комнаты
-            RenderRoomBorder(room);
-        }
-
-        Debug.Log($"Отрисовано {generator.Rooms.Count} комнат");
+        RenderDungeon(generator, config);
     }
 }
