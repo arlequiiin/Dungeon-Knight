@@ -13,6 +13,11 @@ public class DungeonConfig
     public int specialRoomsCount = 3;
     public Vector2Int minRoomSize = new Vector2Int(8, 8);
     public Vector2Int maxRoomSize = new Vector2Int(20, 20);
+    [Range(2, 8)]
+    public int bspDepth = 4; // Глубина BSP разбиения (больше = больше комнат)
+
+    [Header("Коридоры")]
+    public int corridorWidth = 3;
 
     [Header("Граф (маршруты)")]
     public int minPathToBossl = 5;
@@ -40,5 +45,6 @@ public class DungeonConfig
         );
         minPathToBossl = Mathf.Max(1, minPathToBossl);
         maxPathToBoss = Mathf.Max(minPathToBossl + 1, maxPathToBoss);
+        corridorWidth = Mathf.Max(1, corridorWidth);
     }
 }

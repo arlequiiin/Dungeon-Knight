@@ -39,11 +39,11 @@ public class Generator : MonoBehaviour
 
         if (debugMode)
         {
-            dungeonRenderer.DebugRenderRooms(bspGenerator);
+            dungeonRenderer.DebugRenderRooms(bspGenerator, dungeonConfig);
         }
         else
         {
-            dungeonRenderer.RenderDungeon(bspGenerator);
+            dungeonRenderer.RenderDungeon(bspGenerator, dungeonConfig);
         }
 
         PrintDungeonInfo();
