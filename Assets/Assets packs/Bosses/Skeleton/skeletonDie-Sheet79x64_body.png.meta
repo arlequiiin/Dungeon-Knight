@@ -1,0 +1,598 @@
+fileFormatVersion: 2
+guid: 74bb8f161664e644d8344a378f413fc5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 718256443866358282
+    second: skeletonDie-Sheet79x64_body_0
+  - first:
+      213: -1333808819138038230
+    second: skeletonDie-Sheet79x64_body_1
+  - first:
+      213: 691495916747969778
+    second: skeletonDie-Sheet79x64_body_2
+  - first:
+      213: -551812250382684272
+    second: skeletonDie-Sheet79x64_body_3
+  - first:
+      213: 536350509061528897
+    second: skeletonDie-Sheet79x64_body_4
+  - first:
+      213: -5346763211609960274
+    second: skeletonDie-Sheet79x64_body_5
+  - first:
+      213: 3474014203850272120
+    second: skeletonDie-Sheet79x64_body_6
+  - first:
+      213: 5888607167473763295
+    second: skeletonDie-Sheet79x64_body_7
+  - first:
+      213: 2660773852743796188
+    second: skeletonDie-Sheet79x64_body_8
+  - first:
+      213: -3912443034882558843
+    second: skeletonDie-Sheet79x64_body_9
+  - first:
+      213: 3555089659015690628
+    second: skeletonDie-Sheet79x64_body_10
+  - first:
+      213: -6323279382893749229
+    second: skeletonDie-Sheet79x64_body_11
+  - first:
+      213: -5426077673150901310
+    second: skeletonDie-Sheet79x64_body_12
+  - first:
+      213: -261287291522002695
+    second: skeletonDie-Sheet79x64_body_13
+  - first:
+      213: 4838809334161352995
+    second: skeletonDie-Sheet79x64_body_14
+  - first:
+      213: 9163956108472918462
+    second: skeletonDie-Sheet79x64_body_15
+  - first:
+      213: 635533741977246376
+    second: skeletonDie-Sheet79x64_body_16
+  - first:
+      213: 245528215434315211
+    second: skeletonDie-Sheet79x64_body_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_0
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 193
+        width: 62
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a022a422e62c7f900800000000000000
+      internalID: 718256443866358282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_1
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 193
+        width: 61
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a267ef022fb5d7de0800000000000000
+      internalID: -1333808819138038230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_2
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 193
+        width: 62
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f455616fdfa89900800000000000000
+      internalID: 691495916747969778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_3
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 193
+        width: 62
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09f2b319ea19758f0800000000000000
+      internalID: -551812250382684272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_4
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 193
+        width: 64
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14d56bf32ff717700800000000000000
+      internalID: 536350509061528897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_5
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 129
+        width: 64
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea09cd9ff2b7cc5b0800000000000000
+      internalID: -5346763211609960274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_6
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 129
+        width: 64
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87d2825238d263030800000000000000
+      internalID: 3474014203850272120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_7
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 127
+        width: 64
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd3c717050988b150800000000000000
+      internalID: 5888607167473763295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_8
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 127
+        width: 64
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd50170c8b7fce420800000000000000
+      internalID: 2660773852743796188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_9
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 127
+        width: 64
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 584bfdde9c534b9c0800000000000000
+      internalID: -3912443034882558843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_10
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 63
+        width: 64
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4897b4e8537365130800000000000000
+      internalID: 3555089659015690628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_11
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 63
+        width: 64
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31c111747e23f38a0800000000000000
+      internalID: -6323279382893749229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_12
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 63
+        width: 64
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c39928da13b2b4b0800000000000000
+      internalID: -5426077673150901310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_13
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 63
+        width: 64
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f0d18cb798bf5cf0800000000000000
+      internalID: -261287291522002695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_14
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 63
+        width: 66
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 329288ac377e62340800000000000000
+      internalID: 4838809334161352995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 7
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb1acc62789ec2f70800000000000000
+      internalID: 9163956108472918462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_16
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 0
+        width: 64
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8aa1455329ed1d800800000000000000
+      internalID: 635533741977246376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonDie-Sheet79x64_body_17
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 0
+        width: 64
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc54c4f6c9a486300800000000000000
+      internalID: 245528215434315211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      skeletonDie-Sheet79x64_body_0: 718256443866358282
+      skeletonDie-Sheet79x64_body_1: -1333808819138038230
+      skeletonDie-Sheet79x64_body_10: 3555089659015690628
+      skeletonDie-Sheet79x64_body_11: -6323279382893749229
+      skeletonDie-Sheet79x64_body_12: -5426077673150901310
+      skeletonDie-Sheet79x64_body_13: -261287291522002695
+      skeletonDie-Sheet79x64_body_14: 4838809334161352995
+      skeletonDie-Sheet79x64_body_15: 9163956108472918462
+      skeletonDie-Sheet79x64_body_16: 635533741977246376
+      skeletonDie-Sheet79x64_body_17: 245528215434315211
+      skeletonDie-Sheet79x64_body_2: 691495916747969778
+      skeletonDie-Sheet79x64_body_3: -551812250382684272
+      skeletonDie-Sheet79x64_body_4: 536350509061528897
+      skeletonDie-Sheet79x64_body_5: -5346763211609960274
+      skeletonDie-Sheet79x64_body_6: 3474014203850272120
+      skeletonDie-Sheet79x64_body_7: 5888607167473763295
+      skeletonDie-Sheet79x64_body_8: 2660773852743796188
+      skeletonDie-Sheet79x64_body_9: -3912443034882558843
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
