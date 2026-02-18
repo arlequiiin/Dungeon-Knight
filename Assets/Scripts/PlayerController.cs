@@ -6,17 +6,17 @@ public class PlayerController : MonoBehaviour {
     private PlayerInputActions input;
     private Rigidbody2D rb;
 
-    [Header("Движение")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     public float moveSpeed = 5f;
     private Vector2 moveInput;
 
-    [Header("Уворот")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅ")]
     public float dodgeForce = 8f;
     public float dodgeCooldown = 1f;
     private bool canDodge = true;
 
-    [Header("Атака")]
-    public GameObject projectilePrefab; // Префаб пули или ближней атаки
+    [Header("пїЅпїЅпїЅпїЅпїЅ")]
+    public GameObject projectilePrefab; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     public float attackCooldown = 0.5f;
     private bool canAttack = true;
 
@@ -31,7 +31,6 @@ public class PlayerController : MonoBehaviour {
         input.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         input.Player.Move.canceled += ctx => moveInput = Vector2.zero;
 
-        input.Player.Dodge.performed += _ => TryDodge();
         input.Player.Attack.performed += _ => TryAttack();
     }
 

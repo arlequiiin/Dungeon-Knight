@@ -446,12 +446,12 @@ TextureImporter:
       name: decorative_props_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 447
-        width: 53
-        height: 60
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 7
+        y: 448
+        width: 51
+        height: 58
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -468,12 +468,12 @@ TextureImporter:
       name: decorative_props_1
       rect:
         serializedVersion: 2
-        x: 77
-        y: 459
-        width: 41
-        height: 53
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 78
+        y: 460
+        width: 39
+        height: 52
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -490,12 +490,12 @@ TextureImporter:
       name: decorative_props_2
       rect:
         serializedVersion: 2
-        x: 142
-        y: 455
-        width: 40
-        height: 43
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 143
+        y: 456
+        width: 38
+        height: 41
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -512,12 +512,12 @@ TextureImporter:
       name: decorative_props_3
       rect:
         serializedVersion: 2
-        x: 191
-        y: 447
-        width: 34
-        height: 34
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 192
+        y: 448
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -534,12 +534,12 @@ TextureImporter:
       name: decorative_props_4
       rect:
         serializedVersion: 2
-        x: 227
-        y: 454
-        width: 58
-        height: 51
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 228
+        y: 455
+        width: 56
+        height: 49
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -556,12 +556,12 @@ TextureImporter:
       name: decorative_props_5
       rect:
         serializedVersion: 2
-        x: 289
-        y: 429
-        width: 64
-        height: 69
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 290
+        y: 430
+        width: 62
+        height: 67
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -578,12 +578,12 @@ TextureImporter:
       name: decorative_props_6
       rect:
         serializedVersion: 2
-        x: 364
-        y: 449
-        width: 41
-        height: 61
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 365
+        y: 450
+        width: 39
+        height: 59
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -600,12 +600,12 @@ TextureImporter:
       name: decorative_props_7
       rect:
         serializedVersion: 2
-        x: 416
-        y: 447
-        width: 64
-        height: 65
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 417
+        y: 448
+        width: 62
+        height: 63
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -622,12 +622,12 @@ TextureImporter:
       name: decorative_props_8
       rect:
         serializedVersion: 2
-        x: 6
-        y: 389
-        width: 53
-        height: 54
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 7
+        y: 390
+        width: 51
+        height: 52
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -644,12 +644,12 @@ TextureImporter:
       name: decorative_props_9
       rect:
         serializedVersion: 2
-        x: 63
-        y: 383
-        width: 32
-        height: 50
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 64
+        y: 384
+        width: 30
+        height: 48
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -666,12 +666,12 @@ TextureImporter:
       name: decorative_props_10
       rect:
         serializedVersion: 2
-        x: 109
-        y: 389
-        width: 38
-        height: 27
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 110
+        y: 390
+        width: 36
+        height: 25
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -688,12 +688,12 @@ TextureImporter:
       name: decorative_props_11
       rect:
         serializedVersion: 2
-        x: 161
-        y: 399
-        width: 60
-        height: 50
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 162
+        y: 400
+        width: 58
+        height: 48
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -710,12 +710,12 @@ TextureImporter:
       name: decorative_props_12
       rect:
         serializedVersion: 2
-        x: 235
-        y: 394
-        width: 43
-        height: 39
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 236
+        y: 395
+        width: 41
+        height: 37
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -732,12 +732,12 @@ TextureImporter:
       name: decorative_props_13
       rect:
         serializedVersion: 2
-        x: 298
-        y: 358
-        width: 44
-        height: 59
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 299
+        y: 359
+        width: 42
+        height: 57
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -754,12 +754,12 @@ TextureImporter:
       name: decorative_props_14
       rect:
         serializedVersion: 2
-        x: 351
-        y: 353
-        width: 65
-        height: 65
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 352
+        y: 354
+        width: 63
+        height: 63
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -776,12 +776,12 @@ TextureImporter:
       name: decorative_props_15
       rect:
         serializedVersion: 2
-        x: 418
-        y: 352
-        width: 86
-        height: 92
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 419
+        y: 353
+        width: 84
+        height: 90
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -798,12 +798,12 @@ TextureImporter:
       name: decorative_props_16
       rect:
         serializedVersion: 2
-        x: 6
-        y: 287
-        width: 45
-        height: 63
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 7
+        y: 288
+        width: 43
+        height: 61
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -820,12 +820,12 @@ TextureImporter:
       name: decorative_props_17
       rect:
         serializedVersion: 2
-        x: 78
-        y: 287
-        width: 43
-        height: 56
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 79
+        y: 288
+        width: 41
+        height: 54
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -842,12 +842,12 @@ TextureImporter:
       name: decorative_props_18
       rect:
         serializedVersion: 2
-        x: 142
-        y: 287
-        width: 43
-        height: 72
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 143
+        y: 288
+        width: 41
+        height: 70
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -864,12 +864,12 @@ TextureImporter:
       name: decorative_props_19
       rect:
         serializedVersion: 2
-        x: 269
-        y: 322
-        width: 20
-        height: 19
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 270
+        y: 323
+        width: 18
+        height: 17
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -886,12 +886,12 @@ TextureImporter:
       name: decorative_props_20
       rect:
         serializedVersion: 2
-        x: 307
-        y: 322
-        width: 12
-        height: 8
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 308
+        y: 323
+        width: 10
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -908,12 +908,12 @@ TextureImporter:
       name: decorative_props_21
       rect:
         serializedVersion: 2
-        x: 324
-        y: 320
-        width: 28
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 325
+        y: 328
+        width: 21
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -930,12 +930,12 @@ TextureImporter:
       name: decorative_props_24
       rect:
         serializedVersion: 2
-        x: 352
-        y: 321
-        width: 30
-        height: 18
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 448
+        y: 290
+        width: 59
+        height: 62
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -952,12 +952,12 @@ TextureImporter:
       name: decorative_props_26
       rect:
         serializedVersion: 2
-        x: 447
-        y: 289
-        width: 61
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 344
+        y: 321
+        width: 8
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -974,12 +974,12 @@ TextureImporter:
       name: decorative_props_27
       rect:
         serializedVersion: 2
-        x: 308
-        y: 307
-        width: 13
-        height: 13
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 309
+        y: 308
+        width: 11
+        height: 11
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -996,12 +996,12 @@ TextureImporter:
       name: decorative_props_28
       rect:
         serializedVersion: 2
-        x: 327
-        y: 292
-        width: 19
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 336
+        y: 304
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1018,12 +1018,12 @@ TextureImporter:
       name: decorative_props_29
       rect:
         serializedVersion: 2
-        x: 363
-        y: 294
-        width: 15
-        height: 26
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 364
+        y: 311
+        width: 12
+        height: 8
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1040,12 +1040,12 @@ TextureImporter:
       name: decorative_props_30
       rect:
         serializedVersion: 2
-        x: 256
-        y: 287
-        width: 13
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 257
+        y: 288
+        width: 11
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1062,12 +1062,12 @@ TextureImporter:
       name: decorative_props_31
       rect:
         serializedVersion: 2
-        x: 298
-        y: 292
-        width: 10
-        height: 7
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 299
+        y: 293
+        width: 8
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1084,12 +1084,12 @@ TextureImporter:
       name: decorative_props_34
       rect:
         serializedVersion: 2
-        x: 305
-        y: 270
-        width: 16
-        height: 10
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 328
+        y: 280
+        width: 11
+        height: 8
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1106,12 +1106,12 @@ TextureImporter:
       name: decorative_props_35
       rect:
         serializedVersion: 2
-        x: 327
-        y: 278
-        width: 38
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 343
+        y: 277
+        width: 9
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1128,12 +1128,12 @@ TextureImporter:
       name: decorative_props_38
       rect:
         serializedVersion: 2
-        x: 142
-        y: 191
-        width: 43
-        height: 72
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 143
+        y: 192
+        width: 41
+        height: 70
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1150,12 +1150,12 @@ TextureImporter:
       name: decorative_props_39
       rect:
         serializedVersion: 2
-        x: 265
-        y: 260
-        width: 16
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 266
+        y: 261
+        width: 14
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1172,12 +1172,12 @@ TextureImporter:
       name: decorative_props_40
       rect:
         serializedVersion: 2
-        x: 447
-        y: 160
-        width: 65
-        height: 106
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 448
+        y: 161
+        width: 64
+        height: 104
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1194,12 +1194,12 @@ TextureImporter:
       name: decorative_props_41
       rect:
         serializedVersion: 2
-        x: 6
-        y: 191
-        width: 45
-        height: 63
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 7
+        y: 192
+        width: 43
+        height: 61
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1216,12 +1216,12 @@ TextureImporter:
       name: decorative_props_42
       rect:
         serializedVersion: 2
-        x: 78
-        y: 191
-        width: 43
-        height: 56
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 79
+        y: 192
+        width: 41
+        height: 54
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1238,12 +1238,12 @@ TextureImporter:
       name: decorative_props_44
       rect:
         serializedVersion: 2
-        x: 242
-        y: 199
-        width: 29
-        height: 26
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 259
+        y: 211
+        width: 11
+        height: 13
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1260,12 +1260,12 @@ TextureImporter:
       name: decorative_props_45
       rect:
         serializedVersion: 2
-        x: 324
-        y: 204
-        width: 11
-        height: 9
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 325
+        y: 205
+        width: 9
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1282,12 +1282,12 @@ TextureImporter:
       name: decorative_props_46
       rect:
         serializedVersion: 2
-        x: 355
-        y: 203
-        width: 11
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 356
+        y: 204
+        width: 9
+        height: 10
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1304,12 +1304,12 @@ TextureImporter:
       name: decorative_props_47
       rect:
         serializedVersion: 2
-        x: 287
-        y: 191
-        width: 13
-        height: 17
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 288
+        y: 192
+        width: 11
+        height: 15
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1326,12 +1326,12 @@ TextureImporter:
       name: decorative_props_48
       rect:
         serializedVersion: 2
-        x: 319
-        y: 201
-        width: 9
-        height: 7
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 320
+        y: 202
+        width: 7
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1348,12 +1348,12 @@ TextureImporter:
       name: decorative_props_49
       rect:
         serializedVersion: 2
-        x: 372
-        y: 193
-        width: 13
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 373
+        y: 194
+        width: 11
+        height: 10
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1370,12 +1370,12 @@ TextureImporter:
       name: decorative_props_50
       rect:
         serializedVersion: 2
-        x: 231
-        y: 167
-        width: 16
-        height: 15
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 232
+        y: 168
+        width: 14
+        height: 13
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1392,12 +1392,12 @@ TextureImporter:
       name: decorative_props_51
       rect:
         serializedVersion: 2
-        x: 259
-        y: 166
-        width: 14
-        height: 13
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 300
+        y: 173
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1414,12 +1414,12 @@ TextureImporter:
       name: decorative_props_53
       rect:
         serializedVersion: 2
-        x: 292
-        y: 171
-        width: 16
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 342
+        y: 179
+        width: 5
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1436,12 +1436,12 @@ TextureImporter:
       name: decorative_props_57
       rect:
         serializedVersion: 2
-        x: 356
-        y: 162
-        width: 25
-        height: 26
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 295
+        y: 174
+        width: 5
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1458,12 +1458,12 @@ TextureImporter:
       name: decorative_props_59
       rect:
         serializedVersion: 2
-        x: 324
-        y: 169
-        width: 23
-        height: 17
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 357
+        y: 172
+        width: 8
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1480,12 +1480,12 @@ TextureImporter:
       name: decorative_props_61
       rect:
         serializedVersion: 2
-        x: 40
-        y: 142
-        width: 33
-        height: 21
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 41
+        y: 143
+        width: 31
+        height: 19
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1502,12 +1502,12 @@ TextureImporter:
       name: decorative_props_62
       rect:
         serializedVersion: 2
-        x: 77
-        y: 132
-        width: 22
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 107
+        y: 148
+        width: 13
+        height: 8
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1524,12 +1524,12 @@ TextureImporter:
       name: decorative_props_63
       rect:
         serializedVersion: 2
-        x: 106
-        y: 147
-        width: 15
-        height: 10
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 242
+        y: 136
+        width: 13
+        height: 12
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1546,12 +1546,12 @@ TextureImporter:
       name: decorative_props_65
       rect:
         serializedVersion: 2
-        x: 243
-        y: 135
-        width: 27
-        height: 26
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 324
+        y: 141
+        width: 9
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1568,12 +1568,12 @@ TextureImporter:
       name: decorative_props_66
       rect:
         serializedVersion: 2
-        x: 319
-        y: 137
-        width: 15
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 355
+        y: 140
+        width: 9
+        height: 10
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1590,12 +1590,12 @@ TextureImporter:
       name: decorative_props_67
       rect:
         serializedVersion: 2
-        x: 354
-        y: 139
-        width: 11
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 78
+        y: 133
+        width: 20
+        height: 14
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1612,12 +1612,12 @@ TextureImporter:
       name: decorative_props_68
       rect:
         serializedVersion: 2
-        x: 286
-        y: 127
-        width: 13
-        height: 17
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 287
+        y: 128
+        width: 11
+        height: 15
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1634,12 +1634,12 @@ TextureImporter:
       name: decorative_props_70
       rect:
         serializedVersion: 2
-        x: 371
-        y: 129
-        width: 13
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 372
+        y: 130
+        width: 11
+        height: 10
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1656,12 +1656,12 @@ TextureImporter:
       name: decorative_props_71
       rect:
         serializedVersion: 2
-        x: 40
-        y: 101
-        width: 33
-        height: 23
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 41
+        y: 102
+        width: 31
+        height: 21
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1678,12 +1678,12 @@ TextureImporter:
       name: decorative_props_72
       rect:
         serializedVersion: 2
-        x: 75
-        y: 113
-        width: 28
-        height: 18
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 76
+        y: 114
+        width: 26
+        height: 16
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1700,12 +1700,12 @@ TextureImporter:
       name: decorative_props_73
       rect:
         serializedVersion: 2
-        x: 120
-        y: 103
-        width: 16
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 231
+        y: 104
+        width: 14
+        height: 13
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1722,12 +1722,12 @@ TextureImporter:
       name: decorative_props_74
       rect:
         serializedVersion: 2
-        x: 230
-        y: 103
-        width: 16
-        height: 15
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 299
+        y: 109
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1744,12 +1744,12 @@ TextureImporter:
       name: decorative_props_75
       rect:
         serializedVersion: 2
-        x: 258
-        y: 102
-        width: 14
-        height: 13
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 324
+        y: 111
+        width: 6
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1766,12 +1766,12 @@ TextureImporter:
       name: decorative_props_77
       rect:
         serializedVersion: 2
-        x: 293
-        y: 108
-        width: 16
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 357
+        y: 116
+        width: 5
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1788,12 +1788,12 @@ TextureImporter:
       name: decorative_props_78
       rect:
         serializedVersion: 2
-        x: 323
-        y: 106
-        width: 24
-        height: 15
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 363
+        y: 110
+        width: 7
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1810,12 +1810,12 @@ TextureImporter:
       name: decorative_props_81
       rect:
         serializedVersion: 2
-        x: 356
-        y: 106
-        width: 15
-        height: 18
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 294
+        y: 110
+        width: 5
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1833,11 +1833,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 63
-        width: 33
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 64
+        width: 32
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1854,12 +1854,12 @@ TextureImporter:
       name: decorative_props_86
       rect:
         serializedVersion: 2
-        x: 33
-        y: 65
-        width: 29
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 34
+        y: 66
+        width: 27
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1876,12 +1876,12 @@ TextureImporter:
       name: decorative_props_87
       rect:
         serializedVersion: 2
-        x: 65
+        x: 66
         y: 0
-        width: 28
-        height: 97
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 26
+        height: 96
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1898,12 +1898,12 @@ TextureImporter:
       name: decorative_props_88
       rect:
         serializedVersion: 2
-        x: 97
-        y: 66
-        width: 30
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 98
+        y: 67
+        width: 28
+        height: 29
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1920,12 +1920,12 @@ TextureImporter:
       name: decorative_props_89
       rect:
         serializedVersion: 2
-        x: 131
-        y: 69
-        width: 27
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 132
+        y: 70
+        width: 25
+        height: 20
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1942,12 +1942,12 @@ TextureImporter:
       name: decorative_props_90
       rect:
         serializedVersion: 2
-        x: 177
-        y: 63
-        width: 34
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 178
+        y: 64
+        width: 32
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1964,12 +1964,12 @@ TextureImporter:
       name: decorative_props_91
       rect:
         serializedVersion: 2
-        x: 239
-        y: 64
-        width: 29
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 240
+        y: 65
+        width: 27
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1986,12 +1986,12 @@ TextureImporter:
       name: decorative_props_92
       rect:
         serializedVersion: 2
-        x: 308
+        x: 309
         y: 0
-        width: 28
-        height: 97
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 26
+        height: 96
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2008,12 +2008,12 @@ TextureImporter:
       name: decorative_props_93
       rect:
         serializedVersion: 2
-        x: 370
-        y: 63
-        width: 30
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 371
+        y: 64
+        width: 28
+        height: 29
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2030,12 +2030,12 @@ TextureImporter:
       name: decorative_props_94
       rect:
         serializedVersion: 2
-        x: 435
-        y: 67
-        width: 27
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 436
+        y: 68
+        width: 25
+        height: 20
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2053,11 +2053,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 31
-        width: 33
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        y: 32
+        width: 32
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2074,12 +2074,12 @@ TextureImporter:
       name: decorative_props_96
       rect:
         serializedVersion: 2
-        x: 33
-        y: 33
-        width: 29
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 34
+        y: 34
+        width: 27
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2096,12 +2096,12 @@ TextureImporter:
       name: decorative_props_97
       rect:
         serializedVersion: 2
-        x: 97
-        y: 34
-        width: 30
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 98
+        y: 35
+        width: 28
+        height: 29
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2118,12 +2118,12 @@ TextureImporter:
       name: decorative_props_98
       rect:
         serializedVersion: 2
-        x: 131
-        y: 37
-        width: 27
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 132
+        y: 38
+        width: 25
+        height: 20
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2140,12 +2140,12 @@ TextureImporter:
       name: decorative_props_99
       rect:
         serializedVersion: 2
-        x: 177
-        y: 31
-        width: 34
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 178
+        y: 32
+        width: 32
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2162,12 +2162,12 @@ TextureImporter:
       name: decorative_props_100
       rect:
         serializedVersion: 2
-        x: 239
-        y: 32
-        width: 29
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 240
+        y: 33
+        width: 27
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2184,12 +2184,12 @@ TextureImporter:
       name: decorative_props_101
       rect:
         serializedVersion: 2
-        x: 370
-        y: 31
-        width: 30
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 371
+        y: 32
+        width: 28
+        height: 29
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2206,12 +2206,12 @@ TextureImporter:
       name: decorative_props_102
       rect:
         serializedVersion: 2
-        x: 435
-        y: 35
-        width: 27
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 436
+        y: 36
+        width: 25
+        height: 20
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2230,10 +2230,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 33
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 32
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2250,12 +2250,12 @@ TextureImporter:
       name: decorative_props_104
       rect:
         serializedVersion: 2
-        x: 33
-        y: 1
-        width: 29
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 34
+        y: 2
+        width: 27
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2272,12 +2272,12 @@ TextureImporter:
       name: decorative_props_105
       rect:
         serializedVersion: 2
-        x: 97
-        y: 2
-        width: 30
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 98
+        y: 3
+        width: 28
+        height: 29
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2294,12 +2294,12 @@ TextureImporter:
       name: decorative_props_106
       rect:
         serializedVersion: 2
-        x: 131
-        y: 5
-        width: 27
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 132
+        y: 6
+        width: 25
+        height: 20
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2316,12 +2316,12 @@ TextureImporter:
       name: decorative_props_107
       rect:
         serializedVersion: 2
-        x: 177
+        x: 178
         y: 0
-        width: 34
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 32
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2338,12 +2338,12 @@ TextureImporter:
       name: decorative_props_108
       rect:
         serializedVersion: 2
-        x: 239
-        y: 0
-        width: 29
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 240
+        y: 1
+        width: 27
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2360,12 +2360,12 @@ TextureImporter:
       name: decorative_props_109
       rect:
         serializedVersion: 2
-        x: 370
+        x: 371
         y: 0
-        width: 30
-        height: 30
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 28
+        height: 29
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2382,12 +2382,12 @@ TextureImporter:
       name: decorative_props_110
       rect:
         serializedVersion: 2
-        x: 435
-        y: 3
-        width: 27
-        height: 22
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 436
+        y: 4
+        width: 25
+        height: 20
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2396,6 +2396,490 @@ TextureImporter:
       bones: []
       spriteID: 4f4e3f5cd2a5722a0800000000000000
       internalID: -6762337162832386828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_22
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 322
+        width: 16
+        height: 16
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54b32eb9a5b3d3b4a9f333c9ed45c4b9
+      internalID: 2053113619139583294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_23
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 323
+        width: 9
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c7e269611f51724bb6d0942d95e39b9
+      internalID: -16993695087110111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_25
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 320
+        width: 12
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0dd6b931dee283146a9b8496b0d71dfa
+      internalID: -4934473219586607067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_32
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 292
+        width: 12
+        height: 11
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3e88f89514b61a94898b3cff246b78d7
+      internalID: -3556226290892172191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_33
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 295
+        width: 8
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b579cad38fdf4c841a26869787eacdd7
+      internalID: 2711695617119107336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_36
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 280
+        width: 8
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8efcc79ecbf44224193e86de5249f21a
+      internalID: -5994144206767404282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_37
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 271
+        width: 14
+        height: 8
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 15c9c107fec0e6549a10fc89be4c8768
+      internalID: -4159454946855893122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_43
+      rect:
+        serializedVersion: 2
+        x: 243
+        y: 200
+        width: 13
+        height: 12
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 33ca5e7de7dc78044819fd6798d11d42
+      internalID: 6234386295041308304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_52
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 175
+        width: 6
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eaede61f63477e5448aa7c3d00157c07
+      internalID: 5199631508323728016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_54
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 180
+        width: 5
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 92f51a8724c080b45a93dc103883bf59
+      internalID: -8441482468752124649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_55
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 174
+        width: 7
+        height: 9
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4da038084439ddd4faa17a2279b854bd
+      internalID: 1790260422883046622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_56
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 167
+        width: 12
+        height: 11
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 901e9ac268627834b9d225a880784011
+      internalID: 674171947348774960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_58
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 170
+        width: 6
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf4a77d15bf886a49b3920f5416d43a4
+      internalID: -2323187308736535015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_60
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 163
+        width: 7
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0db4393bd41868940878187fba16cd47
+      internalID: 6720906005410468431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_64
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 147
+        width: 11
+        height: 13
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f0c105d0d662160478a60d61fd26322d
+      internalID: 944534221634756273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_69
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 138
+        width: 7
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 538c0f0324100c940a4a2e50be62ed95
+      internalID: -8945433034771292877
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_76
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 115
+        width: 5
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2604cf2272af79547a702c005e55b7b2
+      internalID: -2040480014201236462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_79
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 104
+        width: 14
+        height: 10
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e8f856154c1059e4aaf3e1e8eb5690fb
+      internalID: 8377766317815674259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_80
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 103
+        width: 12
+        height: 11
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b04448f715857e4681cdc23505d6473
+      internalID: -2901610988231653065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_82
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 106
+        width: 6
+        height: 6
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f7e7ec8836738a4458b53ac5905b6cfb
+      internalID: -3175815289101996282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_83
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 108
+        width: 8
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71f9633755fb6fd49ae9653f05240092
+      internalID: -3811682719153251828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: decorative_props_84
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 99
+        width: 7
+        height: 7
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: affcc5bd1f8a7df4ebfb4fd205cd4d74
+      internalID: 2057696430633876903
       vertices: []
       indices: 
       edges: []
@@ -2412,7 +2896,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":100.0,"y":100.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.10000000149011612},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       decorative_props_0: 4028231100219441733
       decorative_props_1: -3434129433948509968
