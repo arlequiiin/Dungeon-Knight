@@ -122,89 +122,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wizard-DEATH_0
+      name: Wizard-Death_0
       rect:
         serializedVersion: 2
-        x: 41
-        y: 39
-        width: 19
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: fc3bbc8685a4003d0800000000000000
-      internalID: -3242509988130999345
+      spriteID: 8a89baf82dcb7174689dfc75f7fcd02d
+      internalID: -1170504069
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wizard-DEATH_1
+      name: Wizard-Death_1
       rect:
         serializedVersion: 2
-        x: 141
-        y: 39
-        width: 19
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 100
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 913914b0ac58bf150800000000000000
-      internalID: 5907462439045272345
+      spriteID: b2f7f5e8dea90804e8f8d8c23b604076
+      internalID: 707514487
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wizard-DEATH_2
+      name: Wizard-Death_2
       rect:
         serializedVersion: 2
-        x: 242
-        y: 39
-        width: 23
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 200
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a24c5a3307a119470800000000000000
-      internalID: 8399523849227846698
+      spriteID: 20dcb17cc3c99e84ba78e39a5c73c200
+      internalID: -672840764
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Wizard-DEATH_3
+      name: Wizard-Death_3
       rect:
         serializedVersion: 2
-        x: 342
-        y: 39
-        width: 34
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 300
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b0718651abf9b8ba0800000000000000
-      internalID: -6085594849889216757
+      spriteID: 6edbdc1f448813847ba424037483d830
+      internalID: 227203222
       vertices: []
       indices: 
       edges: []
@@ -213,7 +213,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b2bb23c2a7afd5540ba4d7f1828b2d84
     internalID: 0
     vertices: []
     indices: 
@@ -221,12 +221,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":100.0,"y":100.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.44999998807907107},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Wizard-DEATH_0: -3242509988130999345
-      Wizard-DEATH_1: 5907462439045272345
-      Wizard-DEATH_2: 8399523849227846698
-      Wizard-DEATH_3: -6085594849889216757
+      Wizard-Death_0: -1170504069
+      Wizard-Death_1: 707514487
+      Wizard-Death_2: -672840764
+      Wizard-Death_3: 227203222
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

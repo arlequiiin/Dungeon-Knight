@@ -1,0 +1,53 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "HeroData", menuName = "Dungeon Knight/Hero Data")]
+public class HeroData : ScriptableObject
+{
+    [Header("Основное")]
+    public string heroName;
+    public HeroType heroType;
+    public bool unlockedByDefault;
+
+    [Header("Характеристики")]
+    public float maxHealth = 100f;
+    public float maxEnergy = 100f;
+    public float moveSpeed = 5f;
+
+    [Header("Атаки")]
+    public int attackCount = 2;         // 1 или 2
+    public float attack1Damage = 15f;
+    public float attack2Damage = 25f;   // игнорируется если attackCount == 1
+    public float attackCooldown = 0.5f;
+
+    [Header("Замедление при атаке")]
+    [Range(0f, 1f)]
+    public float attackSlowMultiplier = 0.3f;   // множитель скорости во время атаки (0.3 = 30% скорости)
+    public float attackSlowDuration = 0.4f;     // длительность замедления
+
+    [Header("Поиск цели при атаке")]
+    public float targetSearchRadius = 5f;       // радиус поиска ближайшего врага
+
+    [Header("Уклонение")]
+    public float dodgeForce = 8f;
+    public float dodgeCooldown = 1f;
+    public float dodgeDuration = 0.25f;         // длительность рывка (iframes)
+
+    [Header("Коллайдеры оружия (мили)")]
+    [Tooltip("Префабы хитбоксов для каждой атаки. [0]=Attack1, [1]=Attack2, [2]=Ability1 и т.д.")]
+    public GameObject[] weaponHitboxPrefabs;   // каждый префаб — свой Collider2D + WeaponHitbox
+
+    [Header("Визуал")]
+    public RuntimeAnimatorController animatorController;
+    public Sprite icon;
+}
+
+public enum HeroType
+{
+    Soldier,
+    Knight,
+    Templar,
+    Swordsman,
+    Archer,
+    Wizard,
+    Priest
+}

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dd56b2ccf9b7a94eb1977380af4c87a, type: 3}
+  m_Name: Soldier
+  m_EditorClassIdentifier: Assembly-CSharp::HeroData
+  heroName: Soldier
+  heroType: 0
+  unlockedByDefault: 0
+  maxHealth: 100
+  maxEnergy: 100
+  moveSpeed: 5
+  attackCount: 4
+  attack1Damage: 15
+  attack2Damage: 25
+  attackCooldown: 0.5
+  attackSlowMultiplier: 0.3
+  attackSlowDuration: 0.4
+  targetSearchRadius: 5
+  dodgeForce: 8
+  dodgeCooldown: 1
+  dodgeDuration: 0.25
+  weaponHitboxPrefabs:
+  - {fileID: 7766938299258767726, guid: 30b73c573ddfe224dbbf283c80e9d4fc, type: 3}
+  - {fileID: 3568726034141978239, guid: 9a1a0043a80447447833c03f640f64e0, type: 3}
+  animatorController: {fileID: 9100000, guid: e62bc7b89cf62ff46870742db6e811bb, type: 2}
+  icon: {fileID: -7978735674136817684, guid: ace45bd4107c97542a80320b0046c530, type: 3}

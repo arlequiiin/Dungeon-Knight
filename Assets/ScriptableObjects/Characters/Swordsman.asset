@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dd56b2ccf9b7a94eb1977380af4c87a, type: 3}
+  m_Name: Swordsman
+  m_EditorClassIdentifier: Assembly-CSharp::HeroData
+  heroName: Swordsman
+  heroType: 3
+  unlockedByDefault: 0
+  maxHealth: 100
+  maxEnergy: 100
+  moveSpeed: 5
+  attackCount: 4
+  attack1Damage: 15
+  attack2Damage: 25
+  attackCooldown: 0.5
+  attackSlowMultiplier: 0.3
+  attackSlowDuration: 0.4
+  targetSearchRadius: 5
+  dodgeForce: 8
+  dodgeCooldown: 1
+  dodgeDuration: 0.25
+  weaponHitboxPrefabs:
+  - {fileID: 4570138292785041139, guid: 801a520b4d616ac4d972e922282f95e3, type: 3}
+  - {fileID: 3414452054502492863, guid: f80f52c96445f154ead22cc3460f0c42, type: 3}
+  - {fileID: 337345033862142254, guid: f03916f1713a8ef42b998a2da4ee77f8, type: 3}
+  animatorController: {fileID: 9100000, guid: 94541362fc5d9d44fba8975e76e2fae7, type: 2}
+  icon: {fileID: 5692671443236587484, guid: 5495e9585481fc64cbfd905ce86d6ec3, type: 3}
