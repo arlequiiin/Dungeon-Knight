@@ -137,12 +137,12 @@ TextureImporter:
       name: Soldier-Walk_0
       rect:
         serializedVersion: 2
-        x: 40
-        y: 39
-        width: 19
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -159,12 +159,12 @@ TextureImporter:
       name: Soldier-Walk_1
       rect:
         serializedVersion: 2
-        x: 140
-        y: 39
-        width: 19
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 100
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -181,12 +181,12 @@ TextureImporter:
       name: Soldier-Walk_2
       rect:
         serializedVersion: 2
-        x: 240
-        y: 39
-        width: 19
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 200
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -203,12 +203,12 @@ TextureImporter:
       name: Soldier-Walk_3
       rect:
         serializedVersion: 2
-        x: 340
-        y: 39
-        width: 19
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 300
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -225,12 +225,12 @@ TextureImporter:
       name: Soldier-Walk_4
       rect:
         serializedVersion: 2
-        x: 440
-        y: 39
-        width: 19
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 400
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -247,12 +247,12 @@ TextureImporter:
       name: Soldier-Walk_5
       rect:
         serializedVersion: 2
-        x: 540
-        y: 39
-        width: 19
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 500
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -269,12 +269,12 @@ TextureImporter:
       name: Soldier-Walk_6
       rect:
         serializedVersion: 2
-        x: 640
-        y: 39
-        width: 19
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 600
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -291,12 +291,12 @@ TextureImporter:
       name: Soldier-Walk_7
       rect:
         serializedVersion: 2
-        x: 740
-        y: 39
-        width: 19
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 700
+        y: 0
+        width: 100
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -313,7 +313,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 46a724ad65e50e441a361d0c254724e4
     internalID: 0
     vertices: []
     indices: 
@@ -321,7 +321,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":100.0,"y":100.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.44999998807907107},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Soldier-Walk_0: -6369722787752497797
       Soldier-Walk_1: -4195647796165820189

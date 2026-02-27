@@ -16,7 +16,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Attack",
+                    "name": "Attack1",
                     "type": "Button",
                     "id": "1b5e4bc6-3670-4363-87eb-b851aecd4a9f",
                     "expectedControlType": "",
@@ -25,9 +25,36 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Ability",
+                    "name": "Attack2",
+                    "type": "Button",
+                    "id": "a2c5e8d1-4521-4b3f-9812-c7e3f6a1b2d4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Ability1",
                     "type": "Button",
                     "id": "441679eb-2151-4a5e-97e5-61d40a9c4d66",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Ability2",
+                    "type": "Button",
+                    "id": "b3d7f2e1-8934-4c5a-b621-d4e8f1a2c3b5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Dodge",
+                    "type": "Button",
+                    "id": "c4e8a3f2-9045-4d6b-c732-e5f9a2b3d4c6",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -44,17 +71,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "9653ad0c-0c9d-4138-862e-97f8df91dfec",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Attack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "2D Vector",
                     "id": "d914e924-676e-467e-91a1-83f4b0d5eb11",
@@ -112,19 +128,63 @@
                 },
                 {
                     "name": "",
+                    "id": "9653ad0c-0c9d-4138-862e-97f8df91dfec",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "d2c64448-f130-4821-9713-3cc4b7572ae0",
                     "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Ability",
+                    "action": "Ability1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e3d75559-a241-5932-0824-4dd5c8683fa1",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Ability2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a9b8c7d6-e5f4-3210-fedc-ba9876543210",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dodge",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "9a31da57-2fe8-480d-a9e2-7442bbff070e",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
