@@ -34,6 +34,7 @@ public class SkeletonAI : NetworkBehaviour
     private Vector2 roomCenter;
     private float attackTimer;
     private float patrolTimer;
+    private bool isWaitingAtPatrolPoint;
 
     private enum State { Patrol, Chase, Attack }
     private State state = State.Patrol;
@@ -102,14 +103,29 @@ public class SkeletonAI : NetworkBehaviour
         {
             target = player;
             state = State.Chase;
+            isWaitingAtPatrolPoint = false;
             return;
         }
 
-        // Ждём и переходим к новой точке патруля
-        patrolTimer -= Time.deltaTime;
-        if (patrolTimer <= 0f || !agent.hasPath || agent.remainingDistance < 0.3f)
+        if (isWaitingAtPatrolPoint)
         {
-            SetPatrolDestination();
+            // Стоим на месте, ждём окончания таймера
+            patrolTimer -= Time.deltaTime;
+            if (patrolTimer <= 0f)
+            {
+                isWaitingAtPatrolPoint = false;
+                SetPatrolDestination();
+            }
+        }
+        else
+        {
+            // Идём к точке патруля, проверяем дошли ли
+            if (!agent.hasPath || agent.remainingDistance < 0.3f)
+            {
+                isWaitingAtPatrolPoint = true;
+                patrolTimer = Random.Range(patrolWaitMin, patrolWaitMax);
+                agent.ResetPath();
+            }
         }
     }
 
@@ -183,8 +199,6 @@ public class SkeletonAI : NetworkBehaviour
 
     private void SetPatrolDestination()
     {
-        patrolTimer = Random.Range(patrolWaitMin, patrolWaitMax);
-
         // Случайная точка внутри патрульного радиуса
         Vector2 offset = Random.insideUnitCircle * patrolRadius;
         Vector3 dest = new Vector3(roomCenter.x + offset.x, roomCenter.y + offset.y, 0f);

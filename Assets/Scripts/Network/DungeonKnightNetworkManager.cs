@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
@@ -7,17 +8,37 @@ public class DungeonKnightNetworkManager : NetworkManager
     [SerializeField] private GridWalkConfig dungeonConfig;
 
     [Header("Герои")]
-    // Временно: один тип героя для всех. Заменить на выбор из лобби.
     [SerializeField] private HeroData defaultHeroData;
+    [SerializeField] private HeroData[] allHeroes;
+    public HeroData[] AllHeroes => allHeroes;
+
+    [Header("Лобби")]
+    [SerializeField] private Vector2 lobbySpawnPoint = Vector2.zero;
 
     private int authoritativeSeed;
     private bool dungeonGenerated;
+
+    // Хранит выбор героя каждого подключённого игрока (переживает смену сцен)
+    private readonly Dictionary<NetworkConnectionToClient, HeroType> selectedHeroes = new();
 
     public override void OnStartServer()
     {
         base.OnStartServer();
         dungeonGenerated = false;
+        selectedHeroes.Clear();
         NetworkServer.RegisterHandler<RequestSeedMessage>(OnClientRequestedSeed);
+    }
+
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+        selectedHeroes.Remove(conn);
+
+        // Оповещаем LobbyManager чтобы он обновил бродкаст
+        var lobbyManager = FindAnyObjectByType<LobbyManager>();
+        if (lobbyManager != null)
+            lobbyManager.OnPlayerDisconnected(conn);
+
+        base.OnServerDisconnect(conn);
     }
 
     public override void OnStartClient()
@@ -34,6 +55,47 @@ public class DungeonKnightNetworkManager : NetworkManager
         if (!sceneName.Contains("SampleScene")) return;
 
         GenerateDungeonOnServer();
+        ReinitPlayersForDungeon();
+    }
+
+    private void ReinitPlayersForDungeon()
+    {
+        var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
+        Vector2 spawnPos = Vector2.zero;
+        if (dungeonGen?.Generator != null)
+            spawnPos = dungeonGen.Generator.StartCell.RoomCenter;
+
+        foreach (var conn in NetworkServer.connections.Values)
+        {
+            if (conn == null) continue;
+
+            // Если у игрока уже есть объект (перенесён через DontDestroyOnLoad)
+            if (conn.identity != null)
+            {
+                var player = conn.identity.gameObject;
+                player.transform.position = spawnPos;
+
+                HeroType heroType = selectedHeroes.TryGetValue(conn, out var ht)
+                    ? ht
+                    : defaultHeroData.heroType;
+
+                ReinitHeroOnPlayer(player, GetHeroData(heroType) ?? defaultHeroData);
+                Debug.Log($"[Network] Reinit player {conn.connectionId} as {heroType} at {spawnPos}");
+            }
+            else
+            {
+                // Объект не перенёсся — создаём заново
+                Debug.Log($"[Network] Respawning player {conn.connectionId}");
+                GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
+                HeroData data = selectedHeroes.TryGetValue(conn, out var ht)
+                    ? GetHeroData(ht) ?? defaultHeroData
+                    : defaultHeroData;
+
+                InitHeroOnPlayer(player, data);
+                NetworkServer.AddPlayerForConnection(conn, player);
+            }
+        }
     }
 
     public override void OnClientConnect()
@@ -76,23 +138,70 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (conn.identity != null) return;
 
-        SpawnPlayerForConnection(conn);
-    }
-
-    private void SpawnPlayerForConnection(NetworkConnectionToClient conn)
-    {
-        Vector2 spawnPos = Vector2.zero;
+        // В лобби — спавн на фиксированной позиции с дефолтным героем
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
-        if (dungeonGen != null && dungeonGen.Generator != null)
-            spawnPos = dungeonGen.Generator.StartCell.RoomCenter;
+        bool inDungeon = dungeonGen != null && dungeonGen.Generator != null;
+
+        Vector2 spawnPos = inDungeon
+            ? (Vector2)dungeonGen.Generator.StartCell.RoomCenter
+            : lobbySpawnPoint;
 
         GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
 
-        // Применяем данные героя и добавляем нужный компонент способностей
-        if (defaultHeroData != null)
-            InitHeroOnPlayer(player, defaultHeroData);
+        HeroData data = defaultHeroData;
+        if (inDungeon && selectedHeroes.TryGetValue(conn, out var heroType))
+            data = GetHeroData(heroType) ?? defaultHeroData;
+
+        if (data != null)
+            InitHeroOnPlayer(player, data);
 
         NetworkServer.AddPlayerForConnection(conn, player);
+    }
+
+    // ── Публичные методы для LobbyManager ──
+
+    public HeroData GetHeroData(HeroType type)
+    {
+        if (allHeroes == null) return null;
+        foreach (var h in allHeroes)
+            if (h != null && h.heroType == type) return h;
+        return null;
+    }
+
+    public void SetHeroForConnection(NetworkConnectionToClient conn, HeroType type)
+    {
+        selectedHeroes[conn] = type;
+
+        // Сразу обновляем визуал игрока в лобби
+        if (conn.identity != null)
+        {
+            var data = GetHeroData(type);
+            if (data != null)
+                ReinitHeroOnPlayer(conn.identity.gameObject, data);
+        }
+    }
+
+    public void ClearHeroSelection(NetworkConnectionToClient conn)
+    {
+        selectedHeroes.Remove(conn);
+    }
+
+    public void StartGame()
+    {
+        ServerChangeScene("SampleScene");
+    }
+
+    private void ReinitHeroOnPlayer(GameObject player, HeroData data)
+    {
+        // Удаляем старый компонент способностей
+        var oldAbility = player.GetComponent<HeroAbility>();
+        if (oldAbility != null) Destroy(oldAbility);
+
+        // Удаляем старые хитбоксы оружия
+        foreach (var hitbox in player.GetComponentsInChildren<WeaponHitbox>())
+            Destroy(hitbox.gameObject);
+
+        InitHeroOnPlayer(player, data);
     }
 
     private void InitHeroOnPlayer(GameObject player, HeroData data)

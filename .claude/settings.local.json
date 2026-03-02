@@ -11,7 +11,10 @@
       "Bash(git push:*)",
       "Bash(git filter-branch:*)",
       "Bash(git stash:*)",
-      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch:*)"
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch:*)",
+      "Bash(find:*)",
+      "Bash(grep -l \"Rigidbody2D\" \"d:/GitHub/Dungeon Knight/Assets/Prefabs/Undead Crypt/Mobs\"/*.prefab)",
+      "Bash(xargs grep -l \"Collider2D\\\\|Rigidbody2D\")"
     ],
     "deny": [],
     "ask": []

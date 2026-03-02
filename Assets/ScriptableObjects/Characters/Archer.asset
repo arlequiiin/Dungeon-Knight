@@ -22,7 +22,12 @@ MonoBehaviour:
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
+  attackSlowMultiplier: 0.3
+  attackSlowDuration: 0.4
+  targetSearchRadius: 5
   dodgeForce: 8
   dodgeCooldown: 1
-  animatorController: {fileID: 0}
-  icon: {fileID: 0}
+  dodgeDuration: 0.25
+  weaponHitboxPrefabs: []
+  animatorController: {fileID: 9100000, guid: ef42d687d294d454395ec501bd2632d6, type: 2}
+  icon: {fileID: 5420657165879536120, guid: ef755bc4cd693be408a31600c474df46, type: 3}

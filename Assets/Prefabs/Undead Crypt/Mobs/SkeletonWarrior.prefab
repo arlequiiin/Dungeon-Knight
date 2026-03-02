@@ -228,11 +228,11 @@ NavMeshAgent:
   m_GameObject: {fileID: 5303612760217901525}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.15
-  m_Speed: 1.5
+  m_Radius: 0.08
+  m_Speed: 1
   m_Acceleration: 4
   avoidancePriority: 50
-  m_AngularSpeed: 60
+  m_AngularSpeed: 120
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
@@ -275,7 +275,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.079292625, y: 0.17156118}
+  m_Offset: {x: 0.09435141, y: 0.17637998}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.45}
@@ -285,7 +285,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.3761863, y: 0.48610127}
+  m_Size: {x: 0.31715584, y: 0.47646368}
   m_EdgeRadius: 0
 --- !u!50 &5027869753513373079
 Rigidbody2D:
@@ -372,9 +372,9 @@ MonoBehaviour:
   attackRange: 1
   attackDamage: 10
   attackCooldown: 3
-  patrolRadius: 2.5
-  patrolWaitMin: 2
-  patrolWaitMax: 3
+  patrolRadius: 2
+  patrolWaitMin: 3
+  patrolWaitMax: 4
 --- !u!1 &8980876503294695921
 GameObject:
   m_ObjectHideFlags: 0

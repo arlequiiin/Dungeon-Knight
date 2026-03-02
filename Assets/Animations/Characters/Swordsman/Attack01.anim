@@ -34,6 +34,16 @@ AnimationClip:
       value: {fileID: -5823981665686509807, guid: 8a1e616e4e328d84e834c34c16bd94e2, type: 3}
     - time: 0.75
       value: {fileID: 189638783745283997, guid: 8a1e616e4e328d84e834c34c16bd94e2, type: 3}
+    - time: 0.875
+      value: {fileID: 3355986937163863063, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - time: 1
+      value: {fileID: 851498764899440770, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - time: 1.125
+      value: {fileID: 6575140906490072880, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - time: 1.25
+      value: {fileID: 8095548081446444642, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - time: 1.375
+      value: {fileID: 7525336829939302951, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -63,12 +73,17 @@ AnimationClip:
     - {fileID: 761415504712278719, guid: 8a1e616e4e328d84e834c34c16bd94e2, type: 3}
     - {fileID: -5823981665686509807, guid: 8a1e616e4e328d84e834c34c16bd94e2, type: 3}
     - {fileID: 189638783745283997, guid: 8a1e616e4e328d84e834c34c16bd94e2, type: 3}
+    - {fileID: 3355986937163863063, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - {fileID: 851498764899440770, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - {fileID: 6575140906490072880, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - {fileID: 8095548081446444642, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
+    - {fileID: 7525336829939302951, guid: 764aa54abf7cf624ea0f130f36d8b018, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.875
+    m_StopTime: 1.5
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -87,4 +102,32 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0.375
+    functionName: EnableHitbox
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.5
+    functionName: DisableHitbox
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.125
+    functionName: EnableHitbox
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.25
+    functionName: DisableHitbox
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0

@@ -17,13 +17,13 @@ MonoBehaviour:
   unlockedByDefault: 0
   maxHealth: 100
   maxEnergy: 100
-  moveSpeed: 5
+  moveSpeed: 3
   attackCount: 4
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
-  attackSlowMultiplier: 0.3
-  attackSlowDuration: 0.4
+  attackSlowMultiplier: 0.5
+  attackSlowDuration: 0.7
   targetSearchRadius: 5
   dodgeForce: 8
   dodgeCooldown: 1
