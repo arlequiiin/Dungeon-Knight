@@ -108,7 +108,13 @@ public class HeroStats : NetworkBehaviour
     {
         isDead = true;
         onDeath?.Invoke();
-        GetComponent<Animator>()?.SetTrigger("Death");
+
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.SetBool("IsMoving", false);
+            anim.SetTrigger("Death");
+        }
 
         // Останавливаем тело и отключаем управление
         var rb = GetComponent<Rigidbody2D>();

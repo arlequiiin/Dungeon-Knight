@@ -28,6 +28,8 @@ public class PlayerController : NetworkBehaviour
     // Последнее направление движения (для dodge когда стоим)
     private Vector2 lastMoveDir = Vector2.right;
 
+    public event System.Action onInteract;
+
     [SyncVar]
     private Vector2 syncMoveInput;
 
@@ -80,6 +82,7 @@ public class PlayerController : NetworkBehaviour
         input.Player.Ability1.performed += _ => TryAbility1();
         input.Player.Ability2.performed += _ => TryAbility2();
         input.Player.Dodge.performed += _ => TryDodge();
+        input.Player.Interaction.performed += _ => onInteract?.Invoke();
 
         var cam = Camera.main;
         if (cam != null)

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wizard
   m_EditorClassIdentifier: Assembly-CSharp::HeroData
   heroName: Wizard
-  heroType: 0
+  heroType: 5
   unlockedByDefault: 0
   maxHealth: 100
   maxEnergy: 100
