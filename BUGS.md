@@ -19,10 +19,13 @@
 - **Суть:** `SpendEnergy()` / `RestoreEnergy()` реализованы, но ни один герой не вызывает их. Abilities и Dodge бесконечны.
 - **Исправление:** добавить `SpendEnergy()` в каждый ability и dodge.
 
-### [BUG-004] MobHealth жёстко привязан к SkeletonAI
-- **Файл:** `Assets/Scripts/Mobs/MobHealth.cs` -> `RpcOnDeath()`
-- **Суть:** `Die()` напрямую отключает `SkeletonAI` компонент. Другие типы мобов (с другим AI скриптом) не будут корректно умирать.
-- **Исправление:** использовать интерфейс `IMobAI` или `GetComponent<NavMeshAgent>()` вместо прямой ссылки.
+### [BUG-004] ~~MobHealth жёстко привязан к SkeletonAI~~ ИСПРАВЛЕНО
+- Заменено на `GetComponent<MobAI>()` — работает с любыми наследниками.
+
+### [BUG-006] Камера не следует за игроком в лобби
+- **Файл:** `Assets/Scripts/PlayerController.cs` -> `OnStartLocalPlayer()`
+- **Суть:** `SetTarget()` вызывается в `OnStartLocalPlayer()`, который срабатывает один раз. При смене сцены камера на новой сцене не привязывается к игроку.
+- **Исправление:** привязывать камеру при каждой смене сцены или в `OnEnable()`.
 
 ## Low
 

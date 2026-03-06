@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 5027869753513373079}
   - component: {fileID: -3866325485526193589}
   - component: {fileID: 7445123941963839439}
-  - component: {fileID: -1065861325688521821}
+  - component: {fileID: 2079845734427192644}
   m_Layer: 0
   m_Name: SkeletonWarrior
   m_TagString: Untagged
@@ -141,6 +141,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3288362350610850482
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -186,6 +187,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 303854554312539980, guid: e112a46b2ff73af4f955d222fb0bc3f6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -195,7 +197,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!95 &3100055203816242208
 Animator:
@@ -351,7 +352,7 @@ MonoBehaviour:
   onDeath:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &-1065861325688521821
+--- !u!114 &2079845734427192644
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -360,21 +361,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 5303612760217901525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c2f7adf939f85c4aaa28cd7267469c8, type: 3}
+  m_Script: {fileID: 11500000, guid: c11fe0b9302243f4281ffdd8e47319af, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SkeletonAI
+  m_EditorClassIdentifier: Assembly-CSharp::SkeletonWarriorAI
   syncMethod: 0
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
   detectionRange: 5
   loseRange: 8
-  attackRange: 1
-  attackDamage: 10
-  attackCooldown: 3
-  patrolRadius: 2
-  patrolWaitMin: 3
-  patrolWaitMax: 4
+  attackRange: 0.8
+  attackCooldown: 1.2
+  patrolRadius: 2.5
+  patrolWaitMin: 1
+  patrolWaitMax: 3
+  attack1Damage: 10
 --- !u!1 &8980876503294695921
 GameObject:
   m_ObjectHideFlags: 0

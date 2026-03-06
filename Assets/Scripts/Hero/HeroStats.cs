@@ -107,16 +107,12 @@ public class HeroStats : NetworkBehaviour
     private void RpcOnDeath()
     {
         isDead = true;
-        onDeath?.Invoke();
 
-        var anim = GetComponent<Animator>();
-        if (anim != null)
-        {
-            anim.SetBool("IsMoving", false);
-            anim.SetTrigger("Death");
-        }
+        // Отключаем управление ПЕРВЫМ — чтобы FixedUpdate не перезаписал IsMoving
+        var controller = GetComponent<PlayerController>();
+        if (controller != null) controller.enabled = false;
 
-        // Останавливаем тело и отключаем управление
+        // Останавливаем тело
         var rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -124,7 +120,18 @@ public class HeroStats : NetworkBehaviour
             rb.bodyType = RigidbodyType2D.Static;
         }
 
-        GetComponent<PlayerController>().enabled = false;
+        // Анимация смерти
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.ResetTrigger("Attack1");
+            anim.ResetTrigger("Attack2");
+            anim.ResetTrigger("Hurt");
+            anim.SetBool("IsMoving", false);
+            anim.SetTrigger("Death");
+        }
+
+        onDeath?.Invoke();
     }
 
     // SyncVar hooks — вызываются на всех клиентах при изменении значения
