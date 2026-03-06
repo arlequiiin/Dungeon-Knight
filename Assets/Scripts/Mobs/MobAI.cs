@@ -3,13 +3,15 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// ИИ скелетона: патрулирует комнату, преследует игрока при обнаружении, атакует в ближнем бою.
+/// Абстрактный базовый класс для AI всех мобов.
+/// Содержит общую логику FSM, патрулирования, преследования, хитбоксов.
+/// Наследники переопределяют атаку и параметры.
 /// Работает только на сервере — NavMeshAgent и физика управляются сервером.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(MobHealth))]
 [RequireComponent(typeof(Animator))]
-public class SkeletonAI : NetworkBehaviour
+public abstract class MobAI : NetworkBehaviour
 {
     [Header("Обнаружение")]
     public float detectionRange = 5f;
@@ -17,7 +19,6 @@ public class SkeletonAI : NetworkBehaviour
 
     [Header("Атака")]
     public float attackRange = 0.8f;
-    public float attackDamage = 10f;
     public float attackCooldown = 1.2f;
 
     [Header("Патруль")]
@@ -25,35 +26,54 @@ public class SkeletonAI : NetworkBehaviour
     public float patrolWaitMin = 1f;
     public float patrolWaitMax = 3f;
 
-    private NavMeshAgent agent;
-    private Animator animator;
-    private MobHealth health;
-    private SpriteRenderer spriteRenderer;
+    // --- Компоненты ---
+    protected NavMeshAgent agent;
+    protected Animator animator;
+    protected MobHealth health;
+    protected SpriteRenderer spriteRenderer;
 
-    private Transform target;
-    private Vector2 roomCenter;
-    private float attackTimer;
+    // --- FSM ---
+    protected enum State { Patrol, Chase, Attack, HitReaction, Recovery }
+    protected State state = State.Patrol;
+
+    // --- Таргет ---
+    protected Transform target;
+    protected Vector2 roomCenter;
+
+    // --- Таймеры ---
+    protected float attackTimer;
     private float patrolTimer;
     private bool isWaitingAtPatrolPoint;
+    private float hitReactionTimer;
+    private float recoveryTimer;
 
-    private enum State { Patrol, Chase, Attack }
-    private State state = State.Patrol;
-
-    // SyncVar для анимации на клиентах
-    [SyncVar] private bool isMoving;
-    [SyncVar] private bool isAttacking;
+    // --- SyncVar для анимации на клиентах ---
+    [SyncVar] private bool syncIsMoving;
 
     // --- Хитбоксы (аналогично HeroAbility) ---
     private WeaponHitbox[] weaponHitboxes;
-    private float pendingDamage;
-    private int pendingHitboxIndex;
+    protected float pendingDamage;
+    protected int pendingHitboxIndex;
+
+    // === Виртуальные параметры для наследников ===
+
+    /// <summary>Длительность flinch при получении урона.</summary>
+    protected virtual float HitReactionDuration => 0.3f;
+
+    /// <summary>Окно уязвимости после атаки.</summary>
+    protected virtual float RecoveryDuration => 0.4f;
+
+    /// <summary>Может ли моб быть прерван ударом (false = суперармор во время атаки).</summary>
+    protected virtual bool CanBeInterrupted => true;
+
+    // === Инициализация ===
 
     public void Init(Vector2 center)
     {
         roomCenter = center;
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
@@ -68,10 +88,12 @@ public class SkeletonAI : NetworkBehaviour
         weaponHitboxes = GetComponentsInChildren<WeaponHitbox>(true);
     }
 
+    // === Update: FSM dispatch ===
+
     private void Update()
     {
         // Анимации применяются на всех клиентах через SyncVar
-        animator.SetBool("IsMoving", isMoving);
+        animator.SetBool("IsMoving", syncIsMoving);
 
         if (!isServer) return;
         if (health.IsDead) return;
@@ -80,24 +102,24 @@ public class SkeletonAI : NetworkBehaviour
 
         switch (state)
         {
-            case State.Patrol: UpdatePatrol(); break;
-            case State.Chase:  UpdateChase();  break;
-            case State.Attack: UpdateAttack(); break;
+            case State.Patrol:      UpdatePatrol();      break;
+            case State.Chase:       UpdateChase();       break;
+            case State.Attack:      UpdateAttack();      break;
+            case State.HitReaction: UpdateHitReaction(); break;
+            case State.Recovery:    UpdateRecovery();    break;
         }
 
         // Обновляем SyncVar для анимации
         bool moving = agent.velocity.sqrMagnitude > 0.01f;
-        if (isMoving != moving) isMoving = moving;
+        if (syncIsMoving != moving) syncIsMoving = moving;
 
-        // Флип спрайта по направлению движения (через SyncVar или отдельный хук)
         FlipSprite();
     }
 
-    // --- Состояния ---
+    // === Состояния ===
 
     private void UpdatePatrol()
     {
-        // Ищем ближайшего игрока
         var player = FindNearestPlayer();
         if (player != null)
         {
@@ -109,7 +131,6 @@ public class SkeletonAI : NetworkBehaviour
 
         if (isWaitingAtPatrolPoint)
         {
-            // Стоим на месте, ждём окончания таймера
             patrolTimer -= Time.deltaTime;
             if (patrolTimer <= 0f)
             {
@@ -119,7 +140,6 @@ public class SkeletonAI : NetworkBehaviour
         }
         else
         {
-            // Идём к точке патруля, проверяем дошли ли
             if (!agent.hasPath || agent.remainingDistance < 0.3f)
             {
                 isWaitingAtPatrolPoint = true;
@@ -159,7 +179,11 @@ public class SkeletonAI : NetworkBehaviour
         agent.SetDestination(target.position);
     }
 
-    private void UpdateAttack()
+    /// <summary>
+    /// Логика атаки. Наследники могут переопределить для кастомного поведения.
+    /// По умолчанию: стоит в зоне атаки, бьёт по кулдауну, переходит в Recovery.
+    /// </summary>
+    protected virtual void UpdateAttack()
     {
         if (target == null || !IsTargetAlive())
         {
@@ -182,24 +206,94 @@ public class SkeletonAI : NetworkBehaviour
         {
             PerformAttack();
             attackTimer = attackCooldown;
+            // Переход в Recovery после атаки
+            EnterRecovery();
         }
     }
 
-    // --- Логика ---
-
-    private void PerformAttack()
+    private void UpdateHitReaction()
     {
-        // Поворачиваемся к цели перед атакой
+        agent.ResetPath();
+
+        hitReactionTimer -= Time.deltaTime;
+        if (hitReactionTimer <= 0f)
+        {
+            // После flinch — возврат в Chase (или Patrol если нет цели)
+            if (target != null && IsTargetAlive())
+                state = State.Chase;
+            else
+            {
+                target = null;
+                state = State.Patrol;
+                SetPatrolDestination();
+            }
+        }
+    }
+
+    private void UpdateRecovery()
+    {
+        agent.ResetPath();
+
+        recoveryTimer -= Time.deltaTime;
+        if (recoveryTimer <= 0f)
+        {
+            if (target != null && IsTargetAlive())
+                state = State.Chase;
+            else
+            {
+                target = null;
+                state = State.Patrol;
+                SetPatrolDestination();
+            }
+        }
+    }
+
+    // === Абстрактные методы для наследников ===
+
+    /// <summary>
+    /// Выполняет атаку: выбирает тип, вызывает PrepareHitbox + SetTrigger.
+    /// </summary>
+    protected abstract void PerformAttack();
+
+    // === Общая логика ===
+
+    /// <summary>
+    /// Вызывается из MobHealth.TakeDamage() — реакция на получение урона.
+    /// </summary>
+    public void OnHit()
+    {
+        if (!isServer) return;
+        if (health.IsDead) return;
+
+        // Прерывание зависит от CanBeInterrupted и текущего состояния
+        if (!CanBeInterrupted) return;
+        if (state == State.HitReaction) return; // уже в flinch
+
+        state = State.HitReaction;
+        hitReactionTimer = HitReactionDuration;
+        agent.ResetPath();
+    }
+
+    /// <summary>
+    /// Переводит моба в состояние Recovery (окно уязвимости после атаки).
+    /// </summary>
+    protected void EnterRecovery()
+    {
+        state = State.Recovery;
+        recoveryTimer = RecoveryDuration;
+    }
+
+    /// <summary>
+    /// Поворачивает спрайт к цели перед атакой.
+    /// </summary>
+    protected void FaceTarget()
+    {
         if (target != null && spriteRenderer != null)
             spriteRenderer.flipX = target.position.x < transform.position.x;
-
-        PrepareHitbox(0, attackDamage);
-        animator.SetTrigger("Attack1");
     }
 
     private void SetPatrolDestination()
     {
-        // Случайная точка внутри патрульного радиуса
         Vector2 offset = Random.insideUnitCircle * patrolRadius;
         Vector3 dest = new Vector3(roomCenter.x + offset.x, roomCenter.y + offset.y, 0f);
 
@@ -207,9 +301,8 @@ public class SkeletonAI : NetworkBehaviour
             agent.SetDestination(hit.position);
     }
 
-    private Transform FindNearestPlayer()
+    protected Transform FindNearestPlayer()
     {
-        // Ищем среди NetworkIdentity игроков ближайшего в радиусе обнаружения
         float bestDist = detectionRange;
         Transform best = null;
 
@@ -244,9 +337,9 @@ public class SkeletonAI : NetworkBehaviour
         else if (agent.velocity.x < -0.1f) spriteRenderer.flipX = true;
     }
 
-    // --- Animation Event методы (вызываются из анимации Attack1) ---
+    // === Animation Event методы ===
 
-    private void PrepareHitbox(int index, float damage)
+    protected void PrepareHitbox(int index, float damage)
     {
         pendingHitboxIndex = index;
         pendingDamage = damage;

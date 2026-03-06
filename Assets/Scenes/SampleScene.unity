@@ -439,6 +439,7 @@ Rigidbody2D:
   m_Constraints: 0
 --- !u!483693784 &534890060
 TilemapRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -484,6 +485,7 @@ TilemapRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -2
+  m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -491,7 +493,6 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
-  m_MaskInteraction: 0
 --- !u!1839735485 &534890061
 Tilemap:
   m_ObjectHideFlags: 0
@@ -533777,8 +533778,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 897b25c94bc86d04e9660627c6a3cdab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobSpawner
-  skeletonPrefab: {fileID: 5303612760217901525, guid: 97c247eb8ab7d9344a7c11b2e53164a9, type: 3}
-  skeletonsPerNormalRoom: 4
+  mobPrefabs:
+  - prefab: {fileID: 2722922200427301075, guid: 49e1089dde35fd843a7ef069a8fee5aa, type: 3}
+    weight: 15
+  - prefab: {fileID: 1294678635453260241, guid: e6d42bf1745ef5547a58075c734c78b4, type: 3}
+    weight: 25
+  - prefab: {fileID: 5303612760217901525, guid: 97c247eb8ab7d9344a7c11b2e53164a9, type: 3}
+    weight: 60
+  mobsPerNormalRoom: 6
 --- !u!1 &1172224625
 GameObject:
   m_ObjectHideFlags: 0
@@ -533815,6 +533822,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!483693784 &1172224628
 TilemapRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -533860,6 +533868,7 @@ TilemapRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
+  m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -533867,7 +533876,6 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
-  m_MaskInteraction: 0
 --- !u!1839735485 &1172224629
 Tilemap:
   m_ObjectHideFlags: 0

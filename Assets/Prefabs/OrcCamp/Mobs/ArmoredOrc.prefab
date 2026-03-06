@@ -168,9 +168,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2722922200427301075}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c2f7adf939f85c4aaa28cd7267469c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SkeletonAI
+  m_Script: {fileID: 11500000, guid: c11fe0b9302243f4281ffdd8e47319af, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::SkeletonWarriorAI
   syncMethod: 0
   syncDirection: 0
   syncMode: 0

@@ -33,10 +33,19 @@ public class MobHealth : NetworkBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
 
+        // Hurt всегда проигрывается (даже при смерти)
         RpcPlayHurt();
 
         if (currentHealth <= 0f)
+        {
             Die();
+        }
+        else
+        {
+            // Уведомляем AI о получении урона (HitReaction)
+            var ai = GetComponent<MobAI>();
+            if (ai != null) ai.OnHit();
+        }
     }
 
     [Server]
@@ -51,8 +60,8 @@ public class MobHealth : NetworkBehaviour
     private void RpcOnDeath()
     {
         isDead = true;
-        GetComponent<Animator>()?.SetTrigger("Death");
-        var ai = GetComponent<SkeletonAI>();
+
+        var ai = GetComponent<MobAI>();
         if (ai != null) ai.enabled = false;
 
         // Отключаем коллайдер чтобы не мешал
@@ -70,6 +79,17 @@ public class MobHealth : NetworkBehaviour
             rb.bodyType = RigidbodyType2D.Static;
         }
 
+        // Ставим триггер Death — аниматор перейдёт Hurt → Death по transition
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.ResetTrigger("Attack1");
+            anim.ResetTrigger("Attack2");
+            anim.ResetTrigger("Attack3");
+            anim.SetBool("IsMoving", false);
+            anim.SetTrigger("Death");
+        }
+
         onDeath?.Invoke();
 
         // Уничтожаем объект через 10 секунд
@@ -83,8 +103,6 @@ public class MobHealth : NetworkBehaviour
         var anim = GetComponent<Animator>();
         if (anim == null) return;
 
-        // ResetTrigger + SetTrigger — гарантирует повторное срабатывание
-        // даже если предыдущий Hurt ещё не завершился
         anim.ResetTrigger("Hurt");
         anim.SetTrigger("Hurt");
     }
