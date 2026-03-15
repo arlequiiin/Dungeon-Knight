@@ -33,12 +33,15 @@ public abstract class MobAI : NetworkBehaviour
     protected SpriteRenderer spriteRenderer;
 
     // --- FSM ---
-    protected enum State { Patrol, Chase, Attack, HitReaction, Recovery }
+    protected enum State { Patrol, Chase, CircleWait, Attack, HitReaction, Recovery }
     protected State state = State.Patrol;
 
     // --- Таргет ---
     protected Transform target;
     protected Vector2 roomCenter;
+
+    // --- Group AI ---
+    private MobGroupManager groupManager;
 
     // --- Таймеры ---
     protected float attackTimer;
@@ -68,9 +71,10 @@ public abstract class MobAI : NetworkBehaviour
 
     // === Инициализация ===
 
-    public void Init(Vector2 center)
+    public void Init(Vector2 center, MobGroupManager group = null)
     {
         roomCenter = center;
+        groupManager = group;
     }
 
     protected virtual void Awake()
@@ -86,6 +90,13 @@ public abstract class MobAI : NetworkBehaviour
 
         attackTimer = attackCooldown;
         weaponHitboxes = GetComponentsInChildren<WeaponHitbox>(true);
+    }
+
+    private void OnDisable()
+    {
+        ReleaseSlot();
+        if (groupManager != null)
+            groupManager.Unregister(this);
     }
 
     // === Update: FSM dispatch ===
@@ -104,6 +115,7 @@ public abstract class MobAI : NetworkBehaviour
         {
             case State.Patrol:      UpdatePatrol();      break;
             case State.Chase:       UpdateChase();       break;
+            case State.CircleWait:  UpdateCircleWait();  break;
             case State.Attack:      UpdateAttack();      break;
             case State.HitReaction: UpdateHitReaction(); break;
             case State.Recovery:    UpdateRecovery();    break;
@@ -154,6 +166,7 @@ public abstract class MobAI : NetworkBehaviour
         if (target == null || !IsTargetAlive())
         {
             target = null;
+            ReleaseSlot();
             state = State.Patrol;
             SetPatrolDestination();
             return;
@@ -164,9 +177,21 @@ public abstract class MobAI : NetworkBehaviour
         if (dist > loseRange)
         {
             target = null;
+            ReleaseSlot();
             state = State.Patrol;
             SetPatrolDestination();
             return;
+        }
+
+        // Запрашиваем слот заранее — на подходе, а не вплотную
+        float engageRange = groupManager != null ? groupManager.circleRadius : attackRange;
+        if (dist <= engageRange)
+        {
+            if (groupManager != null && !groupManager.RequestAttackSlot(this, target))
+            {
+                state = State.CircleWait;
+                return;
+            }
         }
 
         if (dist <= attackRange)
@@ -177,6 +202,31 @@ public abstract class MobAI : NetworkBehaviour
         }
 
         agent.SetDestination(target.position);
+    }
+
+    private void UpdateCircleWait()
+    {
+        if (target == null || !IsTargetAlive())
+        {
+            target = null;
+            state = State.Patrol;
+            SetPatrolDestination();
+            return;
+        }
+
+        // Пробуем получить слот
+        if (groupManager == null || groupManager.RequestAttackSlot(this, target))
+        {
+            state = State.Chase;
+            return;
+        }
+
+        // Кружим вокруг цели
+        Vector2 circlePos = groupManager.GetCirclePosition(this, target.position);
+        agent.SetDestination(new Vector3(circlePos.x, circlePos.y, 0f));
+
+        // Поворачиваемся к игроку
+        FaceTarget();
     }
 
     /// <summary>
@@ -279,8 +329,15 @@ public abstract class MobAI : NetworkBehaviour
     /// </summary>
     protected void EnterRecovery()
     {
+        ReleaseSlot();
         state = State.Recovery;
         recoveryTimer = RecoveryDuration;
+    }
+
+    private void ReleaseSlot()
+    {
+        if (groupManager != null)
+            groupManager.ReleaseAttackSlot(this);
     }
 
     /// <summary>

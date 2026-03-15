@@ -8,11 +8,7 @@ public class SwordsmanAbility : HeroAbility
     public float attack2Damage = 25f;
 
     [Header("Многократная атака")]
-    public int stabCount = 4;
     public float stabDamage = 12f;
-    public float stabHitboxDuration = 0.1f;
-    public float timeBetweenStabs = 0.15f;
-    private int stabsRemaining;
 
     [Header("Уклонение от урона")]
     [Range(0f, 1f)]
@@ -41,31 +37,8 @@ public class SwordsmanAbility : HeroAbility
 
     protected override void OnAbility1()
     {
+        PrepareHitbox(2, stabDamage);
         animator.SetTrigger("Ability1");
-        stabsRemaining = stabCount;
-        InvokeRepeating(nameof(DoStab), 0f, timeBetweenStabs);
-    }
-
-    private void DoStab()
-    {
-        // Способность использует хитбокс [2], но через Invoke (нет Animation Event для серии ударов)
-        var hitbox = GetHitbox(2);
-        if (hitbox != null)
-        {
-            hitbox.Activate(stabDamage);
-            Invoke(nameof(DeactivateStabHitbox), stabHitboxDuration);
-        }
-
-        stabsRemaining--;
-        if (stabsRemaining <= 0)
-            CancelInvoke(nameof(DoStab));
-    }
-
-    private void DeactivateStabHitbox()
-    {
-        var hitbox = GetHitbox(2);
-        if (hitbox != null)
-            hitbox.Deactivate();
     }
 
     protected override void OnAbility2()

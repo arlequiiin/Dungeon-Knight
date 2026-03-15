@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 947569115294362182}
   - component: {fileID: 2836491762058753401}
   - component: {fileID: 8259631912024887503}
+  - component: {fileID: 7080489714850796323}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -136,7 +137,7 @@ Animator:
   m_GameObject: {fileID: 867628235138429589}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: e62bc7b89cf62ff46870742db6e811bb, type: 2}
+  m_Controller: {fileID: 9100000, guid: 94541362fc5d9d44fba8975e76e2fae7, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -265,6 +266,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   heroData: {fileID: 0}
+  hudPrefab: {fileID: 8363856641086588102, guid: 338d4a9e9e130ce4096271f6c02f9f4d, type: 3}
 --- !u!114 &2836491762058753401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,3 +305,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4ccd1ab1bf1ec44abec2c3439481297, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitboxAnimEventRelay
+--- !u!114 &7080489714850796323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 867628235138429589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 526b8c2b10cb9f94484ad37a125aab83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitEffect
+  knockbackResistance: 0.8

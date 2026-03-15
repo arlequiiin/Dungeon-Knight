@@ -33,15 +33,15 @@ public class MobHealth : NetworkBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
 
-        // Hurt всегда проигрывается (даже при смерти)
-        RpcPlayHurt();
-
         if (currentHealth <= 0f)
         {
             Die();
         }
         else
         {
+            // Hurt проигрывается только если моб выжил
+            RpcPlayHurt();
+
             // Уведомляем AI о получении урона (HitReaction)
             var ai = GetComponent<MobAI>();
             if (ai != null) ai.OnHit();
@@ -83,9 +83,11 @@ public class MobHealth : NetworkBehaviour
         var anim = GetComponent<Animator>();
         if (anim != null)
         {
-            anim.ResetTrigger("Attack1");
-            anim.ResetTrigger("Attack2");
-            anim.ResetTrigger("Attack3");
+            foreach (var param in anim.parameters)
+            {
+                if (param.type == AnimatorControllerParameterType.Trigger && param.name != "Death")
+                    anim.ResetTrigger(param.name);
+            }
             anim.SetBool("IsMoving", false);
             anim.SetTrigger("Death");
         }

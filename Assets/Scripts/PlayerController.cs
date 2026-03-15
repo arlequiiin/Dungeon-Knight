@@ -28,6 +28,10 @@ public class PlayerController : NetworkBehaviour
     // Последнее направление движения (для dodge когда стоим)
     private Vector2 lastMoveDir = Vector2.right;
 
+    [Header("UI")]
+    [SerializeField] private GameObject hudPrefab;
+    private PlayerHUD hud;
+
     public event System.Action onInteract;
 
     [SyncVar]
@@ -91,6 +95,14 @@ public class PlayerController : NetworkBehaviour
             if (follow == null)
                 follow = cam.gameObject.AddComponent<CameraFollow>();
             follow.SetTarget(transform);
+        }
+
+        // Создаём HUD для локального игрока
+        if (hudPrefab != null)
+        {
+            var hudObj = Instantiate(hudPrefab);
+            hud = hudObj.GetComponent<PlayerHUD>();
+            hud?.Init(stats, Ability);
         }
     }
 
