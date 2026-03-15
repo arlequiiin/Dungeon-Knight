@@ -10,6 +10,12 @@ using UnityEngine;
 /// </summary>
 public class WeaponHitbox : MonoBehaviour
 {
+    [Header("Knockback")]
+    public float knockbackForce = 3f;
+
+    [Header("Hitstop")]
+    public float hitstopDuration = 0.04f; // ~2-3 кадра при 60fps
+
     private float damage;
     private GameObject owner;
     private Collider2D hitboxCollider;
@@ -70,12 +76,16 @@ public class WeaponHitbox : MonoBehaviour
 
         if (!NetworkServer.active) return;
 
+        // Направление knockback: от атакующего к цели
+        Vector2 knockbackDir = (other.transform.position - owner.transform.position).normalized;
+
         // Урон по мобам (мобы не бьют друг друга)
         var mobHealth = other.GetComponent<MobHealth>();
         if (mobHealth != null)
         {
-            if (ownerIsMob) return; // дружественный огонь между мобами отключён
+            if (ownerIsMob) return;
             mobHealth.TakeDamage(damage);
+            ApplyHitEffects(other.gameObject, knockbackDir);
             return;
         }
 
@@ -84,6 +94,24 @@ public class WeaponHitbox : MonoBehaviour
         if (heroStats != null)
         {
             heroStats.TakeDamage(damage);
+            ApplyHitEffects(other.gameObject, knockbackDir);
+        }
+    }
+
+    private void ApplyHitEffects(GameObject target, Vector2 direction)
+    {
+        // Knockback на цели
+        var targetHitEffect = target.GetComponent<HitEffect>();
+        if (targetHitEffect != null)
+            targetHitEffect.ApplyKnockback(direction, knockbackForce);
+
+        // Hitstop на цели и на атакующем
+        if (hitstopDuration > 0f)
+        {
+            targetHitEffect?.ApplyHitstop(hitstopDuration);
+
+            var ownerHitEffect = owner.GetComponent<HitEffect>();
+            ownerHitEffect?.ApplyHitstop(hitstopDuration);
         }
     }
 

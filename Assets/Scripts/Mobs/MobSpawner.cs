@@ -50,21 +50,29 @@ public class MobSpawner : MonoBehaviour
 
     private void SpawnMobsInRoom(CellData cell)
     {
+        // Создаём менеджер группы для комнаты
+        var groupObj = new GameObject($"MobGroup_{cell.roomOrigin}");
+        groupObj.transform.position = (Vector3)(Vector2)cell.RoomCenter;
+        var group = groupObj.AddComponent<MobGroupManager>();
+
         for (int i = 0; i < mobsPerNormalRoom; i++)
         {
             Vector2 pos = GetRandomFloorPosition(cell);
-            SpawnMob(pos, cell.RoomCenter);
+            SpawnMob(pos, cell.RoomCenter, group);
         }
     }
 
-    private void SpawnMob(Vector2 pos, Vector2 roomCenter)
+    private void SpawnMob(Vector2 pos, Vector2 roomCenter, MobGroupManager group)
     {
         GameObject prefab = PickRandomPrefab();
         GameObject mob = Instantiate(prefab, pos, Quaternion.identity);
 
         var ai = mob.GetComponent<MobAI>();
         if (ai != null)
-            ai.Init(roomCenter);
+        {
+            ai.Init(roomCenter, group);
+            group.Register(ai);
+        }
 
         NetworkServer.Spawn(mob);
     }

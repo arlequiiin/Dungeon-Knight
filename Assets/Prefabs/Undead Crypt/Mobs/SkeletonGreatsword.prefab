@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2472123834460427011}
   - component: {fileID: 4733505234720641837}
   - component: {fileID: 1672682340094277975}
+  - component: {fileID: 1243836199832461739}
   m_Layer: 0
   m_Name: SkeletonGreatsword
   m_TagString: Untagged
@@ -255,6 +256,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.41312504, y: 0.59929514}
   m_EdgeRadius: 0
+--- !u!114 &1243836199832461739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 526b8c2b10cb9f94484ad37a125aab83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitEffect
+  knockbackResistance: 0.7
 --- !u!1 &6213499344601499967
 GameObject:
   m_ObjectHideFlags: 0
@@ -300,6 +314,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5ccc3c0d31c2434396784b40d782af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
+  knockbackForce: 3
+  hitstopDuration: 0.04
 --- !u!60 &8587792198389684802
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -402,6 +418,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5ccc3c0d31c2434396784b40d782af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
+  knockbackForce: 3
+  hitstopDuration: 0.04
 --- !u!60 &2098667644369650281
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -505,6 +523,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5ccc3c0d31c2434396784b40d782af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
+  knockbackForce: 3
+  hitstopDuration: 0.04
 --- !u!60 &116069866830912091
 PolygonCollider2D:
   m_ObjectHideFlags: 0

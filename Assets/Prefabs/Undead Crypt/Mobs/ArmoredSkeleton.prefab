@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5ccc3c0d31c2434396784b40d782af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
+  knockbackForce: 3
+  hitstopDuration: 0.04
 --- !u!58 &8233690951854306744
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -97,6 +99,7 @@ GameObject:
   - component: {fileID: 1837946024961717051}
   - component: {fileID: 4201819489853579391}
   - component: {fileID: 2256884098565453726}
+  - component: {fileID: 3769746310109524339}
   m_Layer: 0
   m_Name: ArmoredSkeleton
   m_TagString: Untagged
@@ -333,6 +336,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.41899967, y: 0.5342365}
   m_EdgeRadius: 0
+--- !u!114 &3769746310109524339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2722922200427301075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 526b8c2b10cb9f94484ad37a125aab83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitEffect
+  knockbackResistance: 0.4
 --- !u!1 &7721197185951313795
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,6 +394,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5ccc3c0d31c2434396784b40d782af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
+  knockbackForce: 3
+  hitstopDuration: 0.04
 --- !u!60 &1732591149121272888
 PolygonCollider2D:
   m_ObjectHideFlags: 0

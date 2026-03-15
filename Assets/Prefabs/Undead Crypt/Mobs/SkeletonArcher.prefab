@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 989961318725719122}
   - component: {fileID: -58089853072350093}
   - component: {fileID: 285585079967817449}
+  - component: {fileID: 8602859636935844929}
   m_Layer: 0
   m_Name: SkeletonArcher
   m_TagString: Untagged
@@ -223,3 +224,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.36912984, y: 0.601954}
   m_EdgeRadius: 0
+--- !u!114 &8602859636935844929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3738057844671139991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 526b8c2b10cb9f94484ad37a125aab83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitEffect
+  knockbackResistance: 0.4
