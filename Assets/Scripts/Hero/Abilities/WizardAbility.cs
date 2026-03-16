@@ -54,7 +54,6 @@ public class WizardAbility : HeroAbility
         }
     }
 
-    // TODO: способности мага уточняются
     protected override void OnAbility1()
     {
         animator.SetTrigger("Ability1");
