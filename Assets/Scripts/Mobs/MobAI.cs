@@ -246,11 +246,20 @@ public abstract class MobAI : NetworkBehaviour
 
         if (dist > attackRange * 1.2f)
         {
+            // Кулдаун ещё не готов — подходим к цели
+            if (attackTimer > 0f)
+            {
+                agent.SetDestination(target.position);
+                return;
+            }
+            // Кулдаун готов, но цель далеко — переход в Chase
             state = State.Chase;
             return;
         }
 
+        // В зоне атаки — стоим на месте
         agent.ResetPath();
+        FaceTarget();
 
         if (attackTimer <= 0f)
         {

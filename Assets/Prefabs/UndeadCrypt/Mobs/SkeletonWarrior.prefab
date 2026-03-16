@@ -371,10 +371,10 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  detectionRange: 5
-  loseRange: 8
-  attackRange: 0.8
-  attackCooldown: 1.2
+  detectionRange: 4
+  loseRange: 6
+  attackRange: 0.7
+  attackCooldown: 1.5
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 526b8c2b10cb9f94484ad37a125aab83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitEffect
-  knockbackResistance: 0.5
+  knockbackResistance: 0.4
 --- !u!1 &8980876503294695921
 GameObject:
   m_ObjectHideFlags: 0

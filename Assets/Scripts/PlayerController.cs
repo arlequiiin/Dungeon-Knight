@@ -25,6 +25,9 @@ public class PlayerController : NetworkBehaviour
     private bool isAttacking;
     private bool isDodging;
 
+    // true когда игрок в подземелье (не в лобби) — разрешает боевые действия
+    private bool inGame;
+
     // Последнее направление движения (для dodge когда стоим)
     private Vector2 lastMoveDir = Vector2.right;
 
@@ -88,14 +91,7 @@ public class PlayerController : NetworkBehaviour
         input.Player.Dodge.performed += _ => TryDodge();
         input.Player.Interaction.performed += _ => onInteract?.Invoke();
 
-        var cam = Camera.main;
-        if (cam != null)
-        {
-            var follow = cam.GetComponent<CameraFollow>();
-            if (follow == null)
-                follow = cam.gameObject.AddComponent<CameraFollow>();
-            follow.SetTarget(transform);
-        }
+        BindCamera();
 
         // Создаём HUD для локального игрока
         if (hudPrefab != null)
@@ -106,10 +102,34 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        if (isLocalPlayer)
+        {
+            // При смене сцены камера пересоздаётся — привязываем заново
+            BindCamera();
+
+            // Определяем, в игре ли мы (лобби = есть LobbyManager)
+            inGame = FindAnyObjectByType<LobbyManager>() == null;
+        }
+    }
+
     private void OnDisable()
     {
         if (isLocalPlayer && input != null)
             input.Player.Disable();
+    }
+
+    private void BindCamera()
+    {
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            var follow = cam.GetComponent<CameraFollow>();
+            if (follow == null)
+                follow = cam.gameObject.AddComponent<CameraFollow>();
+            follow.SetTarget(transform);
+        }
     }
 
     private void FixedUpdate()
@@ -212,7 +232,7 @@ public class PlayerController : NetworkBehaviour
     private void TryAttack1()
     {
         var ab = Ability;
-        if (!isLocalPlayer || !canAttack || ab == null) return;
+        if (!isLocalPlayer || !inGame || !canAttack || ab == null) return;
         canAttack = false;
 
         FaceAttackDirection();
@@ -226,7 +246,7 @@ public class PlayerController : NetworkBehaviour
     private void TryAttack2()
     {
         var ab = Ability;
-        if (!isLocalPlayer || !canAttack || ab == null) return;
+        if (!isLocalPlayer || !inGame || !canAttack || ab == null) return;
         if (heroData != null && heroData.attackCount < 2) return;
         canAttack = false;
 
@@ -243,7 +263,7 @@ public class PlayerController : NetworkBehaviour
     private void TryAbility1()
     {
         var ab = Ability;
-        if (!isLocalPlayer || ab == null) return;
+        if (!isLocalPlayer || !inGame || ab == null) return;
         if (!ab.CanUseAbility1) return;
 
         FaceAttackDirection();
@@ -255,7 +275,7 @@ public class PlayerController : NetworkBehaviour
     private void TryAbility2()
     {
         var ab = Ability;
-        if (!isLocalPlayer || ab == null) return;
+        if (!isLocalPlayer || !inGame || ab == null) return;
         if (!ab.CanUseAbility2) return;
 
         FaceAttackDirection();
@@ -268,7 +288,7 @@ public class PlayerController : NetworkBehaviour
 
     private void TryDodge()
     {
-        if (!isLocalPlayer || !canDodge || isDodging) return;
+        if (!isLocalPlayer || !inGame || !canDodge || isDodging) return;
         canDodge = false;
 
         Vector2 dodgeDir = moveInput != Vector2.zero ? moveInput.normalized : lastMoveDir;
@@ -286,6 +306,14 @@ public class PlayerController : NetworkBehaviour
         // Сообщаем серверу о неуязвимости
         CmdSetDodging(true);
 
+        // Визуальный эффект — полупрозрачность во время i-frames
+        if (spriteRenderer != null)
+        {
+            var c = spriteRenderer.color;
+            c.a = 0.4f;
+            spriteRenderer.color = c;
+        }
+
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(direction * force, ForceMode2D.Impulse);
 
@@ -293,6 +321,14 @@ public class PlayerController : NetworkBehaviour
 
         isDodging = false;
         CmdSetDodging(false);
+
+        // Возвращаем непрозрачность
+        if (spriteRenderer != null)
+        {
+            var c = spriteRenderer.color;
+            c.a = 1f;
+            spriteRenderer.color = c;
+        }
 
         // Кулдаун начинается после окончания рывка
         yield return new WaitForSeconds(cooldown - duration);
