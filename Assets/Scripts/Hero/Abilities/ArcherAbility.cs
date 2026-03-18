@@ -1,58 +1,76 @@
+using Mirror;
 using UnityEngine;
 
-// Лучник: 1 атака, способность — мощный выстрел
+// Лучник: 1 атака (стрела), способность — мощный выстрел
 public class ArcherAbility : HeroAbility
 {
     [Header("Обычный выстрел")]
-    public GameObject arrowPrefab;
-    public float arrowDamage = 20f;
     public float arrowSpeed = 15f;
-    public Transform shootPoint;
+    public float shootOffset = 0.5f;
 
     [Header("Мощный выстрел")]
-    public GameObject powerArrowPrefab;
     public float powerArrowDamage = 80f;
     public float powerArrowSpeed = 25f;
 
-    private SpriteRenderer spriteRenderer;
+    // Assigned from HeroData.projectilePrefabs
+    private GameObject arrowPrefab;
+    private GameObject powerArrowPrefab;
 
     protected override void Awake()
     {
         base.Awake();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        ability1Cooldown = 6f;
     }
 
-    private Vector2 GetShootDirection()
+    public override void ApplyHeroData(HeroData data)
     {
-        float dirX = spriteRenderer != null && spriteRenderer.flipX ? -1f : 1f;
-        return Vector2.right * dirX;
-    }
-
-    public override void Attack1()
-    {
-        animator.SetTrigger("Attack1");
-        if (arrowPrefab != null && shootPoint != null)
+        base.ApplyHeroData(data);
+        if (data.projectilePrefabs != null)
         {
-            var arrow = Instantiate(arrowPrefab, shootPoint.position, shootPoint.rotation);
-            var proj = arrow.GetComponent<Projectile>();
-            if (proj != null)
-                proj.Init(arrowDamage, GetShootDirection(), arrowSpeed);
+            if (data.projectilePrefabs.Length > 0) arrowPrefab = data.projectilePrefabs[0];
+            if (data.projectilePrefabs.Length > 1) powerArrowPrefab = data.projectilePrefabs[1];
         }
     }
 
-    // Лучник имеет только 1 атаку — Attack2 не используется
+    // Client-side: only play animation
+    public override void Attack1()
+    {
+        PlayTrigger("Attack1");
+    }
+
     public override void Attack2() { }
+
+    // Server-side: spawn arrow
+    public override void ServerAttack(int attackIndex, float damage, bool flipX)
+    {
+        if (arrowPrefab == null) return;
+
+        Vector2 dir = flipX ? Vector2.left : Vector2.right;
+        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset);
+        var arrow = Instantiate(arrowPrefab, spawnPos, Quaternion.identity);
+        var proj = arrow.GetComponent<Projectile>();
+        if (proj != null)
+            proj.Init(damage, dir, arrowSpeed, gameObject);
+
+        NetworkServer.Spawn(arrow);
+    }
 
     protected override void OnAbility1()
     {
-        animator.SetTrigger("Ability1");
-        if (powerArrowPrefab != null && shootPoint != null)
-        {
-            var arrow = Instantiate(powerArrowPrefab, shootPoint.position, shootPoint.rotation);
-            var proj = arrow.GetComponent<Projectile>();
-            if (proj != null)
-                proj.Init(powerArrowDamage, GetShootDirection(), powerArrowSpeed);
-        }
+        PlayTrigger("Ability1");
+    }
+
+    // Server-side: spawn power arrow
+    public override void ServerAbility1(bool flipX)
+    {
+        if (powerArrowPrefab == null) return;
+
+        Vector2 dir = flipX ? Vector2.left : Vector2.right;
+        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset);
+        var arrow = Instantiate(powerArrowPrefab, spawnPos, Quaternion.identity);
+        var proj = arrow.GetComponent<Projectile>();
+        if (proj != null)
+            proj.Init(powerArrowDamage, dir, powerArrowSpeed, gameObject);
+
+        NetworkServer.Spawn(arrow);
     }
 }

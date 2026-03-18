@@ -1,7 +1,6 @@
-using Mirror;
 using UnityEngine;
 
-// Рыцарь: 2 атаки, способности — огненный удар мечом и щит
+// Рыцарь: 2 атаки, способность — огненный удар мечом
 public class KnightAbility : HeroAbility
 {
     [Header("Атака 1 — базовый удар")]
@@ -14,42 +13,29 @@ public class KnightAbility : HeroAbility
     public float fireStrikeDamage = 50f;
     public GameObject fireEffectPrefab;
 
-    [Header("Щит (Ability2)")]
-    public float shieldDuration = 3f;
-    [Range(0f, 1f)]
-    public float damageReduction = 0.5f;
-    public GameObject shieldEffectPrefab;
-
-    public float DamageMultiplier { get; private set; } = 1f;
-
-    private bool shieldActive;
-    private HeroStats stats;
+    public float DamageMultiplier { get; set; } = 1f;
 
     protected override void Awake()
     {
         base.Awake();
-        stats = GetComponent<HeroStats>();
-        ability1Cooldown = 10f;
-        ability2Cooldown = 15f;
     }
 
     public override void Attack1()
     {
         PrepareHitbox(0, attack1Damage);
-        animator.SetTrigger("Attack1");
-        // EnableHitbox / DisableHitbox вызываются из Animation Event
+        PlayTrigger("Attack1");
     }
 
     public override void Attack2()
     {
         PrepareHitbox(1, attack2Damage);
-        animator.SetTrigger("Attack2");
+        PlayTrigger("Attack2");
     }
 
     protected override void OnAbility1()
     {
         PrepareHitbox(2, fireStrikeDamage);
-        animator.SetTrigger("Attack3");
+        PlayTrigger("Attack3");
 
         if (fireEffectPrefab != null)
         {
@@ -58,29 +44,5 @@ public class KnightAbility : HeroAbility
         }
     }
 
-    protected override void OnAbility2()
-    {
-        if (shieldActive) return;
-
-        animator.SetTrigger("Block");
-        shieldActive = true;
-        DamageMultiplier = 1f - damageReduction;
-
-        if (shieldEffectPrefab != null)
-        {
-            var fx = Instantiate(shieldEffectPrefab, transform.position, transform.rotation);
-            fx.transform.SetParent(transform);
-            Destroy(fx, shieldDuration);
-        }
-
-        Invoke(nameof(DeactivateShield), shieldDuration);
-    }
-
-    private void DeactivateShield()
-    {
-        shieldActive = false;
-        DamageMultiplier = 1f;
-    }
-
-    public bool IsShieldActive() => shieldActive;
+    public bool IsShieldActive() => false;
 }

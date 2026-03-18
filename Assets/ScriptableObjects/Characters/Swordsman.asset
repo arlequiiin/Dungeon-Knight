@@ -16,15 +16,14 @@ MonoBehaviour:
   heroType: 3
   unlockedByDefault: 0
   maxHealth: 100
-  maxEnergy: 100
-  moveSpeed: 3
+  maxEnergy: 150
+  moveSpeed: 2.2
   attackCount: 4
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
-  attackSlowMultiplier: 0.5
-  attackSlowDuration: 0.7
   targetSearchRadius: 5
+  ability1Cooldown: 5
   dodgeForce: 8
   dodgeCooldown: 1
   dodgeDuration: 0.25
@@ -32,5 +31,6 @@ MonoBehaviour:
   - {fileID: 4570138292785041139, guid: 801a520b4d616ac4d972e922282f95e3, type: 3}
   - {fileID: 3414452054502492863, guid: f80f52c96445f154ead22cc3460f0c42, type: 3}
   - {fileID: 337345033862142254, guid: f03916f1713a8ef42b998a2da4ee77f8, type: 3}
+  projectilePrefabs: []
   animatorController: {fileID: 9100000, guid: 94541362fc5d9d44fba8975e76e2fae7, type: 2}
   icon: {fileID: 5692671443236587484, guid: 5495e9585481fc64cbfd905ce86d6ec3, type: 3}

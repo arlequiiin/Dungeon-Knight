@@ -16,24 +16,29 @@ public class MobSpawner : MonoBehaviour
 
     private System.Random rng;
     private int totalWeight;
+    private int currentPlayerCount;
+    private float currentDifficulty;
 
     /// <summary>
     /// Спавнит мобов во всех нормальных комнатах подземелья.
     /// Должен вызываться после BakeNavMesh().
     /// </summary>
-    public void SpawnMobs(GridWalkGenerator generator, int seed)
+    public void SpawnMobs(GridWalkGenerator generator, int seed, int playerCount = 1, float difficulty = 1f)
     {
         if (!NetworkServer.active)
         {
-            Debug.LogWarning("[MobSpawner] SpawnMobs вызван не на сервере, игнорируем");
+            Debug.LogWarning("[MobSpawner] SpawnMobs called on non-server, ignoring");
             return;
         }
 
         if (mobPrefabs == null || mobPrefabs.Length == 0)
         {
-            Debug.LogError("[MobSpawner] mobPrefabs не назначены!");
+            Debug.LogError("[MobSpawner] mobPrefabs not assigned!");
             return;
         }
+
+        currentPlayerCount = playerCount;
+        currentDifficulty = difficulty;
 
         totalWeight = 0;
         foreach (var entry in mobPrefabs)
@@ -70,7 +75,7 @@ public class MobSpawner : MonoBehaviour
         var ai = mob.GetComponent<MobAI>();
         if (ai != null)
         {
-            ai.Init(roomCenter, group);
+            ai.Init(roomCenter, group, currentPlayerCount, currentDifficulty);
             group.Register(ai);
         }
 

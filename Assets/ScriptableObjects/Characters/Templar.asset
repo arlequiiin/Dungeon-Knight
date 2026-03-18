@@ -15,22 +15,22 @@ MonoBehaviour:
   heroName: Templar
   heroType: 2
   unlockedByDefault: 0
-  maxHealth: 300
-  maxEnergy: 200
-  moveSpeed: 2
-  attackCount: 4
+  maxHealth: 180
+  maxEnergy: 80
+  moveSpeed: 1.5
+  attackCount: 2
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
-  attackSlowMultiplier: 0.15
-  attackSlowDuration: 1
   targetSearchRadius: 5
-  dodgeForce: 3
+  ability1Cooldown: 5
+  dodgeForce: 5
   dodgeCooldown: 2
   dodgeDuration: 0.15
   weaponHitboxPrefabs:
   - {fileID: 5551245308474354758, guid: 0b7838b7d280c3d409eb2111968b8530, type: 3}
   - {fileID: 8941870289253953640, guid: 77261b96911a82146aca42ed2a313d40, type: 3}
   - {fileID: 8760251905416247465, guid: 753d8d7d535e0e74e908a2977341900c, type: 3}
+  projectilePrefabs: []
   animatorController: {fileID: 9100000, guid: 20485b50d27389640bd93d4a92b358e1, type: 2}
   icon: {fileID: 941554769194238170, guid: 82f76bdfb2d889a4f813238efbb502df, type: 3}

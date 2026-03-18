@@ -1,66 +1,101 @@
+using Mirror;
 using UnityEngine;
 
-// Маг: 2 атаки (заготовка, детали способностей уточняются)
+// Маг: 1 атака (огненный шар с взрывом), способность — AoE взрыв на ближайшем враге
 public class WizardAbility : HeroAbility
 {
-    [Header("Атака 1 — базовый снаряд")]
-    public GameObject spellPrefab;
-    public float spellDamage = 25f;
-    public float spellSpeed = 14f;
-    public Transform castPoint;
+    [Header("Атака — огненный шар")]
+    public float fireballSpeed = 14f;
+    public float castOffset = 0.5f;
 
-    [Header("Атака 2 — усиленный снаряд")]
-    public GameObject heavySpellPrefab;
-    public float heavySpellDamage = 45f;
-    public float heavySpellSpeed = 12f;
+    [Header("Ability1 — магический взрыв на враге")]
+    public float aoeDamage = 60f;
+    public float aoeRange = 6f;
 
-    private SpriteRenderer spriteRenderer;
+    // Assigned from HeroData.projectilePrefabs
+    private GameObject fireballPrefab;
+    private GameObject aoeExplosionPrefab;
 
     protected override void Awake()
     {
         base.Awake();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        ability1Cooldown = 8f;
-        ability2Cooldown = 15f;
     }
 
-    private Vector2 GetCastDirection()
+    public override void ApplyHeroData(HeroData data)
     {
-        float dirX = spriteRenderer != null && spriteRenderer.flipX ? -1f : 1f;
-        return Vector2.right * dirX;
+        base.ApplyHeroData(data);
+        if (data.projectilePrefabs != null)
+        {
+            if (data.projectilePrefabs.Length > 0) fireballPrefab = data.projectilePrefabs[0];
+            if (data.projectilePrefabs.Length > 1) aoeExplosionPrefab = data.projectilePrefabs[1];
+        }
     }
 
+    // Client-side: only animation
     public override void Attack1()
     {
-        animator.SetTrigger("Attack1");
-        if (spellPrefab != null && castPoint != null)
-        {
-            var spell = Instantiate(spellPrefab, castPoint.position, castPoint.rotation);
-            var proj = spell.GetComponent<Projectile>();
-            if (proj != null)
-                proj.Init(spellDamage, GetCastDirection(), spellSpeed);
-        }
+        PlayTrigger("Attack1");
     }
 
-    public override void Attack2()
+    public override void Attack2() { }
+
+    // Server-side: spawn fireball
+    public override void ServerAttack(int attackIndex, float damage, bool flipX)
     {
-        animator.SetTrigger("Attack2");
-        if (heavySpellPrefab != null && castPoint != null)
-        {
-            var spell = Instantiate(heavySpellPrefab, castPoint.position, castPoint.rotation);
-            var proj = spell.GetComponent<Projectile>();
-            if (proj != null)
-                proj.Init(heavySpellDamage, GetCastDirection(), heavySpellSpeed);
-        }
+        if (fireballPrefab == null) return;
+
+        Vector2 dir = flipX ? Vector2.left : Vector2.right;
+        Vector3 spawnPos = transform.position + (Vector3)(dir * castOffset);
+        var spell = Instantiate(fireballPrefab, spawnPos, Quaternion.identity);
+        var proj = spell.GetComponent<Projectile>();
+        if (proj != null)
+            proj.Init(damage, dir, fireballSpeed, gameObject);
+
+        NetworkServer.Spawn(spell);
     }
 
     protected override void OnAbility1()
     {
-        animator.SetTrigger("Ability1");
+        PlayTrigger("Ability1");
     }
 
-    protected override void OnAbility2()
+    // Server-side: AoE explosion on nearest enemy
+    public override void ServerAbility1(bool flipX)
     {
-        animator.SetTrigger("Ability2");
+        if (aoeExplosionPrefab == null) return;
+
+        Transform target = FindNearestEnemy();
+        if (target == null) return;
+
+        var explosionObj = Instantiate(aoeExplosionPrefab, target.position, Quaternion.identity);
+        var aoe = explosionObj.GetComponent<AoeExplosion>();
+        if (aoe != null)
+            aoe.Init(aoeDamage);
+
+        NetworkServer.Spawn(explosionObj);
+    }
+
+    private Transform FindNearestEnemy()
+    {
+        float bestDist = aoeRange;
+        Transform best = null;
+
+        var hits = Physics2D.OverlapCircleAll(transform.position, aoeRange);
+        foreach (var hit in hits)
+        {
+            if (hit.gameObject == gameObject) continue;
+
+            var mob = hit.GetComponent<MobHealth>();
+            if (mob == null || mob.IsDead) continue;
+
+            float dist = Vector2.Distance(transform.position, hit.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = hit.transform;
+            }
+        }
+
+        return best;
     }
 }

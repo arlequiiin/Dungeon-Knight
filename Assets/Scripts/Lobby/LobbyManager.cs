@@ -91,6 +91,17 @@ public class LobbyManager : NetworkBehaviour
         CheckAllReady();
     }
 
+    /// <summary>
+    /// Вызывается из NetworkManager при спавне игрока с начальным героем.
+    /// </summary>
+    [Server]
+    public void RegisterInitialHero(NetworkConnectionToClient conn, HeroType heroType)
+    {
+        heroSelections[conn] = heroType;
+        readyStates[conn] = false;
+        BroadcastSelections();
+    }
+
     [Server]
     public void OnPlayerDisconnected(NetworkConnectionToClient conn)
     {
@@ -124,7 +135,7 @@ public class LobbyManager : NetworkBehaviour
             var sel = new HeroSelection
             {
                 netId = conn.identity.netId,
-                heroType = heroSelections.GetValueOrDefault(conn, HeroType.Knight),
+                heroType = heroSelections.GetValueOrDefault(conn, HeroType.None),
                 isReady = readyStates.GetValueOrDefault(conn, false)
             };
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mirror;
 using UnityEngine;
 
@@ -101,13 +102,7 @@ public class DungeonKnightNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-
-        // Если base не вызвал AddPlayer (autoCreatePlayer выключен),
-        // вызываем вручную после Ready
-        if (NetworkClient.ready && NetworkClient.localPlayer == null)
-        {
-            NetworkClient.AddPlayer();
-        }
+        // base.OnClientConnect() уже вызывает AddPlayer при autoCreatePlayer = true
     }
 
     private void GenerateDungeonOnServer()
@@ -138,24 +133,54 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (conn.identity != null) return;
 
-        // В лобби — спавн на фиксированной позиции с дефолтным героем
-        var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
-        bool inDungeon = dungeonGen != null && dungeonGen.Generator != null;
+        // Запрещаем подключение во время игры (только в лобби)
+        bool inDungeon = IsInDungeon();
+        if (inDungeon)
+        {
+            Debug.Log($"[Network] Rejected player {conn.connectionId} — game already in progress.");
+            conn.Disconnect();
+            return;
+        }
 
-        Vector2 spawnPos = inDungeon
-            ? (Vector2)dungeonGen.Generator.StartCell.RoomCenter
-            : lobbySpawnPoint;
+        GameObject player = Instantiate(playerPrefab, lobbySpawnPoint, Quaternion.identity);
 
-        GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+        // Назначаем случайного свободного героя
+        HeroData data = GetRandomAvailableHero();
+        selectedHeroes[conn] = data.heroType;
 
-        HeroData data = defaultHeroData;
-        if (inDungeon && selectedHeroes.TryGetValue(conn, out var heroType))
-            data = GetHeroData(heroType) ?? defaultHeroData;
-
-        if (data != null)
-            InitHeroOnPlayer(player, data);
-
+        InitHeroOnPlayer(player, data);
         NetworkServer.AddPlayerForConnection(conn, player);
+
+        // Синхронизируем выбор героя с LobbyManager
+        var lobbyManager = FindAnyObjectByType<LobbyManager>();
+        if (lobbyManager != null)
+        {
+            lobbyManager.RegisterInitialHero(conn, data.heroType);
+            lobbyManager.SendCurrentStateToPlayer(conn);
+        }
+    }
+
+    private bool IsInDungeon()
+    {
+        var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
+        return dungeonGen != null && dungeonGen.Generator != null;
+    }
+
+    /// <summary>
+    /// Возвращает случайного героя, не занятого другими игроками.
+    /// </summary>
+    private HeroData GetRandomAvailableHero()
+    {
+        if (allHeroes == null || allHeroes.Length == 0)
+            return defaultHeroData;
+
+        var takenTypes = new HashSet<HeroType>(selectedHeroes.Values);
+        var available = allHeroes.Where(h => h != null && !takenTypes.Contains(h.heroType)).ToArray();
+
+        if (available.Length == 0)
+            return defaultHeroData; // Все заняты — фоллбэк
+
+        return available[Random.Range(0, available.Length)];
     }
 
     // ── Публичные методы для LobbyManager ──
@@ -254,6 +279,19 @@ public class DungeonKnightNetworkManager : NetworkManager
         }
     }
 
+    public override void OnClientDisconnect()
+    {
+        // Если MainMenuUI существует — значит клиент ещё на экране меню (reject при подключении)
+        var mainMenu = FindAnyObjectByType<MainMenuUI>();
+        bool wasOnMainMenu = mainMenu != null;
+
+        base.OnClientDisconnect();
+        Debug.Log("[Network] Client disconnected.");
+
+        if (wasOnMainMenu)
+            mainMenu.ShowDisconnectMessage("Connection failed. Game may already be in progress.");
+    }
+
     public override void OnClientSceneChanged()
     {
         base.OnClientSceneChanged();
@@ -262,5 +300,29 @@ public class DungeonKnightNetworkManager : NetworkManager
         {
             NetworkClient.Send(new RequestSeedMessage());
         }
+    }
+
+    /// <summary>
+    /// Вернуть всех игроков в лобби (после смерти / завершения забега).
+    /// Вызывается только на сервере.
+    /// </summary>
+    public void ReturnToLobby()
+    {
+        if (!NetworkServer.active) return;
+        ServerChangeScene("LobbyScene");
+    }
+
+    /// <summary>
+    /// Остановить хост/сервер и вернуться в главное меню.
+    /// Вызывается из UI (например, кнопка "Выйти в меню").
+    /// </summary>
+    public void ReturnToMainMenu()
+    {
+        if (NetworkServer.active && NetworkClient.isConnected)
+            StopHost();
+        else if (NetworkClient.isConnected)
+            StopClient();
+        else if (NetworkServer.active)
+            StopServer();
     }
 }

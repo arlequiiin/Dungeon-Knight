@@ -11,7 +11,10 @@ public class HeroStats : NetworkBehaviour
     [SyncVar(hook = nameof(OnEnergyChanged))]
     private float currentEnergy;
 
+    [SyncVar]
     private float maxHealth;
+
+    [SyncVar]
     private float maxEnergy;
 
     // Для UI и эффектов
@@ -26,13 +29,6 @@ public class HeroStats : NetworkBehaviour
     public bool isDodging;
     public bool IsDodging { get => isDodging; set => isDodging = value; }
 
-    // Компонент способностей — нужен для SwordsmanAbility.TryDodgeDamage()
-    private HeroAbility ability;
-
-    private void Awake()
-    {
-        ability = GetComponent<HeroAbility>();
-    }
 
     public void Init(HeroData data)
     {
@@ -50,14 +46,6 @@ public class HeroStats : NetworkBehaviour
 
         // Неуязвимость во время рывка
         if (IsDodging) return;
-
-        // Шанс уклонения (Мечник)
-        if (ability is SwordsmanAbility swordsman && swordsman.TryDodgeDamage())
-            return;
-
-        // Снижение урона от щита (Рыцарь, Тамплиер)
-        if (ability is KnightAbility knight)
-            amount *= knight.DamageMultiplier;
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
 
@@ -94,6 +82,11 @@ public class HeroStats : NetworkBehaviour
     private void RpcTriggerHurt()
     {
         GetComponent<Animator>()?.SetTrigger("Hurt");
+
+        // Reset attack state — deactivate hitboxes and clear attack slow
+        var controller = GetComponent<PlayerController>();
+        if (controller != null)
+            controller.ResetAttackState();
     }
 
     [Server]
@@ -108,9 +101,13 @@ public class HeroStats : NetworkBehaviour
     {
         isDead = true;
 
-        // Отключаем управление ПЕРВЫМ — чтобы FixedUpdate не перезаписал IsMoving
+        // Reset attack state before disabling
         var controller = GetComponent<PlayerController>();
-        if (controller != null) controller.enabled = false;
+        if (controller != null)
+        {
+            controller.ResetAttackState();
+            controller.enabled = false;
+        }
 
         // Останавливаем тело
         var rb = GetComponent<Rigidbody2D>();

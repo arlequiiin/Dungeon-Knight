@@ -1,20 +1,17 @@
 using UnityEngine;
 
 /// <summary>
-/// AI скелетона-воина: базовый мили-моб.
-/// Одна атака (Attack1), средняя скорость, стандартное поведение.
+/// Skeleton Warrior: basic melee mob.
+/// Single attack (Attack1), standard behavior.
+/// All stats come from MobData.
 /// </summary>
 public class SkeletonWarriorAI : MobAI
 {
-    [Header("Урон")]
-    public float attack1Damage = 10f;
-
     protected override void PerformAttack()
     {
         FaceTarget();
-        PrepareHitbox(0, attack1Damage);
+        PrepareHitbox(0, GetAttackDamage(0));
         animator.SetTrigger("Attack1");
+        RpcPlayTrigger("Attack1");
     }
-
-    protected override float RecoveryDuration => 0.4f;
 }

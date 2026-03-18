@@ -10,6 +10,9 @@ public class PlayerController : NetworkBehaviour
     [Header("Данные героя")]
     public HeroData heroData;
 
+    [SyncVar(hook = nameof(OnHeroTypeChanged))]
+    private HeroType syncHeroType = HeroType.None;
+
     private PlayerInputActions input;
     private Rigidbody2D rb;
     private Animator animator;
@@ -27,18 +30,25 @@ public class PlayerController : NetworkBehaviour
 
     // true когда игрок в подземелье (не в лобби) — разрешает боевые действия
     private bool inGame;
+    private void RefreshInGame() =>
+        inGame = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "LobbyScene";
 
     // Последнее направление движения (для dodge когда стоим)
     private Vector2 lastMoveDir = Vector2.right;
 
     [Header("UI")]
     [SerializeField] private GameObject hudPrefab;
+    [SerializeField] private GameObject deathScreenPrefab;
+    [SerializeField] private GameObject pauseMenuPrefab;
     private PlayerHUD hud;
 
     public event System.Action onInteract;
 
     [SyncVar]
     private Vector2 syncMoveInput;
+
+    [SyncVar(hook = nameof(OnFlipChanged))]
+    private bool syncFlipX;
 
     private void Awake()
     {
@@ -49,10 +59,73 @@ public class PlayerController : NetworkBehaviour
         stats = GetComponent<HeroStats>();
     }
 
+    private void OnHeroTypeChanged(HeroType oldType, HeroType newType)
+    {
+        if (newType == HeroType.None) return;
+
+        // Клиент получил обновление типа героя — применяем визуал и компоненты
+        var netManager = (DungeonKnightNetworkManager)Mirror.NetworkManager.singleton;
+        if (netManager == null) return;
+
+        var data = netManager.GetHeroData(newType);
+        if (data == null) return;
+
+        heroData = data;
+
+        if (data.animatorController != null && animator != null)
+            animator.runtimeAnimatorController = data.animatorController;
+
+        // На клиенте (не на сервере) — создаём HeroAbility и хитбоксы,
+        // т.к. InitHeroOnPlayer вызывается только на сервере
+        if (!isServer)
+        {
+            // Удаляем старый ability если был
+            var oldAbility = GetComponent<HeroAbility>();
+            if (oldAbility != null) Destroy(oldAbility);
+
+            // Удаляем старые хитбоксы
+            foreach (var hitbox in GetComponentsInChildren<WeaponHitbox>())
+                Destroy(hitbox.gameObject);
+
+            // Добавляем ability
+            switch (data.heroType)
+            {
+                case HeroType.Knight:    gameObject.AddComponent<KnightAbility>();    break;
+                case HeroType.Soldier:   gameObject.AddComponent<SoldierAbility>();   break;
+                case HeroType.Templar:   gameObject.AddComponent<TemplarAbility>();   break;
+                case HeroType.Swordsman: gameObject.AddComponent<SwordsmanAbility>(); break;
+                case HeroType.Archer:    gameObject.AddComponent<ArcherAbility>();    break;
+                case HeroType.Wizard:    gameObject.AddComponent<WizardAbility>();    break;
+                case HeroType.Priest:    gameObject.AddComponent<PriestAbility>();    break;
+                default:                 gameObject.AddComponent<KnightAbility>();    break;
+            }
+
+            // Создаём хитбоксы
+            if (data.weaponHitboxPrefabs != null)
+            {
+                foreach (var prefab in data.weaponHitboxPrefabs)
+                {
+                    if (prefab == null) continue;
+                    var hitboxObj = Instantiate(prefab, transform);
+                    hitboxObj.transform.localPosition = Vector3.zero;
+                }
+            }
+
+            // Обновляем ссылки и кулдауны
+            var ability = GetComponent<HeroAbility>();
+            if (ability != null)
+            {
+                ability.ApplyHeroData(data);
+                ability.RefreshHitboxes();
+            }
+        }
+    }
+
     // Вызывается после спавна — применяет данные выбранного героя
     public void InitHero(HeroData data)
     {
         heroData = data;
+        syncHeroType = data.heroType;
 
         if (data.animatorController != null)
             animator.runtimeAnimatorController = data.animatorController;
@@ -73,25 +146,38 @@ public class PlayerController : NetworkBehaviour
         // Обновляем массив хитбоксов в HeroAbility после создания дочерних объектов
         var ability = GetComponent<HeroAbility>();
         if (ability != null)
+        {
+            ability.ApplyHeroData(data);
             ability.RefreshHitboxes();
+        }
+    }
+
+    private void EnsureInputInitialized()
+    {
+        if (input == null)
+        {
+            input = new PlayerInputActions();
+
+            input.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+            input.Player.Move.canceled += ctx => moveInput = Vector2.zero;
+
+            input.Player.Attack1.performed += _ => TryAttack1();
+            input.Player.Attack2.performed += _ => TryAttack2();
+            input.Player.Ability1.performed += _ => TryAbility1();
+            input.Player.Ability2.performed += _ => TryAbility2();
+            input.Player.Dodge.performed += _ => TryDodge();
+            input.Player.Interaction.performed += _ => onInteract?.Invoke();
+        }
+
+        input.Player.Enable();
     }
 
     public override void OnStartLocalPlayer()
     {
-        input = new PlayerInputActions();
-        input.Player.Enable();
+        EnsureInputInitialized();
 
-        input.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        input.Player.Move.canceled += ctx => moveInput = Vector2.zero;
-
-        input.Player.Attack1.performed += _ => TryAttack1();
-        input.Player.Attack2.performed += _ => TryAttack2();
-        input.Player.Ability1.performed += _ => TryAbility1();
-        input.Player.Ability2.performed += _ => TryAbility2();
-        input.Player.Dodge.performed += _ => TryDodge();
-        input.Player.Interaction.performed += _ => onInteract?.Invoke();
-
-        BindCamera();
+        RefreshInGame();
+        StartCoroutine(LateBindCamera());
 
         // Создаём HUD для локального игрока
         if (hudPrefab != null)
@@ -100,67 +186,125 @@ public class PlayerController : NetworkBehaviour
             hud = hudObj.GetComponent<PlayerHUD>();
             hud?.Init(stats, Ability);
         }
+
+        // Экран смерти — только в данже
+        if (deathScreenPrefab != null && inGame)
+        {
+            var deathObj = Instantiate(deathScreenPrefab);
+            var deathScreen = deathObj.GetComponent<DeathScreenUI>();
+            deathScreen?.Init(stats);
+        }
+
+        // Меню паузы — в данже и в лобби
+        if (pauseMenuPrefab != null)
+        {
+            Instantiate(pauseMenuPrefab);
+        }
     }
 
     private void OnEnable()
     {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+
         if (isLocalPlayer)
         {
-            // При смене сцены камера пересоздаётся — привязываем заново
+            EnsureInputInitialized();
             BindCamera();
+            RefreshInGame();
+        }
+    }
 
-            // Определяем, в игре ли мы (лобби = есть LobbyManager)
-            inGame = FindAnyObjectByType<LobbyManager>() == null;
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        if (isLocalPlayer)
+        {
+            EnsureInputInitialized();
+            BindCamera();
+            RefreshInGame();
         }
     }
 
     private void OnDisable()
     {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+
         if (isLocalPlayer && input != null)
             input.Player.Disable();
     }
 
     private void BindCamera()
     {
-        var cam = Camera.main;
-        if (cam != null)
+        // При наличии нескольких камер (например лобби + DontDestroyOnLoad)
+        // оставляем только одну и привязываем к ней CameraFollow
+        var allCams = Camera.allCameras;
+        Camera chosen = Camera.main ?? (allCams.Length > 0 ? allCams[0] : null);
+        if (chosen == null) return;
+
+        // Отключаем все остальные камеры
+        foreach (var c in allCams)
         {
-            var follow = cam.GetComponent<CameraFollow>();
-            if (follow == null)
-                follow = cam.gameObject.AddComponent<CameraFollow>();
-            follow.SetTarget(transform);
+            if (c != chosen)
+                c.gameObject.SetActive(false);
         }
+
+        var follow = chosen.GetComponent<CameraFollow>();
+        if (follow == null)
+            follow = chosen.gameObject.AddComponent<CameraFollow>();
+        follow.SetTarget(transform);
+    }
+
+    private IEnumerator LateBindCamera()
+    {
+        float timeout = 1f;
+        while (Camera.main == null && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+        BindCamera();
     }
 
     private void FixedUpdate()
     {
-        if (!isLocalPlayer) return;
+        // Клиент: читает input и отправляет на сервер
+        if (isLocalPlayer)
+        {
+            if (moveInput != syncMoveInput)
+                CmdSetMoveInput(moveInput);
 
-        if (stats != null && stats.IsDead) return;
+            // Flip — отправляем на сервер
+            if (!isAttacking && moveInput.x != 0f)
+            {
+                bool flip = moveInput.x < 0f;
+                if (flip != syncFlipX)
+                    CmdSetFlip(flip);
+            }
 
-        // Во время рывка — не управляем скоростью вручную
-        if (isDodging) return;
+            // Запоминаем последнее направление движения (локально для dodge)
+            if (moveInput != Vector2.zero)
+                lastMoveDir = moveInput.normalized;
+        }
 
-        float speed = heroData != null ? heroData.moveSpeed : 5f;
+        // Сервер: двигает персонажа по syncMoveInput
+        if (isServer)
+        {
+            bool canMove = (stats == null || !stats.IsDead) && !isDodging;
+            if (canMove)
+            {
+                float speed = heroData != null ? heroData.moveSpeed : 5f;
 
-        // Замедление при атаке
-        if (isAttacking && heroData != null)
-            speed *= heroData.attackSlowMultiplier;
+                if (isAttacking)
+                    speed *= currentAttackSlowMultiplier;
 
-        rb.linearVelocity = moveInput * speed;
+                rb.linearVelocity = syncMoveInput * speed;
+            }
+        }
 
-        animator.SetBool("IsMoving", moveInput != Vector2.zero);
+        // Все: анимация и flip (на основе SyncVar)
+        animator.SetBool("IsMoving", syncMoveInput != Vector2.zero);
 
-        // Запоминаем последнее направление движения
-        if (moveInput != Vector2.zero)
-            lastMoveDir = moveInput.normalized;
-
-        // Flip спрайта по горизонтальному направлению движения (не во время атаки)
-        if (!isAttacking && spriteRenderer != null && moveInput.x != 0f)
-            spriteRenderer.flipX = moveInput.x < 0f;
-
-        if (moveInput != syncMoveInput)
-            CmdSetMoveInput(moveInput);
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = syncFlipX;
     }
 
     // --- Поворот к цели при атаке ---
@@ -211,21 +355,66 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-        if (spriteRenderer != null && dirX != 0f)
-            spriteRenderer.flipX = dirX < 0f;
+        if (dirX != 0f)
+        {
+            bool flip = dirX < 0f;
+            if (spriteRenderer != null)
+                spriteRenderer.flipX = flip;
+            // Синхронизируем с сервером, чтобы хитбоксы зеркалились правильно
+            if (flip != syncFlipX)
+                CmdSetFlip(flip);
+        }
     }
 
-    private void StartAttackSlow()
+    /// <summary>
+    /// Animation Event: start movement slow during attack.
+    /// Float parameter = speed multiplier (e.g. 0.3 = 30% speed, 0 = full stop).
+    /// </summary>
+    public void StartAttackSlow(float multiplier)
     {
-        isAttacking = true;
-        float duration = heroData != null ? heroData.attackSlowDuration : 0.4f;
-        Invoke(nameof(EndAttackSlow), duration);
+        if (isServer)
+        {
+            isAttacking = true;
+            currentAttackSlowMultiplier = multiplier;
+        }
+        else if (isLocalPlayer)
+        {
+            CmdSetAttackSlow(multiplier);
+        }
     }
 
-    private void EndAttackSlow()
+    /// <summary>
+    /// Animation Event: end movement slow after attack.
+    /// </summary>
+    public void EndAttackSlow()
     {
-        isAttacking = false;
+        if (isServer)
+        {
+            isAttacking = false;
+            currentAttackSlowMultiplier = 1f;
+        }
+        else if (isLocalPlayer)
+        {
+            CmdSetAttackSlow(-1f); // -1 = end attack slow
+        }
     }
+
+    [Command]
+    private void CmdSetAttackSlow(float multiplier)
+    {
+        if (multiplier < 0f)
+        {
+            isAttacking = false;
+            currentAttackSlowMultiplier = 1f;
+        }
+        else
+        {
+            isAttacking = true;
+            currentAttackSlowMultiplier = multiplier;
+        }
+    }
+
+    private float currentAttackSlowMultiplier = 1f;
 
     // --- Атаки ---
 
@@ -236,9 +425,8 @@ public class PlayerController : NetworkBehaviour
         canAttack = false;
 
         FaceAttackDirection();
-        StartAttackSlow();
-
         ab.Attack1();
+        CmdAttack(0);
         float cooldown = heroData != null ? heroData.attackCooldown : 0.5f;
         Invoke(nameof(ResetAttack), cooldown);
     }
@@ -251,9 +439,8 @@ public class PlayerController : NetworkBehaviour
         canAttack = false;
 
         FaceAttackDirection();
-        StartAttackSlow();
-
         ab.Attack2();
+        CmdAttack(1);
         float cooldown = heroData != null ? heroData.attackCooldown : 0.5f;
         Invoke(nameof(ResetAttack), cooldown);
     }
@@ -267,21 +454,51 @@ public class PlayerController : NetworkBehaviour
         if (!ab.CanUseAbility1) return;
 
         FaceAttackDirection();
-        StartAttackSlow();
-
         ab.UseAbility1();
+        CmdAbilityAttack(ab.PendingHitboxIndex, ab.PendingDamage, ab.LastTriggerName);
     }
 
     private void TryAbility2()
     {
+        // ability2 removed — reserved for future shield mechanic
+    }
+
+    /// <summary>
+    /// Атака с хитбоксом — сервер готовит урон и проигрывает анимацию,
+    /// чтобы Animation Event EnableHitbox() сработал на сервере.
+    /// </summary>
+    [Command]
+    private void CmdAttack(int attackIndex)
+    {
         var ab = Ability;
-        if (!isLocalPlayer || !inGame || ab == null) return;
-        if (!ab.CanUseAbility2) return;
+        if (ab == null) return;
 
-        FaceAttackDirection();
-        StartAttackSlow();
+        // Получаем урон из HeroData
+        float damage;
+        string triggerName;
+        if (attackIndex == 0)
+        {
+            damage = heroData != null ? heroData.attack1Damage : 15f;
+            triggerName = "Attack1";
+        }
+        else
+        {
+            damage = heroData != null ? heroData.attack2Damage : 25f;
+            triggerName = "Attack2";
+        }
 
-        ab.UseAbility2();
+        // Melee: подготавливаем хитбокс для Animation Event (EnableHitbox)
+        ab.PrepareHitboxPublic(attackIndex, damage);
+
+        // Ranged: подготавливаем данные для Animation Event (SpawnProjectile)
+        ab.PrepareProjectile(attackIndex, damage, syncFlipX, false);
+
+        // Для выделенного клиента (не хост) — запускаем анимацию на сервере
+        if (!isLocalPlayer)
+            animator.SetTrigger(triggerName);
+
+        // Рассылаем анимацию другим клиентам
+        RpcPlayAttack(triggerName);
     }
 
     // --- Уклонение ---
@@ -292,19 +509,26 @@ public class PlayerController : NetworkBehaviour
         canDodge = false;
 
         Vector2 dodgeDir = moveInput != Vector2.zero ? moveInput.normalized : lastMoveDir;
-        float force = heroData != null ? heroData.dodgeForce : 8f;
         float duration = heroData != null ? heroData.dodgeDuration : 0.25f;
         float cooldown = heroData != null ? heroData.dodgeCooldown : 1f;
 
-        StartCoroutine(DodgeRoutine(dodgeDir, force, duration, cooldown));
+        // Запускаем dodge на сервере (физика) и локально (визуал + кулдаун)
+        CmdDodge(dodgeDir);
+        StartCoroutine(DodgeLocalRoutine(duration, cooldown));
     }
 
-    private IEnumerator DodgeRoutine(Vector2 direction, float force, float duration, float cooldown)
+    /// <summary>
+    /// Локальная часть dodge: визуальный эффект (прозрачность) и кулдаун.
+    /// Физика выполняется на сервере через CmdDodge.
+    /// </summary>
+    private IEnumerator DodgeLocalRoutine(float duration, float cooldown)
     {
         isDodging = true;
 
-        // Сообщаем серверу о неуязвимости
-        CmdSetDodging(true);
+        // Ghost trail effect
+        var ghost = GetComponent<DodgeGhostEffect>();
+        if (ghost != null)
+            ghost.SpawnGhosts(duration);
 
         // Визуальный эффект — полупрозрачность во время i-frames
         if (spriteRenderer != null)
@@ -314,13 +538,9 @@ public class PlayerController : NetworkBehaviour
             spriteRenderer.color = c;
         }
 
-        rb.linearVelocity = Vector2.zero;
-        rb.AddForce(direction * force, ForceMode2D.Impulse);
-
         yield return new WaitForSeconds(duration);
 
         isDodging = false;
-        CmdSetDodging(false);
 
         // Возвращаем непрозрачность
         if (spriteRenderer != null)
@@ -344,13 +564,120 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Command]
-    private void CmdSetDodging(bool dodging)
+    private void CmdSetFlip(bool flip)
     {
-        if (stats != null)
-            stats.IsDodging = dodging;
+        syncFlipX = flip;
+    }
+
+    /// <summary>
+    /// Ability-атака — сервер получает данные хитбокса и триггер от клиента.
+    /// </summary>
+    [Command]
+    private void CmdAbilityAttack(int hitboxIndex, float damage, string triggerName)
+    {
+        var ab = Ability;
+        if (ab != null)
+        {
+            ab.PrepareHitboxPublic(hitboxIndex, damage);
+            ab.PrepareProjectile(hitboxIndex, damage, syncFlipX, true);
+        }
+
+        // Для выделенного клиента — запускаем анимацию на сервере
+        if (!isLocalPlayer)
+            animator.SetTrigger(triggerName);
+
+        RpcPlayAttack(triggerName);
+    }
+
+    [ClientRpc(includeOwner = false)]
+    private void RpcPlayAttack(string triggerName)
+    {
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+            anim.SetTrigger(triggerName);
+    }
+
+    private void OnFlipChanged(bool oldVal, bool newVal)
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = newVal;
+    }
+
+    /// <summary>
+    /// Dodge — выполняется на сервере: импульс + неуязвимость.
+    /// </summary>
+    [Command]
+    private void CmdDodge(Vector2 direction)
+    {
+        if (stats == null || stats.IsDead) return;
+
+        float force = heroData != null ? heroData.dodgeForce : 8f;
+        float duration = heroData != null ? heroData.dodgeDuration : 0.25f;
+
+        StartCoroutine(ServerDodgeRoutine(direction, force, duration));
+    }
+
+    private IEnumerator ServerDodgeRoutine(Vector2 direction, float force, float duration)
+    {
+        isDodging = true;
+        if (stats != null) stats.IsDodging = true;
+
+        // Disable collider so player can pass through enemies
+        var col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        yield return new WaitForSeconds(duration);
+
+        if (col != null) col.enabled = true;
+
+        isDodging = false;
+        if (stats != null) stats.IsDodging = false;
     }
 
     // --- Сброс кулдаунов ---
 
     private void ResetAttack() => canAttack = true;
+
+    /// <summary>
+    /// Animation Event: spawns projectile at the correct frame of ranged attack animation.
+    /// Delegates to HeroAbility.SpawnProjectile().
+    /// </summary>
+    public void SpawnProjectile()
+    {
+        var ab = Ability;
+        if (ab != null)
+            ab.SpawnProjectile();
+    }
+
+    /// <summary>
+    /// Resets attack state: deactivates all hitboxes and clears attack slow.
+    /// Called when animation is interrupted (e.g. taking damage, death).
+    /// </summary>
+    public void ResetAttackState()
+    {
+        // Deactivate all weapon hitboxes
+        var ab = Ability;
+        if (ab != null)
+        {
+            foreach (var hitbox in GetComponentsInChildren<WeaponHitbox>(true))
+            {
+                if (hitbox != null)
+                    hitbox.Deactivate();
+            }
+        }
+
+        // Clear attack slow
+        if (isServer)
+        {
+            isAttacking = false;
+            currentAttackSlowMultiplier = 1f;
+        }
+        else if (isLocalPlayer)
+        {
+            CmdSetAttackSlow(-1f);
+        }
+    }
 }

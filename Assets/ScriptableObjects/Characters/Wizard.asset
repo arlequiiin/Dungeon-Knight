@@ -15,19 +15,20 @@ MonoBehaviour:
   heroName: Wizard
   heroType: 5
   unlockedByDefault: 0
-  maxHealth: 100
+  maxHealth: 120
   maxEnergy: 100
-  moveSpeed: 5
+  moveSpeed: 2
   attackCount: 4
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
-  attackSlowMultiplier: 0.3
-  attackSlowDuration: 0.4
   targetSearchRadius: 5
+  ability1Cooldown: 5
   dodgeForce: 8
   dodgeCooldown: 1
   dodgeDuration: 0.25
   weaponHitboxPrefabs: []
+  projectilePrefabs:
+  - {fileID: 9070029140339967514, guid: 1665d4274caa1d946b376ba20452ca0e, type: 3}
   animatorController: {fileID: 9100000, guid: d5dda45c1f9325844b71ae2f22b57d62, type: 2}
   icon: {fileID: -5908238798454654921, guid: c81bc7f0de2437848b97c449f3ab77e6, type: 3}

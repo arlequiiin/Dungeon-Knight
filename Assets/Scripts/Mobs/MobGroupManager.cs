@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Менеджер групповой координации мобов в комнате.
-/// Два слота атаки: один спереди игрока, один сзади.
+/// Два слота атаки: один слева от игрока, один справа.
 /// Остальные мобы кружат вокруг, ожидая своей очереди.
 /// </summary>
 public class MobGroupManager : MonoBehaviour
@@ -14,9 +14,9 @@ public class MobGroupManager : MonoBehaviour
 
     private readonly List<MobAI> aliveMobs = new();
 
-    // Два слота: спереди и сзади игрока
-    private MobAI frontSlot;
-    private MobAI backSlot;
+    // Два слота: слева и справа от игрока
+    private MobAI leftSlot;
+    private MobAI rightSlot;
 
     public void Register(MobAI mob)
     {
@@ -27,40 +27,33 @@ public class MobGroupManager : MonoBehaviour
     public void Unregister(MobAI mob)
     {
         aliveMobs.Remove(mob);
-        if (frontSlot == mob) frontSlot = null;
-        if (backSlot == mob) backSlot = null;
+        if (leftSlot == mob) leftSlot = null;
+        if (rightSlot == mob) rightSlot = null;
     }
 
     /// <summary>
-    /// Запрашивает слот атаки. Моб назначается на ближайшую к нему сторону (спереди/сзади).
+    /// Запрашивает слот атаки. Моб назначается на ближайшую сторону (лево/право от игрока).
     /// </summary>
     public bool RequestAttackSlot(MobAI mob, Transform target)
     {
         // Уже имеет слот
-        if (frontSlot == mob || backSlot == mob) return true;
+        if (leftSlot == mob || rightSlot == mob) return true;
 
         // Оба заняты
-        if (frontSlot != null && backSlot != null) return false;
+        if (leftSlot != null && rightSlot != null) return false;
 
         // Определяем, с какой стороны моб относительно игрока
         bool mobIsRight = mob.transform.position.x >= target.position.x;
 
-        // Определяем куда смотрит игрок (flipX = true → смотрит влево)
-        var playerSprite = target.GetComponent<SpriteRenderer>();
-        bool playerLooksRight = playerSprite == null || !playerSprite.flipX;
-
-        // "Спереди" = та сторона куда смотрит игрок
-        bool mobIsFront = (playerLooksRight && mobIsRight) || (!playerLooksRight && !mobIsRight);
-
-        if (mobIsFront)
+        if (mobIsRight)
         {
-            if (frontSlot == null) { frontSlot = mob; return true; }
-            if (backSlot == null)  { backSlot = mob; return true; }
+            if (rightSlot == null) { rightSlot = mob; return true; }
+            if (leftSlot == null)  { leftSlot = mob; return true; }
         }
         else
         {
-            if (backSlot == null)  { backSlot = mob; return true; }
-            if (frontSlot == null) { frontSlot = mob; return true; }
+            if (leftSlot == null)  { leftSlot = mob; return true; }
+            if (rightSlot == null) { rightSlot = mob; return true; }
         }
 
         return false;
@@ -68,11 +61,11 @@ public class MobGroupManager : MonoBehaviour
 
     public void ReleaseAttackSlot(MobAI mob)
     {
-        if (frontSlot == mob) frontSlot = null;
-        if (backSlot == mob) backSlot = null;
+        if (leftSlot == mob) leftSlot = null;
+        if (rightSlot == mob) rightSlot = null;
     }
 
-    public bool HasFreeSlot => frontSlot == null || backSlot == null;
+    public bool HasFreeSlot => leftSlot == null || rightSlot == null;
 
     /// <summary>
     /// Позиция для кружения. Мобы без слота равномерно распределяются по окружности.
@@ -85,7 +78,7 @@ public class MobGroupManager : MonoBehaviour
         for (int i = 0; i < aliveMobs.Count; i++)
         {
             var m = aliveMobs[i];
-            if (m == frontSlot || m == backSlot) continue;
+            if (m == leftSlot || m == rightSlot) continue;
             if (m == mob) waitingIndex = waitingCount;
             waitingCount++;
         }
