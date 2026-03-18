@@ -15,16 +15,15 @@ MonoBehaviour:
   heroName: Knight
   heroType: 1
   unlockedByDefault: 1
-  maxHealth: 100
+  maxHealth: 130
   maxEnergy: 100
-  moveSpeed: 4
+  moveSpeed: 1.8
   attackCount: 2
-  attack1Damage: 15
-  attack2Damage: 25
+  attack1Damage: 25
+  attack2Damage: 15
   attackCooldown: 0.5
-  attackSlowMultiplier: 0.2
-  attackSlowDuration: 0.6
   targetSearchRadius: 5
+  ability1Cooldown: 5
   dodgeForce: 8
   dodgeCooldown: 1
   dodgeDuration: 0.25
@@ -32,5 +31,6 @@ MonoBehaviour:
   - {fileID: 5432223053108636184, guid: 09b4ccd39abc09a449b0a8345579b3b0, type: 3}
   - {fileID: 8397030601734503542, guid: f3df5cfcc8eeab146b7b17896ba38cfc, type: 3}
   - {fileID: 6942135895178382855, guid: df324fec75e8d6e42929dddf7c5ffe60, type: 3}
+  projectilePrefabs: []
   animatorController: {fileID: 9100000, guid: 088b7d4d3489d654490db567d6900d74, type: 2}
   icon: {fileID: -2875184811977189179, guid: aec92515a8f2ee3428c0c4b428e644ce, type: 3}

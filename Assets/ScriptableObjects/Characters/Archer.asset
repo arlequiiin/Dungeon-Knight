@@ -14,20 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroData
   heroName: Archer
   heroType: 4
-  unlockedByDefault: 0
-  maxHealth: 100
+  unlockedByDefault: 1
+  maxHealth: 120
   maxEnergy: 100
-  moveSpeed: 5
+  moveSpeed: 2
   attackCount: 4
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
-  attackSlowMultiplier: 0.3
-  attackSlowDuration: 0.4
   targetSearchRadius: 5
+  ability1Cooldown: 5
   dodgeForce: 8
   dodgeCooldown: 1
   dodgeDuration: 0.25
   weaponHitboxPrefabs: []
+  projectilePrefabs: []
   animatorController: {fileID: 9100000, guid: ef42d687d294d454395ec501bd2632d6, type: 2}
   icon: {fileID: 5420657165879536120, guid: ef755bc4cd693be408a31600c474df46, type: 3}

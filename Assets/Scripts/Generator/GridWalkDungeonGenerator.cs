@@ -64,7 +64,8 @@ public class GridWalkDungeonGenerator : MonoBehaviour
         BakeNavMesh();
 
         // Спавним мобов после запекания NavMesh
-        mobSpawner?.SpawnMobs(generator, config.seed);
+        int playerCount = Mirror.NetworkServer.connections.Count;
+        mobSpawner?.SpawnMobs(generator, config.seed, playerCount);
     }
 
     public void RegenerateDungeon()

@@ -3,30 +3,35 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// Абстрактный базовый класс для AI всех мобов.
-/// Содержит общую логику FSM, патрулирования, преследования, хитбоксов.
-/// Наследники переопределяют атаку и параметры.
-/// Работает только на сервере — NavMeshAgent и физика управляются сервером.
+/// Base class for all mob AI.
+/// Reads stats from MobData (ScriptableObject) at init.
+/// Contains FSM, patrol, chase, hitbox logic.
+/// Subclasses override PerformAttack() for custom behavior.
+/// Server-only: NavMeshAgent and physics are server-controlled.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(MobHealth))]
 [RequireComponent(typeof(Animator))]
 public abstract class MobAI : NetworkBehaviour
 {
-    [Header("Обнаружение")]
-    public float detectionRange = 5f;
-    public float loseRange = 8f;
+    [Header("Mob Data")]
+    public MobData mobData;
 
-    [Header("Атака")]
-    public float attackRange = 0.8f;
-    public float attackCooldown = 1.2f;
+    // --- Runtime stats (applied from MobData + scaling) ---
+    protected float detectionRange;
+    protected float loseRange;
+    protected float attackRange;
+    protected float attackCooldown;
+    protected float patrolRadius;
+    protected float patrolWaitMin;
+    protected float patrolWaitMax;
+    protected float hitReactionDuration;
+    protected float recoveryDuration;
+    protected bool canBeInterrupted;
+    protected float[] attackDamages;
+    protected float[] attackWeights;
 
-    [Header("Патруль")]
-    public float patrolRadius = 2.5f;
-    public float patrolWaitMin = 1f;
-    public float patrolWaitMax = 3f;
-
-    // --- Компоненты ---
+    // --- Components ---
     protected NavMeshAgent agent;
     protected Animator animator;
     protected MobHealth health;
@@ -36,45 +41,86 @@ public abstract class MobAI : NetworkBehaviour
     protected enum State { Patrol, Chase, CircleWait, Attack, HitReaction, Recovery }
     protected State state = State.Patrol;
 
-    // --- Таргет ---
+    // --- Target ---
     protected Transform target;
     protected Vector2 roomCenter;
 
     // --- Group AI ---
     private MobGroupManager groupManager;
 
-    // --- Таймеры ---
+    // --- Timers ---
     protected float attackTimer;
     private float patrolTimer;
     private bool isWaitingAtPatrolPoint;
     private float hitReactionTimer;
     private float recoveryTimer;
 
-    // --- SyncVar для анимации на клиентах ---
+    // --- SyncVar for client animation ---
     [SyncVar] private bool syncIsMoving;
+    [SyncVar] private bool syncFlipX;
 
-    // --- Хитбоксы (аналогично HeroAbility) ---
+    // --- Hitboxes (same pattern as HeroAbility) ---
     private WeaponHitbox[] weaponHitboxes;
     protected float pendingDamage;
     protected int pendingHitboxIndex;
 
-    // === Виртуальные параметры для наследников ===
+    // === Scaling ===
+    private float difficultyMultiplier = 1f;
 
-    /// <summary>Длительность flinch при получении урона.</summary>
-    protected virtual float HitReactionDuration => 0.3f;
+    // === Init ===
 
-    /// <summary>Окно уязвимости после атаки.</summary>
-    protected virtual float RecoveryDuration => 0.4f;
-
-    /// <summary>Может ли моб быть прерван ударом (false = суперармор во время атаки).</summary>
-    protected virtual bool CanBeInterrupted => true;
-
-    // === Инициализация ===
-
-    public void Init(Vector2 center, MobGroupManager group = null)
+    public void Init(Vector2 center, MobGroupManager group = null, int playerCount = 1, float difficulty = 1f)
     {
         roomCenter = center;
         groupManager = group;
+
+        // Scale multiplier: +30% HP per extra player, difficulty scales everything
+        difficultyMultiplier = difficulty;
+        float hpScale = difficulty * (1f + 0.3f * (playerCount - 1));
+        float dmgScale = difficulty;
+
+        ApplyMobData(hpScale, dmgScale);
+    }
+
+    private void ApplyMobData(float hpScale, float dmgScale)
+    {
+        if (mobData == null)
+        {
+            Debug.LogError($"[MobAI] MobData not assigned on {gameObject.name}!");
+            return;
+        }
+
+        // Detection & patrol
+        detectionRange = mobData.detectionRange;
+        loseRange = mobData.loseRange;
+        patrolRadius = mobData.patrolRadius;
+        patrolWaitMin = mobData.patrolWaitMin;
+        patrolWaitMax = mobData.patrolWaitMax;
+
+        // Attack
+        attackRange = mobData.attackRange;
+        attackCooldown = mobData.attackCooldown;
+        attackDamages = new float[mobData.attackDamages.Length];
+        for (int i = 0; i < mobData.attackDamages.Length; i++)
+            attackDamages[i] = mobData.attackDamages[i] * dmgScale;
+        attackWeights = mobData.attackWeights;
+
+        // Reaction
+        hitReactionDuration = mobData.hitReactionDuration;
+        recoveryDuration = mobData.recoveryDuration;
+        canBeInterrupted = mobData.canBeInterrupted;
+
+        // Movement
+        if (agent != null)
+            agent.speed = mobData.moveSpeed;
+
+        // Health (scaled)
+        health.SetMaxHealth(mobData.maxHealth * hpScale);
+
+        // Knockback resistance
+        var hitEffect = GetComponent<HitEffect>();
+        if (hitEffect != null)
+            hitEffect.knockbackResistance = mobData.knockbackResistance;
     }
 
     protected virtual void Awake()
@@ -84,12 +130,19 @@ public abstract class MobAI : NetworkBehaviour
         health = GetComponent<MobHealth>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // NavMeshAgent для 2D
+        // NavMeshAgent for 2D
         agent.updateRotation = false;
         agent.updateUpAxis = false;
 
-        attackTimer = attackCooldown;
         weaponHitboxes = GetComponentsInChildren<WeaponHitbox>(true);
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        if (!isServer)
+            agent.enabled = false;
     }
 
     private void OnDisable()
@@ -103,8 +156,10 @@ public abstract class MobAI : NetworkBehaviour
 
     private void Update()
     {
-        // Анимации применяются на всех клиентах через SyncVar
+        // Animation and flip on all clients via SyncVar
         animator.SetBool("IsMoving", syncIsMoving);
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = syncFlipX;
 
         if (!isServer) return;
         if (health.IsDead) return;
@@ -121,14 +176,13 @@ public abstract class MobAI : NetworkBehaviour
             case State.Recovery:    UpdateRecovery();    break;
         }
 
-        // Обновляем SyncVar для анимации
         bool moving = agent.velocity.sqrMagnitude > 0.01f;
         if (syncIsMoving != moving) syncIsMoving = moving;
 
         FlipSprite();
     }
 
-    // === Состояния ===
+    // === States ===
 
     private void UpdatePatrol()
     {
@@ -183,7 +237,6 @@ public abstract class MobAI : NetworkBehaviour
             return;
         }
 
-        // Запрашиваем слот заранее — на подходе, а не вплотную
         float engageRange = groupManager != null ? groupManager.circleRadius : attackRange;
         if (dist <= engageRange)
         {
@@ -214,24 +267,20 @@ public abstract class MobAI : NetworkBehaviour
             return;
         }
 
-        // Пробуем получить слот
         if (groupManager == null || groupManager.RequestAttackSlot(this, target))
         {
             state = State.Chase;
             return;
         }
 
-        // Кружим вокруг цели
         Vector2 circlePos = groupManager.GetCirclePosition(this, target.position);
         agent.SetDestination(new Vector3(circlePos.x, circlePos.y, 0f));
 
-        // Поворачиваемся к игроку
         FaceTarget();
     }
 
     /// <summary>
-    /// Логика атаки. Наследники могут переопределить для кастомного поведения.
-    /// По умолчанию: стоит в зоне атаки, бьёт по кулдауну, переходит в Recovery.
+    /// Attack state logic. Subclasses can override for custom behavior.
     /// </summary>
     protected virtual void UpdateAttack()
     {
@@ -246,18 +295,15 @@ public abstract class MobAI : NetworkBehaviour
 
         if (dist > attackRange * 1.2f)
         {
-            // Кулдаун ещё не готов — подходим к цели
             if (attackTimer > 0f)
             {
                 agent.SetDestination(target.position);
                 return;
             }
-            // Кулдаун готов, но цель далеко — переход в Chase
             state = State.Chase;
             return;
         }
 
-        // В зоне атаки — стоим на месте
         agent.ResetPath();
         FaceTarget();
 
@@ -265,7 +311,6 @@ public abstract class MobAI : NetworkBehaviour
         {
             PerformAttack();
             attackTimer = attackCooldown;
-            // Переход в Recovery после атаки
             EnterRecovery();
         }
     }
@@ -277,7 +322,6 @@ public abstract class MobAI : NetworkBehaviour
         hitReactionTimer -= Time.deltaTime;
         if (hitReactionTimer <= 0f)
         {
-            // После flinch — возврат в Chase (или Patrol если нет цели)
             if (target != null && IsTargetAlive())
                 state = State.Chase;
             else
@@ -307,40 +351,50 @@ public abstract class MobAI : NetworkBehaviour
         }
     }
 
-    // === Абстрактные методы для наследников ===
+    // === Abstract methods ===
 
     /// <summary>
-    /// Выполняет атаку: выбирает тип, вызывает PrepareHitbox + SetTrigger.
+    /// Perform attack: choose type, call PrepareHitbox + SetTrigger.
     /// </summary>
     protected abstract void PerformAttack();
 
-    // === Общая логика ===
+    /// <summary>
+    /// Sync animation trigger to all clients.
+    /// Call this after animator.SetTrigger() in PerformAttack().
+    /// </summary>
+    [ClientRpc]
+    protected void RpcPlayTrigger(string triggerName)
+    {
+        if (isServer) return;
+        animator.SetTrigger(triggerName);
+    }
+
+    // === Common logic ===
 
     /// <summary>
-    /// Вызывается из MobHealth.TakeDamage() — реакция на получение урона.
+    /// Called from MobHealth.TakeDamage() — reaction to taking damage.
     /// </summary>
     public void OnHit()
     {
         if (!isServer) return;
         if (health.IsDead) return;
 
-        // Прерывание зависит от CanBeInterrupted и текущего состояния
-        if (!CanBeInterrupted) return;
-        if (state == State.HitReaction) return; // уже в flinch
+        if (!canBeInterrupted) return;
+        if (state == State.HitReaction) return;
+
+        // Deactivate hitbox if attack was interrupted
+        DisableHitbox();
 
         state = State.HitReaction;
-        hitReactionTimer = HitReactionDuration;
+        hitReactionTimer = hitReactionDuration;
         agent.ResetPath();
     }
 
-    /// <summary>
-    /// Переводит моба в состояние Recovery (окно уязвимости после атаки).
-    /// </summary>
     protected void EnterRecovery()
     {
         ReleaseSlot();
         state = State.Recovery;
-        recoveryTimer = RecoveryDuration;
+        recoveryTimer = recoveryDuration;
     }
 
     private void ReleaseSlot()
@@ -349,13 +403,10 @@ public abstract class MobAI : NetworkBehaviour
             groupManager.ReleaseAttackSlot(this);
     }
 
-    /// <summary>
-    /// Поворачивает спрайт к цели перед атакой.
-    /// </summary>
     protected void FaceTarget()
     {
-        if (target != null && spriteRenderer != null)
-            spriteRenderer.flipX = target.position.x < transform.position.x;
+        if (target != null)
+            syncFlipX = target.position.x < transform.position.x;
     }
 
     private void SetPatrolDestination()
@@ -397,13 +448,50 @@ public abstract class MobAI : NetworkBehaviour
 
     private void FlipSprite()
     {
-        if (spriteRenderer == null) return;
-
-        if (agent.velocity.x > 0.1f)  spriteRenderer.flipX = false;
-        else if (agent.velocity.x < -0.1f) spriteRenderer.flipX = true;
+        if (agent.velocity.x > 0.1f)  syncFlipX = false;
+        else if (agent.velocity.x < -0.1f) syncFlipX = true;
     }
 
-    // === Animation Event методы ===
+    // === Hitbox helpers ===
+
+    /// <summary>
+    /// Returns damage for attack index, using scaled attackDamages array.
+    /// </summary>
+    protected float GetAttackDamage(int index)
+    {
+        if (attackDamages == null || index < 0 || index >= attackDamages.Length)
+            return 10f;
+        return attackDamages[index];
+    }
+
+    /// <summary>
+    /// Picks a random attack index based on attackWeights.
+    /// Returns 0 if only one attack.
+    /// </summary>
+    protected int ChooseWeightedAttack()
+    {
+        if (attackDamages == null || attackDamages.Length <= 1)
+            return 0;
+
+        // If no weights defined, equal probability
+        if (attackWeights == null || attackWeights.Length == 0)
+            return Random.Range(0, attackDamages.Length);
+
+        float total = 0f;
+        for (int i = 0; i < attackWeights.Length; i++)
+            total += attackWeights[i];
+
+        float roll = Random.value * total;
+        float cumulative = 0f;
+        for (int i = 0; i < attackWeights.Length; i++)
+        {
+            cumulative += attackWeights[i];
+            if (roll < cumulative)
+                return i;
+        }
+
+        return 0;
+    }
 
     protected void PrepareHitbox(int index, float damage)
     {
@@ -418,9 +506,6 @@ public abstract class MobAI : NetworkBehaviour
         return weaponHitboxes[index];
     }
 
-    /// <summary>
-    /// Animation Event: активирует хитбокс на кадре удара.
-    /// </summary>
     public void EnableHitbox()
     {
         var hitbox = GetHitbox(pendingHitboxIndex);
@@ -428,9 +513,6 @@ public abstract class MobAI : NetworkBehaviour
             hitbox.Activate(pendingDamage);
     }
 
-    /// <summary>
-    /// Animation Event: деактивирует хитбокс после удара.
-    /// </summary>
     public void DisableHitbox()
     {
         var hitbox = GetHitbox(pendingHitboxIndex);
@@ -440,9 +522,12 @@ public abstract class MobAI : NetworkBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        float det = mobData != null ? mobData.detectionRange : detectionRange;
+        float atk = mobData != null ? mobData.attackRange : attackRange;
+
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Gizmos.DrawWireSphere(transform.position, det);
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.DrawWireSphere(transform.position, atk);
     }
 }

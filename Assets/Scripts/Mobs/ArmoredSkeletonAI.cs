@@ -1,31 +1,22 @@
 using UnityEngine;
 
 /// <summary>
-/// AI бронированного скелетона: танк со щитом.
-/// 2 атаки. Не прерывается ударами во время атаки (суперармор).
-/// Щит (IDEA-003) — будет реализован отдельно.
+/// Armored Skeleton: tank with shield.
+/// 2 attacks (light/heavy). Super armor during attack (can't be interrupted).
+/// All stats come from MobData.
 /// </summary>
 public class ArmoredSkeletonAI : MobAI
 {
-    [Header("Урон")]
-    public float attack1Damage = 8f;
-    public float attack2Damage = 14f;
-
-    [Header("Шанс тяжёлой атаки")]
-    [Range(0f, 1f)] public float heavyAttackChance = 0.4f;
-
-    protected override float RecoveryDuration => 0.5f;
-    protected override bool CanBeInterrupted => false;
-
     protected override void PerformAttack()
     {
         FaceTarget();
 
-        bool heavy = Random.value < heavyAttackChance;
-        int attack = heavy ? 1 : 0;
-        float damage = heavy ? attack2Damage : attack1Damage;
+        int attack = ChooseWeightedAttack();
+        float damage = GetAttackDamage(attack);
+        string trigger = attack == 0 ? "Attack1" : "Attack2";
 
         PrepareHitbox(attack, damage);
-        animator.SetTrigger(heavy ? "Attack2" : "Attack1");
+        animator.SetTrigger(trigger);
+        RpcPlayTrigger(trigger);
     }
 }

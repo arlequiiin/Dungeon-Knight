@@ -19,13 +19,11 @@ public class HeroData : ScriptableObject
     public float attack2Damage = 25f;   // игнорируется если attackCount == 1
     public float attackCooldown = 0.5f;
 
-    [Header("Замедление при атаке")]
-    [Range(0f, 1f)]
-    public float attackSlowMultiplier = 0.3f;   // множитель скорости во время атаки (0.3 = 30% скорости)
-    public float attackSlowDuration = 0.4f;     // длительность замедления
-
-    [Header("Поиск цели при атаке")]
+    [Header("Target Search")]
     public float targetSearchRadius = 5f;       // радиус поиска ближайшего врага
+
+    [Header("Abilities")]
+    public float ability1Cooldown = 5f;
 
     [Header("Уклонение")]
     public float dodgeForce = 8f;
@@ -36,6 +34,10 @@ public class HeroData : ScriptableObject
     [Tooltip("Префабы хитбоксов для каждой атаки. [0]=Attack1, [1]=Attack2, [2]=Ability1 и т.д.")]
     public GameObject[] weaponHitboxPrefabs;   // каждый префаб — свой Collider2D + WeaponHitbox
 
+    [Header("Снаряды (ranged)")]
+    [Tooltip("Префабы снарядов. [0]=Attack1, [1]=Ability1. Для мили-героев оставить пустым.")]
+    public GameObject[] projectilePrefabs;
+
     [Header("Визуал")]
     public RuntimeAnimatorController animatorController;
     public Sprite icon;
@@ -43,6 +45,7 @@ public class HeroData : ScriptableObject
 
 public enum HeroType
 {
+    None = -1,
     Soldier,
     Knight,
     Templar,

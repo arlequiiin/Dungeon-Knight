@@ -131,12 +131,12 @@ TextureImporter:
       name: Priest-Attack_effect_0
       rect:
         serializedVersion: 2
-        x: 47
-        y: 50
-        width: 11
-        height: 26
+        x: 0
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -153,12 +153,12 @@ TextureImporter:
       name: Priest-Attack_effect_1
       rect:
         serializedVersion: 2
-        x: 145
-        y: 42
-        width: 15
-        height: 26
+        x: 100
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -175,12 +175,12 @@ TextureImporter:
       name: Priest-Attack_effect_2
       rect:
         serializedVersion: 2
-        x: 241
-        y: 40
-        width: 23
-        height: 30
+        x: 200
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -197,12 +197,12 @@ TextureImporter:
       name: Priest-Attack_effect_3
       rect:
         serializedVersion: 2
-        x: 340
-        y: 40
-        width: 25
-        height: 32
+        x: 300
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -219,12 +219,12 @@ TextureImporter:
       name: Priest-Attack_effect_4
       rect:
         serializedVersion: 2
-        x: 449
-        y: 40
-        width: 7
-        height: 35
+        x: 400
+        y: 0
+        width: 100
+        height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -237,33 +237,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Priest-Attack_effect_5
-      rect:
-        serializedVersion: 2
-        x: 236
-        y: 37
-        width: 32
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f0453201622782910800000000000000
-      internalID: 1812824357821699087
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b0d3bb251c28a3248b8ae1b07cc1ac37
     internalID: 0
     vertices: []
     indices: 
@@ -271,14 +249,15 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":100.0,"y":100.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Priest-Attack_effect_0: 6862852242180648391
       Priest-Attack_effect_1: -5231761199465287530
       Priest-Attack_effect_2: -6813698183362437404
       Priest-Attack_effect_3: 1214670607135964227
       Priest-Attack_effect_4: -5861851323475908080
-      Priest-Attack_effect_5: 1812824357821699087
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

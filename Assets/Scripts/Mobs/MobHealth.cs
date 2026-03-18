@@ -8,8 +8,7 @@ using UnityEngine.Events;
 /// </summary>
 public class MobHealth : NetworkBehaviour
 {
-    [Header("Характеристики")]
-    public float maxHealth = 40f;
+    private float maxHealth = 40f;
 
     [SyncVar(hook = nameof(OnHealthChanged))]
     private float currentHealth;
@@ -24,6 +23,15 @@ public class MobHealth : NetworkBehaviour
     public override void OnStartServer()
     {
         currentHealth = maxHealth;
+    }
+
+    /// <summary>
+    /// Sets max health (from MobData + scaling). Call before NetworkServer.Spawn().
+    /// </summary>
+    public void SetMaxHealth(float value)
+    {
+        maxHealth = value;
+        currentHealth = value;
     }
 
     [Server]
@@ -62,7 +70,11 @@ public class MobHealth : NetworkBehaviour
         isDead = true;
 
         var ai = GetComponent<MobAI>();
-        if (ai != null) ai.enabled = false;
+        if (ai != null)
+        {
+            ai.DisableHitbox();
+            ai.enabled = false;
+        }
 
         // Отключаем коллайдер чтобы не мешал
         var col = GetComponent<Collider2D>();
