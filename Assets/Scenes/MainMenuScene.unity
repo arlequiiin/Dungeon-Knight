@@ -157,7 +157,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Version
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 778f0c9aa6bcb784482d93173af2adce, type: 2}
   m_sharedMaterial: {fileID: -499771119034101337, guid: 778f0c9aa6bcb784482d93173af2adce, type: 2}
@@ -3512,6 +3514,7 @@ MonoBehaviour:
   - {fileID: 1294678635453260241, guid: e6d42bf1745ef5547a58075c734c78b4, type: 3}
   - {fileID: 1294678635453260241, guid: bfbe365aac3f9af409ce198842987c48, type: 3}
   - {fileID: 5303612760217901525, guid: 97c247eb8ab7d9344a7c11b2e53164a9, type: 3}
+  - {fileID: 1066876977030457965, guid: f80dea35db03a4949b2dcc65a1673f79, type: 3}
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32

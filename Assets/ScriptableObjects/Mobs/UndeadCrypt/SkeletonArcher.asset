@@ -15,10 +15,10 @@ MonoBehaviour:
   mobName: Skeleton Archer
   mobType: 3
   maxHealth: 40
-  detectionRange: 5
+  detectionRange: 6
   loseRange: 8
-  attackRange: 0.8
-  attackCooldown: 1.2
+  attackRange: 5
+  attackCooldown: 1.5
   attackDamages:
   - 10
   attackWeights: []
@@ -26,9 +26,11 @@ MonoBehaviour:
   patrolWaitMin: 1
   patrolWaitMax: 3
   moveSpeed: 1.5
+  attackWindupDuration: 0.3
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
   knockbackResistance: 0
+  projectilePrefab: {fileID: 1066876977030457965, guid: f80dea35db03a4949b2dcc65a1673f79, type: 3}
   coinDropMin: 1
   coinDropMax: 3

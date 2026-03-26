@@ -8,7 +8,7 @@ public class CameraSortAxis : MonoBehaviour
         if (cam != null)
         {
             cam.transparencySortMode = TransparencySortMode.CustomAxis;
-            cam.transparencySortAxis = new Vector3(0, 1, 0);
+            cam.transparencySortAxis = new Vector3(0, -1, 0);
             Debug.Log("CameraSortAxis: set to Custom Y axis");
         }
     }

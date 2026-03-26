@@ -31,6 +31,10 @@ public class MobData : ScriptableObject
     [Header("Movement")]
     public float moveSpeed = 2f;
 
+    [Header("Attack Windup")]
+    [Tooltip("Delay before the attack animation starts (telegraph for player)")]
+    public float attackWindupDuration = 0.3f;
+
     [Header("Reaction")]
     public float hitReactionDuration = 0.3f;
     public float recoveryDuration = 0.4f;
@@ -40,6 +44,10 @@ public class MobData : ScriptableObject
     [Range(0f, 1f)]
     [Tooltip("0 = full knockback, 1 = immune")]
     public float knockbackResistance = 0f;
+
+    [Header("Ranged")]
+    [Tooltip("Projectile prefab for ranged mobs (SkeletonArcher etc). Leave empty for melee mobs.")]
+    public GameObject projectilePrefab;
 
     [Header("Loot")]
     public int coinDropMin = 1;

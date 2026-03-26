@@ -19,7 +19,8 @@ GameObject:
   - component: {fileID: 7470567967621399021}
   - component: {fileID: 1243836199832461739}
   - component: {fileID: 4733505234720641837}
-  m_Layer: 0
+  - component: {fileID: 4399275723740269080}
+  m_Layer: 7
   m_Name: SkeletonGreatsword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -323,6 +324,19 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mobData: {fileID: 11400000, guid: c7ba4f5bd8fc2e94f890f73424860c9a, type: 2}
+--- !u!114 &4399275723740269080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000
 --- !u!1 &6213499344601499967
 GameObject:
   m_ObjectHideFlags: 0
@@ -334,7 +348,7 @@ GameObject:
   - component: {fileID: 2031830660634447649}
   - component: {fileID: 153809382366154779}
   - component: {fileID: 8587792198389684802}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -438,7 +452,7 @@ GameObject:
   - component: {fileID: 782827966670705234}
   - component: {fileID: 2780626668525341445}
   - component: {fileID: 2098667644369650281}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -543,7 +557,7 @@ GameObject:
   - component: {fileID: 5658557875050509126}
   - component: {fileID: 7429389193858472504}
   - component: {fileID: 116069866830912091}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

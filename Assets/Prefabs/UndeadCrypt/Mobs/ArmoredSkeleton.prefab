@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4545056322698359443}
   - component: {fileID: 2020492043097208048}
   - component: {fileID: 8233690951854306744}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,8 @@ GameObject:
   - component: {fileID: 8753875752050375879}
   - component: {fileID: 3769746310109524339}
   - component: {fileID: 4201819489853579391}
-  m_Layer: 0
+  - component: {fileID: -8319222820245989737}
+  m_Layer: 7
   m_Name: ArmoredSkeleton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -405,6 +406,19 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mobData: {fileID: 11400000, guid: 7cc0600af21444e418ee4c69b846e1b7, type: 2}
+--- !u!114 &-8319222820245989737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2722922200427301075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000
 --- !u!1 &7721197185951313795
 GameObject:
   m_ObjectHideFlags: 0
@@ -416,7 +430,7 @@ GameObject:
   - component: {fileID: 9151610743302889952}
   - component: {fileID: 566680510199677988}
   - component: {fileID: 1732591149121272888}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

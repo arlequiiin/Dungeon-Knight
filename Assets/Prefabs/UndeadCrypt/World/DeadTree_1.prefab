@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6826305739985763361}
   - component: {fileID: 3988832451113258060}
   - component: {fileID: 3936049396598563417}
+  - component: {fileID: 1863455244793664140}
   m_Layer: 0
   m_Name: DeadTree_1
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 1936948134791926493}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 46.49977, y: 40.95969, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -46,8 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fa0352a4d56abd42ad2fc69deb72448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NavMeshPlus::NavMeshPlus.Components.NavMeshModifierVolume
-  m_Size: {x: 0.33911896, y: 0.5869789, z: 4}
-  m_Center: {x: -0.060684204, y: 0.38028526, z: 0}
+  m_Size: {x: 0.31689072, y: 0.38508224, z: 4}
+  m_Center: {x: -0.07550621, y: 0.18738365, z: 0}
   m_Area: 1
   m_AffectedAgents: ffffffff
 --- !u!61 &3988832451113258060
@@ -84,7 +85,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.059778214, y: 0.37575912}
+  m_Offset: {x: -0.07731438, y: 0.20567513}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.1}
@@ -94,7 +95,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.3397255, y: 0.5912247}
+  m_Size: {x: 0.1961174, y: 0.23095322}
   m_EdgeRadius: 0
 --- !u!212 &3936049396598563417
 SpriteRenderer:
@@ -155,3 +156,16 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
+--- !u!114 &1863455244793664140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936948134791926493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000

@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 6682134281230130090}
   - component: {fileID: 6532271380871326741}
   - component: {fileID: 355282094418761381}
-  - component: {fileID: 8459200268097147503}
+  - component: {fileID: -8461364353063474205}
+  - component: {fileID: -1399790199088031545}
   m_Layer: 0
   m_Name: DeadTree_2
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 7039893543410827407}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 50.42, y: 43.8, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -105,11 +106,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fa0352a4d56abd42ad2fc69deb72448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: NavMeshPlus::NavMeshPlus.Components.NavMeshModifierVolume
-  m_Size: {x: 0.28503755, y: 0.28846335, z: 4}
-  m_Center: {x: 0.124960944, y: 0.32995427, z: 0}
+  m_Size: {x: 0.35117352, y: 0.25176042, z: 4}
+  m_Center: {x: 0.10781956, y: 0.23091495, z: 0}
   m_Area: 1
   m_AffectedAgents: ffffffff
---- !u!61 &8459200268097147503
+--- !u!114 &-8461364353063474205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7039893543410827407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000
+--- !u!61 &-1399790199088031545
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,7 +157,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.124578685, y: 0.32956523}
+  m_Offset: {x: 0.103891335, y: 0.22822863}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.1}
@@ -153,5 +167,5 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.2860114, y: 0.28779185}
+  m_Size: {x: 0.24744608, y: 0.18584621}
   m_EdgeRadius: 0

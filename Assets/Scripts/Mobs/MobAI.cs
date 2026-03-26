@@ -25,6 +25,7 @@ public abstract class MobAI : NetworkBehaviour
     protected float patrolRadius;
     protected float patrolWaitMin;
     protected float patrolWaitMax;
+    protected float attackWindupDuration;
     protected float hitReactionDuration;
     protected float recoveryDuration;
     protected bool canBeInterrupted;
@@ -38,7 +39,7 @@ public abstract class MobAI : NetworkBehaviour
     protected SpriteRenderer spriteRenderer;
 
     // --- FSM ---
-    protected enum State { Patrol, Chase, CircleWait, Attack, HitReaction, Recovery }
+    protected enum State { Patrol, Chase, CircleWait, AttackWindup, Attack, HitReaction, Recovery }
     protected State state = State.Patrol;
 
     // --- Target ---
@@ -52,6 +53,7 @@ public abstract class MobAI : NetworkBehaviour
     protected float attackTimer;
     private float patrolTimer;
     private bool isWaitingAtPatrolPoint;
+    protected float windupTimer;
     private float hitReactionTimer;
     private float recoveryTimer;
 
@@ -105,7 +107,8 @@ public abstract class MobAI : NetworkBehaviour
             attackDamages[i] = mobData.attackDamages[i] * dmgScale;
         attackWeights = mobData.attackWeights;
 
-        // Reaction
+        // Windup & Reaction
+        attackWindupDuration = mobData.attackWindupDuration;
         hitReactionDuration = mobData.hitReactionDuration;
         recoveryDuration = mobData.recoveryDuration;
         canBeInterrupted = mobData.canBeInterrupted;
@@ -168,12 +171,13 @@ public abstract class MobAI : NetworkBehaviour
 
         switch (state)
         {
-            case State.Patrol:      UpdatePatrol();      break;
-            case State.Chase:       UpdateChase();       break;
-            case State.CircleWait:  UpdateCircleWait();  break;
-            case State.Attack:      UpdateAttack();      break;
-            case State.HitReaction: UpdateHitReaction(); break;
-            case State.Recovery:    UpdateRecovery();    break;
+            case State.Patrol:       UpdatePatrol();      break;
+            case State.Chase:        UpdateChase();       break;
+            case State.CircleWait:   UpdateCircleWait();  break;
+            case State.AttackWindup: UpdateAttackWindup(); break;
+            case State.Attack:       UpdateAttack();      break;
+            case State.HitReaction:  UpdateHitReaction(); break;
+            case State.Recovery:     UpdateRecovery();    break;
         }
 
         bool moving = agent.velocity.sqrMagnitude > 0.01f;
@@ -280,13 +284,14 @@ public abstract class MobAI : NetworkBehaviour
     }
 
     /// <summary>
-    /// Attack state logic. Subclasses can override for custom behavior.
+    /// Attack state: mob is in range. If cooldown ready, enter windup; otherwise chase if target moves away.
     /// </summary>
     protected virtual void UpdateAttack()
     {
         if (target == null || !IsTargetAlive())
         {
             target = null;
+            ResumeAgent();
             state = State.Patrol;
             return;
         }
@@ -297,17 +302,47 @@ public abstract class MobAI : NetworkBehaviour
         {
             if (attackTimer > 0f)
             {
+                ResumeAgent();
                 agent.SetDestination(target.position);
                 return;
             }
+            ResumeAgent();
             state = State.Chase;
             return;
         }
 
-        agent.ResetPath();
+        StopAgent();
         FaceTarget();
 
         if (attackTimer <= 0f)
+        {
+            // Enter windup before performing the actual attack
+            state = State.AttackWindup;
+            windupTimer = attackWindupDuration;
+        }
+    }
+
+    /// <summary>
+    /// Windup state: mob stands still facing target, telegraphing the attack.
+    /// After delay, performs the attack and enters recovery.
+    /// </summary>
+    private void UpdateAttackWindup()
+    {
+        StopAgent();
+
+        if (target == null || !IsTargetAlive())
+        {
+            target = null;
+            ResumeAgent();
+            state = State.Patrol;
+            SetPatrolDestination();
+            return;
+        }
+
+        FaceTarget();
+
+        windupTimer -= Time.deltaTime;
+        if (windupTimer <= 0f)
         {
             PerformAttack();
             attackTimer = attackCooldown;
@@ -317,11 +352,12 @@ public abstract class MobAI : NetworkBehaviour
 
     private void UpdateHitReaction()
     {
-        agent.ResetPath();
+        StopAgent();
 
         hitReactionTimer -= Time.deltaTime;
         if (hitReactionTimer <= 0f)
         {
+            ResumeAgent();
             if (target != null && IsTargetAlive())
                 state = State.Chase;
             else
@@ -335,11 +371,12 @@ public abstract class MobAI : NetworkBehaviour
 
     private void UpdateRecovery()
     {
-        agent.ResetPath();
+        StopAgent();
 
         recoveryTimer -= Time.deltaTime;
         if (recoveryTimer <= 0f)
         {
+            ResumeAgent();
             if (target != null && IsTargetAlive())
                 state = State.Chase;
             else
@@ -372,6 +409,28 @@ public abstract class MobAI : NetworkBehaviour
     // === Common logic ===
 
     /// <summary>
+    /// Fully stops the NavMeshAgent (velocity + path cleared).
+    /// </summary>
+    protected void StopAgent()
+    {
+        if (agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
+        }
+    }
+
+    /// <summary>
+    /// Resumes the NavMeshAgent after being stopped.
+    /// </summary>
+    protected void ResumeAgent()
+    {
+        if (agent.enabled && agent.isOnNavMesh)
+            agent.isStopped = false;
+    }
+
+    /// <summary>
     /// Called from MobHealth.TakeDamage() — reaction to taking damage.
     /// </summary>
     public void OnHit()
@@ -387,7 +446,7 @@ public abstract class MobAI : NetworkBehaviour
 
         state = State.HitReaction;
         hitReactionTimer = hitReactionDuration;
-        agent.ResetPath();
+        StopAgent();
     }
 
     protected void EnterRecovery()
@@ -409,7 +468,7 @@ public abstract class MobAI : NetworkBehaviour
             syncFlipX = target.position.x < transform.position.x;
     }
 
-    private void SetPatrolDestination()
+    protected void SetPatrolDestination()
     {
         Vector2 offset = Random.insideUnitCircle * patrolRadius;
         Vector3 dest = new Vector3(roomCenter.x + offset.x, roomCenter.y + offset.y, 0f);
@@ -440,7 +499,7 @@ public abstract class MobAI : NetworkBehaviour
         return best;
     }
 
-    private bool IsTargetAlive()
+    protected bool IsTargetAlive()
     {
         var heroStats = target.GetComponent<HeroStats>();
         return heroStats != null && !heroStats.IsDead;
@@ -519,6 +578,36 @@ public abstract class MobAI : NetworkBehaviour
         if (hitbox != null)
             hitbox.Deactivate();
     }
+
+    // --- Ranged: projectile spawn via Animation Event ---
+
+    private bool projectileReady;
+
+    /// <summary>
+    /// Called by PerformAttack() in ranged subclasses to defer projectile spawn to Animation Event.
+    /// </summary>
+    protected void PrepareProjectile()
+    {
+        projectileReady = true;
+    }
+
+    /// <summary>
+    /// Animation Event: spawns projectile at the correct animation frame.
+    /// Override ServerSpawnProjectile() in ranged subclasses.
+    /// </summary>
+    public void SpawnProjectile()
+    {
+        if (!NetworkServer.active) return;
+        if (!projectileReady) return;
+        projectileReady = false;
+
+        ServerSpawnProjectile();
+    }
+
+    /// <summary>
+    /// Override in ranged mobs to spawn the actual projectile.
+    /// </summary>
+    protected virtual void ServerSpawnProjectile() { }
 
     private void OnDrawGizmosSelected()
     {
