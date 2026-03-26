@@ -18,7 +18,8 @@ GameObject:
   - component: {fileID: -3715105886661000315}
   - component: {fileID: 7470567967621399021}
   - component: {fileID: -1497797128705788531}
-  m_Layer: 0
+  - component: {fileID: 755060195839418103}
+  m_Layer: 7
   m_Name: SkeletonOverlord
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,6 +305,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitEffect
   knockbackResistance: 0.9
+--- !u!114 &755060195839418103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000
 --- !u!1 &1643836152134245473
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,7 +329,7 @@ GameObject:
   - component: {fileID: 271851539978446821}
   - component: {fileID: 2227778360149124149}
   - component: {fileID: 3416413957930836387}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -421,7 +435,7 @@ GameObject:
   - component: {fileID: 7978229032432819948}
   - component: {fileID: 1566983956359168034}
   - component: {fileID: 863013029768895722}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hitbox_Attack02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -18,7 +18,7 @@ MonoBehaviour:
   maxHealth: 120
   maxEnergy: 100
   moveSpeed: 2
-  attackCount: 4
+  attackCount: 1
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
@@ -28,6 +28,8 @@ MonoBehaviour:
   dodgeCooldown: 1
   dodgeDuration: 0.25
   weaponHitboxPrefabs: []
-  projectilePrefabs: []
+  projectilePrefabs:
+  - {fileID: 1066876977030457965, guid: f80dea35db03a4949b2dcc65a1673f79, type: 3}
+  - {fileID: 1066876977030457965, guid: c63cc9fe70ed923468b98c4caf7db1e0, type: 3}
   animatorController: {fileID: 9100000, guid: ef42d687d294d454395ec501bd2632d6, type: 2}
   icon: {fileID: 5420657165879536120, guid: ef755bc4cd693be408a31600c474df46, type: 3}

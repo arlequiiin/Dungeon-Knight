@@ -12,6 +12,7 @@ public class SoldierAbility : HeroAbility
     public float powerArrowDamage = 60f;
     public float powerArrowSpeed = 20f;
     public float shootOffset = 0.5f;
+    public float shootHeightOffset = 0.2f;
 
     // Assigned from HeroData.projectilePrefabs
     private GameObject powerArrowPrefab;
@@ -51,7 +52,7 @@ public class SoldierAbility : HeroAbility
         if (powerArrowPrefab == null) return;
 
         Vector2 dir = flipX ? Vector2.left : Vector2.right;
-        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset);
+        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset) + Vector3.up * shootHeightOffset;
         var arrow = Instantiate(powerArrowPrefab, spawnPos, Quaternion.identity);
         var proj = arrow.GetComponent<Projectile>();
         if (proj != null)

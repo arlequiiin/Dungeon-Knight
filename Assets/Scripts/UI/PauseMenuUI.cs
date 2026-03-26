@@ -11,6 +11,9 @@ public class PauseMenuUI : MonoBehaviour
 
     private bool isPaused;
 
+    private bool IsSolo =>
+        !NetworkServer.active || NetworkServer.connections.Count <= 1;
+
     private void Awake()
     {
         if (pausePanel != null)
@@ -32,6 +35,9 @@ public class PauseMenuUI : MonoBehaviour
 
         if (pausePanel != null)
             pausePanel.SetActive(isPaused);
+
+        if (IsSolo)
+            Time.timeScale = isPaused ? 0f : 1f;
     }
 
     public void OnResumeClicked()
@@ -39,6 +45,9 @@ public class PauseMenuUI : MonoBehaviour
         isPaused = false;
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        if (IsSolo)
+            Time.timeScale = 1f;
     }
 
     public void OnReturnToMenuClicked()
@@ -46,6 +55,8 @@ public class PauseMenuUI : MonoBehaviour
         isPaused = false;
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        Time.timeScale = 1f;
 
         var netManager = (DungeonKnightNetworkManager)NetworkManager.singleton;
         if (netManager != null)

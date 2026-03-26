@@ -182,11 +182,19 @@ public class Projectile : NetworkBehaviour
         if (hasHit) return;
 
         if (other.GetComponent<Projectile>() != null) return;
-        if (owner != null && other.gameObject == owner) return;
+        var root = other.transform.root.gameObject;
+        if (owner != null && root == owner) return;
 
-        var mobHealth = other.GetComponent<MobHealth>();
-        var heroStats = other.GetComponent<HeroStats>();
-        if (mobHealth == null && heroStats == null) return;
+        var mobHealth = other.GetComponentInParent<MobHealth>();
+        var heroStats = other.GetComponentInParent<HeroStats>();
+
+        // Hit a wall/obstacle — destroy projectile
+        if (mobHealth == null && heroStats == null)
+        {
+            hasHit = true;
+            NetworkServer.Destroy(gameObject);
+            return;
+        }
 
         hasHit = true;
 
@@ -196,16 +204,17 @@ public class Projectile : NetworkBehaviour
             foreach (var hit in hits)
             {
                 if (hit.gameObject == gameObject) continue;
-                if (owner != null && hit.gameObject == owner) continue;
+                var hitRoot = hit.transform.root.gameObject;
+                if (owner != null && hitRoot == owner) continue;
 
-                var mob = hit.GetComponent<MobHealth>();
+                var mob = hit.GetComponentInParent<MobHealth>();
                 if (mob != null && !mob.IsDead)
                 {
                     mob.TakeDamage(damage);
                     continue;
                 }
 
-                var hero = hit.GetComponent<HeroStats>();
+                var hero = hit.GetComponentInParent<HeroStats>();
                 if (hero != null && !hero.IsDead)
                     hero.TakeDamage(damage);
             }

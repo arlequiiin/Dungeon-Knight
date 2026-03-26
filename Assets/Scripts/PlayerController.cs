@@ -19,7 +19,6 @@ public class PlayerController : NetworkBehaviour
     private SpriteRenderer spriteRenderer;
     private HeroStats stats;
 
-    // Берётся лениво — KnightAbility добавляется после Awake через AddComponent
     private HeroAbility Ability => GetComponent<HeroAbility>();
 
     private Vector2 moveInput;
@@ -366,10 +365,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    /// <summary>
-    /// Animation Event: start movement slow during attack.
-    /// Float parameter = speed multiplier (e.g. 0.3 = 30% speed, 0 = full stop).
-    /// </summary>
     public void StartAttackSlow(float multiplier)
     {
         if (isServer)
@@ -383,9 +378,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    /// <summary>
-    /// Animation Event: end movement slow after attack.
-    /// </summary>
     public void EndAttackSlow()
     {
         if (isServer)
@@ -395,7 +387,7 @@ public class PlayerController : NetworkBehaviour
         }
         else if (isLocalPlayer)
         {
-            CmdSetAttackSlow(-1f); // -1 = end attack slow
+            CmdSetAttackSlow(-1f);
         }
     }
 
@@ -460,13 +452,11 @@ public class PlayerController : NetworkBehaviour
 
     private void TryAbility2()
     {
-        // ability2 removed — reserved for future shield mechanic
+
     }
 
-    /// <summary>
     /// Атака с хитбоксом — сервер готовит урон и проигрывает анимацию,
     /// чтобы Animation Event EnableHitbox() сработал на сервере.
-    /// </summary>
     [Command]
     private void CmdAttack(int attackIndex)
     {
@@ -507,6 +497,15 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer || !inGame || !canDodge || isDodging) return;
         canDodge = false;
+
+        // Прерываем текущую атаку
+        if (isAttacking)
+        {
+            ResetAttackState();
+            animator.Play("Idle", 0, 0f);
+            canAttack = true;
+            CancelInvoke(nameof(ResetAttack));
+        }
 
         Vector2 dodgeDir = moveInput != Vector2.zero ? moveInput.normalized : lastMoveDir;
         float duration = heroData != null ? heroData.dodgeDuration : 0.25f;
@@ -617,21 +616,23 @@ public class PlayerController : NetworkBehaviour
         StartCoroutine(ServerDodgeRoutine(direction, force, duration));
     }
 
+    private static readonly int PlayerLayer = 6;  // "Player" layer
+    private static readonly int EnemyLayer = 7;   // "Enemy" layer
+
     private IEnumerator ServerDodgeRoutine(Vector2 direction, float force, float duration)
     {
         isDodging = true;
         if (stats != null) stats.IsDodging = true;
 
-        // Disable collider so player can pass through enemies
-        var col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
+        // Ignore Player↔Enemy collisions (walls and decorations still block)
+        Physics2D.IgnoreLayerCollision(PlayerLayer, EnemyLayer, true);
 
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(direction * force, ForceMode2D.Impulse);
 
         yield return new WaitForSeconds(duration);
 
-        if (col != null) col.enabled = true;
+        Physics2D.IgnoreLayerCollision(PlayerLayer, EnemyLayer, false);
 
         isDodging = false;
         if (stats != null) stats.IsDodging = false;
@@ -641,10 +642,6 @@ public class PlayerController : NetworkBehaviour
 
     private void ResetAttack() => canAttack = true;
 
-    /// <summary>
-    /// Animation Event: spawns projectile at the correct frame of ranged attack animation.
-    /// Delegates to HeroAbility.SpawnProjectile().
-    /// </summary>
     public void SpawnProjectile()
     {
         var ab = Ability;
@@ -652,13 +649,8 @@ public class PlayerController : NetworkBehaviour
             ab.SpawnProjectile();
     }
 
-    /// <summary>
-    /// Resets attack state: deactivates all hitboxes and clears attack slow.
-    /// Called when animation is interrupted (e.g. taking damage, death).
-    /// </summary>
     public void ResetAttackState()
     {
-        // Deactivate all weapon hitboxes
         var ab = Ability;
         if (ab != null)
         {
@@ -669,7 +661,6 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-        // Clear attack slow
         if (isServer)
         {
             isAttacking = false;

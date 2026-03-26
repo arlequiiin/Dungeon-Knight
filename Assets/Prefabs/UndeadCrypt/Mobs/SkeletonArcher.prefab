@@ -18,7 +18,9 @@ GameObject:
   - component: {fileID: 6965841900776599019}
   - component: {fileID: 989961318725719122}
   - component: {fileID: 8602859636935844929}
-  m_Layer: 0
+  - component: {fileID: 8321791920010443416}
+  - component: {fileID: 5575683068333632904}
+  m_Layer: 7
   m_Name: SkeletonArcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -302,3 +304,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitEffect
   knockbackResistance: 0.8
+--- !u!114 &8321791920010443416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3738057844671139991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000
+--- !u!114 &5575683068333632904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3738057844671139991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d347c9f4d471ef44687859fa0580b258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkeletonArcherAI
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  mobData: {fileID: 11400000, guid: cf0fb4f12f92ffd4588bf0d018abcf89, type: 2}
+  arrowSpeed: 10
+  shootOffset: 0.3
+  retreatRange: 2.5

@@ -7,6 +7,8 @@ public class ArcherAbility : HeroAbility
     [Header("Обычный выстрел")]
     public float arrowSpeed = 15f;
     public float shootOffset = 0.5f;
+    [Tooltip("Vertical offset from pivot (raise arrow to chest/hand level)")]
+    public float shootHeightOffset = 0.2f;
 
     [Header("Мощный выстрел")]
     public float powerArrowDamage = 80f;
@@ -45,7 +47,7 @@ public class ArcherAbility : HeroAbility
         if (arrowPrefab == null) return;
 
         Vector2 dir = flipX ? Vector2.left : Vector2.right;
-        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset);
+        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset) + Vector3.up * shootHeightOffset;
         var arrow = Instantiate(arrowPrefab, spawnPos, Quaternion.identity);
         var proj = arrow.GetComponent<Projectile>();
         if (proj != null)
@@ -65,7 +67,7 @@ public class ArcherAbility : HeroAbility
         if (powerArrowPrefab == null) return;
 
         Vector2 dir = flipX ? Vector2.left : Vector2.right;
-        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset);
+        Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset) + Vector3.up * shootHeightOffset;
         var arrow = Instantiate(powerArrowPrefab, spawnPos, Quaternion.identity);
         var proj = arrow.GetComponent<Projectile>();
         if (proj != null)

@@ -69,32 +69,33 @@ public class WeaponHitbox : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject == owner) return;
-        if (hitTargets.Contains(other.gameObject)) return;
+        var root = other.transform.root.gameObject;
+        if (root == owner) return;
+        if (hitTargets.Contains(root)) return;
 
-        hitTargets.Add(other.gameObject);
+        hitTargets.Add(root);
 
         if (!NetworkServer.active) return;
 
         // Направление knockback: от атакующего к цели
-        Vector2 knockbackDir = (other.transform.position - owner.transform.position).normalized;
+        Vector2 knockbackDir = (root.transform.position - owner.transform.position).normalized;
 
         // Урон по мобам (мобы не бьют друг друга)
-        var mobHealth = other.GetComponent<MobHealth>();
+        var mobHealth = other.GetComponentInParent<MobHealth>();
         if (mobHealth != null)
         {
             if (ownerIsMob) return;
             mobHealth.TakeDamage(damage);
-            ApplyHitEffects(other.gameObject, knockbackDir);
+            ApplyHitEffects(mobHealth.gameObject, knockbackDir);
             return;
         }
 
         // Урон по игрокам
-        var heroStats = other.GetComponent<HeroStats>();
+        var heroStats = other.GetComponentInParent<HeroStats>();
         if (heroStats != null)
         {
             heroStats.TakeDamage(damage);
-            ApplyHitEffects(other.gameObject, knockbackDir);
+            ApplyHitEffects(heroStats.gameObject, knockbackDir);
         }
     }
 

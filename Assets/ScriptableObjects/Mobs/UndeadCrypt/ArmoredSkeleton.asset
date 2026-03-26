@@ -25,7 +25,8 @@ MonoBehaviour:
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
-  moveSpeed: 1.3
+  moveSpeed: 1.15
+  attackWindupDuration: 0.3
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
