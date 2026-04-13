@@ -463,22 +463,25 @@ public class PlayerController : NetworkBehaviour
         var ab = Ability;
         if (ab == null) return;
 
-        // Получаем урон из HeroData
+        // Получаем урон и энергию из HeroData
         float damage;
+        float energyGain;
         string triggerName;
         if (attackIndex == 0)
         {
             damage = heroData != null ? heroData.attack1Damage : 15f;
+            energyGain = heroData != null ? heroData.attack1EnergyGain : 5f;
             triggerName = "Attack1";
         }
         else
         {
             damage = heroData != null ? heroData.attack2Damage : 25f;
+            energyGain = heroData != null ? heroData.attack2EnergyGain : 8f;
             triggerName = "Attack2";
         }
 
         // Melee: подготавливаем хитбокс для Animation Event (EnableHitbox)
-        ab.PrepareHitboxPublic(attackIndex, damage);
+        ab.PrepareHitboxPublic(attackIndex, damage, energyGain);
 
         // Ranged: подготавливаем данные для Animation Event (SpawnProjectile)
         ab.PrepareProjectile(attackIndex, damage, syncFlipX, false);
@@ -496,6 +499,9 @@ public class PlayerController : NetworkBehaviour
     private void TryDodge()
     {
         if (!isLocalPlayer || !inGame || !canDodge || isDodging) return;
+
+        // Проверяем энергию на сервере через CmdDodge, но предварительно
+        // блокируем повторное нажатие на клиенте
         canDodge = false;
 
         // Прерываем текущую атаку
@@ -574,6 +580,10 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdAbilityAttack(int hitboxIndex, float damage, string triggerName)
     {
+        // Тратим энергию на ability
+        float abilityCost = heroData != null ? heroData.ability1EnergyCost : 25f;
+        if (stats != null && !stats.SpendEnergy(abilityCost)) return;
+
         var ab = Ability;
         if (ab != null)
         {
@@ -609,6 +619,10 @@ public class PlayerController : NetworkBehaviour
     private void CmdDodge(Vector2 direction)
     {
         if (stats == null || stats.IsDead) return;
+
+        // Тратим энергию на dodge
+        float dodgeCost = heroData != null ? heroData.dodgeEnergyCost : 15f;
+        if (!stats.SpendEnergy(dodgeCost)) return;
 
         float force = heroData != null ? heroData.dodgeForce : 8f;
         float duration = heroData != null ? heroData.dodgeDuration : 0.25f;
