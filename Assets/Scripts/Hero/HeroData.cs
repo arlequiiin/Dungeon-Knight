@@ -19,6 +19,14 @@ public class HeroData : ScriptableObject
     public float attack2Damage = 25f;   // игнорируется если attackCount == 1
     public float attackCooldown = 0.5f;
 
+    [Header("Энергия за удар")]
+    public float attack1EnergyGain = 5f;
+    public float attack2EnergyGain = 8f;
+
+    [Header("Стоимость энергии")]
+    public float dodgeEnergyCost = 15f;
+    public float ability1EnergyCost = 25f;
+
     [Header("Target Search")]
     public float targetSearchRadius = 5f;       // радиус поиска ближайшего врага
 

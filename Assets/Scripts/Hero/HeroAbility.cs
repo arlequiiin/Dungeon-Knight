@@ -88,8 +88,9 @@ public abstract class HeroAbility : MonoBehaviour
     // Melee: EnableHitbox / DisableHitbox
     // Ranged: SpawnProjectile (спавн снаряда в нужный кадр анимации)
 
-    // Урон для текущей атаки — задаётся наследником перед запуском анимации
+    // Урон и энергия для текущей атаки — задаётся наследником перед запуском анимации
     protected float pendingDamage;
+    protected float pendingEnergyGain;
     protected int pendingHitboxIndex;
 
     // Pending data for ranged attacks (set in CmdAttack, used by SpawnProjectile event)
@@ -140,7 +141,7 @@ public abstract class HeroAbility : MonoBehaviour
     {
         var hitbox = GetHitbox(pendingHitboxIndex);
         if (hitbox != null)
-            hitbox.Activate(pendingDamage);
+            hitbox.Activate(pendingDamage, pendingEnergyGain);
     }
 
     /// <summary>
@@ -156,10 +157,11 @@ public abstract class HeroAbility : MonoBehaviour
     /// <summary>
     /// Подготавливает данные для Animation Event. Вызывается перед SetTrigger.
     /// </summary>
-    protected void PrepareHitbox(int index, float damage)
+    protected void PrepareHitbox(int index, float damage, float energyGain = 0f)
     {
         pendingHitboxIndex = index;
         pendingDamage = damage;
+        pendingEnergyGain = energyGain;
     }
 
     /// <summary>
@@ -175,9 +177,9 @@ public abstract class HeroAbility : MonoBehaviour
     /// Публичный доступ для PrepareHitbox — используется PlayerController
     /// при выполнении атаки на сервере (Command).
     /// </summary>
-    public void PrepareHitboxPublic(int index, float damage)
+    public void PrepareHitboxPublic(int index, float damage, float energyGain = 0f)
     {
-        PrepareHitbox(index, damage);
+        PrepareHitbox(index, damage, energyGain);
     }
 
     // Возвращает текущий кулдаун для UI

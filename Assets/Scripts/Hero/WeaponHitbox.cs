@@ -17,6 +17,7 @@ public class WeaponHitbox : MonoBehaviour
     public float hitstopDuration = 0.04f; // ~2-3 кадра при 60fps
 
     private float damage;
+    private float energyGain;
     private GameObject owner;
     private Collider2D hitboxCollider;
     private SpriteRenderer ownerSprite;
@@ -42,9 +43,10 @@ public class WeaponHitbox : MonoBehaviour
     /// Активирует коллайдер оружия с указанным уроном.
     /// Зеркалит по X в зависимости от flipX персонажа.
     /// </summary>
-    public void Activate(float attackDamage)
+    public void Activate(float attackDamage, float attackEnergyGain = 0f)
     {
         damage = attackDamage;
+        energyGain = attackEnergyGain;
         hitTargets.Clear();
 
         // Зеркалим весь объект хитбокса если персонаж смотрит влево
@@ -87,6 +89,14 @@ public class WeaponHitbox : MonoBehaviour
             if (ownerIsMob) return;
             mobHealth.TakeDamage(damage);
             ApplyHitEffects(mobHealth.gameObject, knockbackDir);
+
+            // Восстановление энергии атакующему
+            if (energyGain > 0f)
+            {
+                var heroStats = owner.GetComponent<HeroStats>();
+                if (heroStats != null)
+                    heroStats.RestoreEnergy(energyGain);
+            }
             return;
         }
 
