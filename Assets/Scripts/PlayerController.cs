@@ -463,28 +463,31 @@ public class PlayerController : NetworkBehaviour
         var ab = Ability;
         if (ab == null) return;
 
-        // Получаем урон и энергию из HeroData
+        // Получаем урон, энергию и stagger из HeroData
         float damage;
         float energyGain;
+        float staggerDamage;
         string triggerName;
         if (attackIndex == 0)
         {
             damage = heroData != null ? heroData.attack1Damage : 15f;
             energyGain = heroData != null ? heroData.attack1EnergyGain : 5f;
+            staggerDamage = heroData != null ? heroData.attack1StaggerDamage : 5f;
             triggerName = "Attack1";
         }
         else
         {
             damage = heroData != null ? heroData.attack2Damage : 25f;
             energyGain = heroData != null ? heroData.attack2EnergyGain : 8f;
+            staggerDamage = heroData != null ? heroData.attack2StaggerDamage : 10f;
             triggerName = "Attack2";
         }
 
         // Melee: подготавливаем хитбокс для Animation Event (EnableHitbox)
-        ab.PrepareHitboxPublic(attackIndex, damage, energyGain);
+        ab.PrepareHitboxPublic(attackIndex, damage, energyGain, staggerDamage);
 
         // Ranged: подготавливаем данные для Animation Event (SpawnProjectile)
-        ab.PrepareProjectile(attackIndex, damage, syncFlipX, false);
+        ab.PrepareProjectile(attackIndex, damage, energyGain, syncFlipX, false);
 
         // Для выделенного клиента (не хост) — запускаем анимацию на сервере
         if (!isLocalPlayer)
@@ -584,11 +587,15 @@ public class PlayerController : NetworkBehaviour
         float abilityCost = heroData != null ? heroData.ability1EnergyCost : 25f;
         if (stats != null && !stats.SpendEnergy(abilityCost)) return;
 
+        // Гиперброня — анимация абилки не прерывается
+        if (stats != null)
+            stats.hasHyperArmor = true;
+
         var ab = Ability;
         if (ab != null)
         {
             ab.PrepareHitboxPublic(hitboxIndex, damage);
-            ab.PrepareProjectile(hitboxIndex, damage, syncFlipX, true);
+            ab.PrepareProjectile(hitboxIndex, damage, 0f, syncFlipX, true);
         }
 
         // Для выделенного клиента — запускаем анимацию на сервере
@@ -679,6 +686,8 @@ public class PlayerController : NetworkBehaviour
         {
             isAttacking = false;
             currentAttackSlowMultiplier = 1f;
+            if (stats != null)
+                stats.hasHyperArmor = false;
         }
         else if (isLocalPlayer)
         {

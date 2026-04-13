@@ -18,6 +18,7 @@ public class WeaponHitbox : MonoBehaviour
 
     private float damage;
     private float energyGain;
+    private float staggerDamage;
     private GameObject owner;
     private Collider2D hitboxCollider;
     private SpriteRenderer ownerSprite;
@@ -43,10 +44,11 @@ public class WeaponHitbox : MonoBehaviour
     /// Активирует коллайдер оружия с указанным уроном.
     /// Зеркалит по X в зависимости от flipX персонажа.
     /// </summary>
-    public void Activate(float attackDamage, float attackEnergyGain = 0f)
+    public void Activate(float attackDamage, float attackEnergyGain = 0f, float attackStaggerDamage = 0f)
     {
         damage = attackDamage;
         energyGain = attackEnergyGain;
+        staggerDamage = attackStaggerDamage;
         hitTargets.Clear();
 
         // Зеркалим весь объект хитбокса если персонаж смотрит влево
@@ -88,6 +90,8 @@ public class WeaponHitbox : MonoBehaviour
         {
             if (ownerIsMob) return;
             mobHealth.TakeDamage(damage);
+            if (staggerDamage > 0f)
+                mobHealth.TakePoiseDamage(staggerDamage);
             ApplyHitEffects(mobHealth.gameObject, knockbackDir);
 
             // Восстановление энергии атакующему
@@ -101,11 +105,11 @@ public class WeaponHitbox : MonoBehaviour
         }
 
         // Урон по игрокам
-        var heroStats = other.GetComponentInParent<HeroStats>();
-        if (heroStats != null)
+        var targetHeroStats = other.GetComponentInParent<HeroStats>();
+        if (targetHeroStats != null)
         {
-            heroStats.TakeDamage(damage);
-            ApplyHitEffects(heroStats.gameObject, knockbackDir);
+            targetHeroStats.TakeDamage(damage);
+            ApplyHitEffects(targetHeroStats.gameObject, knockbackDir);
         }
     }
 

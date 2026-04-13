@@ -19,6 +19,10 @@ public class MobData : ScriptableObject
     public float attackCooldown = 1.2f;
     public float[] attackDamages = { 10f };
 
+    [Header("Attack Stagger Damage")]
+    [Tooltip("Poise damage per attack (same order as attackDamages). If empty, defaults to 5.")]
+    public float[] attackStaggerDamages;
+
     [Header("Attack Weights")]
     [Tooltip("Weights for each attack (same order as attackDamages). If empty, equal probability.")]
     public float[] attackWeights;
@@ -39,6 +43,14 @@ public class MobData : ScriptableObject
     public float hitReactionDuration = 0.3f;
     public float recoveryDuration = 0.4f;
     public bool canBeInterrupted = true;
+
+    [Header("Poise (Stagger)")]
+    [Tooltip("Устойчивость. При 0 — стагер (оглушение).")]
+    public float maxPoise = 30f;
+    [Tooltip("Скорость восстановления poise в секунду (0 для обычных мобов, >0 для боссов)")]
+    public float poiseRecoveryRate = 0f;
+    [Tooltip("Длительность стагера в секундах")]
+    public float staggerDuration = 1.5f;
 
     [Header("Hit Effects")]
     [Range(0f, 1f)]

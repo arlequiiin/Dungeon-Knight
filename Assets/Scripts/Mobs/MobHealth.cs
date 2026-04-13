@@ -15,6 +15,19 @@ public class MobHealth : NetworkBehaviour
 
     private bool isDead;
 
+    // === Poise / Stagger ===
+    private float maxPoise = 30f;
+    private float currentPoise;
+    private float poiseRecoveryRate;
+    private float staggerDuration = 1.5f;
+    private bool isStaggered;
+
+    /// <summary>
+    /// Множитель урона во время стагера (x1.5)
+    /// </summary>
+    public bool IsStaggered => isStaggered;
+    public float DamageMultiplier => isStaggered ? 1.5f : 1f;
+
     public UnityEvent onDeath;
 
     public bool IsDead => isDead;
@@ -23,6 +36,7 @@ public class MobHealth : NetworkBehaviour
     public override void OnStartServer()
     {
         currentHealth = maxHealth;
+        currentPoise = maxPoise;
     }
 
     /// <summary>
@@ -34,12 +48,25 @@ public class MobHealth : NetworkBehaviour
         currentHealth = value;
     }
 
+    /// <summary>
+    /// Sets poise params (from MobData). Call before NetworkServer.Spawn().
+    /// </summary>
+    public void SetPoise(float max, float recoveryRate, float stagDuration)
+    {
+        maxPoise = max;
+        currentPoise = max;
+        poiseRecoveryRate = recoveryRate;
+        staggerDuration = stagDuration;
+    }
+
     [Server]
     public void TakeDamage(float amount)
     {
         if (isDead) return;
 
-        currentHealth = Mathf.Max(0f, currentHealth - amount);
+        // Множитель урона при стагере (x1.5)
+        float finalDamage = amount * DamageMultiplier;
+        currentHealth = Mathf.Max(0f, currentHealth - finalDamage);
 
         if (currentHealth <= 0f)
         {
@@ -54,6 +81,94 @@ public class MobHealth : NetworkBehaviour
             var ai = GetComponent<MobAI>();
             if (ai != null) ai.OnHit();
         }
+    }
+
+    /// <summary>
+    /// Наносит урон по устойчивости (poise). При 0 — стагер.
+    /// </summary>
+    [Server]
+    public void TakePoiseDamage(float amount)
+    {
+        if (isDead || isStaggered) return;
+
+        currentPoise = Mathf.Max(0f, currentPoise - amount);
+
+        if (currentPoise <= 0f)
+            EnterStagger();
+    }
+
+    [Server]
+    private void EnterStagger()
+    {
+        isStaggered = true;
+
+        var ai = GetComponent<MobAI>();
+        if (ai != null) ai.OnStagger(staggerDuration);
+
+        RpcEnterStagger(staggerDuration);
+        Invoke(nameof(ExitStagger), staggerDuration);
+    }
+
+    [Server]
+    private void ExitStagger()
+    {
+        isStaggered = false;
+        currentPoise = maxPoise;
+
+        var ai = GetComponent<MobAI>();
+        if (ai != null) ai.OnStaggerEnd();
+
+        RpcExitStagger();
+    }
+
+    [ClientRpc]
+    private void RpcEnterStagger(float duration)
+    {
+        var anim = GetComponent<Animator>();
+        if (anim != null) anim.speed = 0f;
+
+        StartCoroutine(StaggerFlashCoroutine(duration));
+    }
+
+    [ClientRpc]
+    private void RpcExitStagger()
+    {
+        var anim = GetComponent<Animator>();
+        if (anim != null) anim.speed = 1f;
+
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.color = Color.white;
+    }
+
+    private System.Collections.IEnumerator StaggerFlashCoroutine(float duration)
+    {
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr == null) yield break;
+
+        Color staggerColor = new Color(1f, 1f, 0.3f); // жёлтый
+        float elapsed = 0f;
+        float flashInterval = 0.15f;
+        bool toggle = false;
+
+        while (elapsed < duration)
+        {
+            sr.color = toggle ? Color.white : staggerColor;
+            toggle = !toggle;
+            yield return new WaitForSeconds(flashInterval);
+            elapsed += flashInterval;
+        }
+
+        sr.color = Color.white;
+    }
+
+    private void Update()
+    {
+        if (!isServer) return;
+        if (isDead || isStaggered) return;
+
+        // Восстановление poise (для боссов)
+        if (poiseRecoveryRate > 0f && currentPoise < maxPoise)
+            currentPoise = Mathf.Min(maxPoise, currentPoise + poiseRecoveryRate * Time.deltaTime);
     }
 
     [Server]

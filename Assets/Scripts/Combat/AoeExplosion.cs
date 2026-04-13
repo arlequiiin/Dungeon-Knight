@@ -12,14 +12,18 @@ public class AoeExplosion : NetworkBehaviour
     public float vfxDuration = 1f;
 
     private float damage;
+    private float energyGain;
+    private GameObject owner;
     private bool hasExploded;
 
     /// <summary>
     /// Call on server before NetworkServer.Spawn().
     /// </summary>
-    public void Init(float aoeDamage)
+    public void Init(float aoeDamage, GameObject aoeOwner = null, float aoeEnergyGain = 0f)
     {
         damage = aoeDamage;
+        owner = aoeOwner;
+        energyGain = aoeEnergyGain;
     }
 
     public override void OnStartServer()
@@ -27,6 +31,7 @@ public class AoeExplosion : NetworkBehaviour
         if (hasExploded) return;
         hasExploded = true;
 
+        bool hitAnyMob = false;
         var hits = Physics2D.OverlapCircleAll(transform.position, radius);
         foreach (var hit in hits)
         {
@@ -34,12 +39,20 @@ public class AoeExplosion : NetworkBehaviour
             if (mobHealth != null && !mobHealth.IsDead)
             {
                 mobHealth.TakeDamage(damage);
+                hitAnyMob = true;
                 continue;
             }
 
             var heroStats = hit.GetComponent<HeroStats>();
             if (heroStats != null && !heroStats.IsDead)
                 heroStats.TakeDamage(damage);
+        }
+
+        if (hitAnyMob && energyGain > 0f && owner != null)
+        {
+            var ownerStats = owner.GetComponent<HeroStats>();
+            if (ownerStats != null)
+                ownerStats.RestoreEnergy(energyGain);
         }
 
         Invoke(nameof(DestroySelf), vfxDuration);

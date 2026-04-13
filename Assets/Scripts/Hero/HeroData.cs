@@ -23,6 +23,14 @@ public class HeroData : ScriptableObject
     public float attack1EnergyGain = 5f;
     public float attack2EnergyGain = 8f;
 
+    [Header("Урон по устойчивости (Poise)")]
+    public float attack1StaggerDamage = 5f;
+    public float attack2StaggerDamage = 10f;
+
+    [Header("Устойчивость героя (Poise)")]
+    public float maxPoise = 40f;
+    public float staggerDuration = 1f;
+
     [Header("Стоимость энергии")]
     public float dodgeEnergyCost = 15f;
     public float ability1EnergyCost = 25f;

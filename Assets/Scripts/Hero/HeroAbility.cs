@@ -65,7 +65,7 @@ public abstract class HeroAbility : MonoBehaviour
     /// Server-side attack logic. Called from CmdAttack on the server.
     /// Melee heroes: PrepareHitbox (default). Ranged heroes: override to spawn projectiles.
     /// </summary>
-    public virtual void ServerAttack(int attackIndex, float damage, bool flipX) { }
+    public virtual void ServerAttack(int attackIndex, float damage, float energyGain, bool flipX) { }
 
     // Способность 1 — уникальная активная способность
     public void UseAbility1()
@@ -91,6 +91,7 @@ public abstract class HeroAbility : MonoBehaviour
     // Урон и энергия для текущей атаки — задаётся наследником перед запуском анимации
     protected float pendingDamage;
     protected float pendingEnergyGain;
+    protected float pendingStaggerDamage;
     protected int pendingHitboxIndex;
 
     // Pending data for ranged attacks (set in CmdAttack, used by SpawnProjectile event)
@@ -101,10 +102,11 @@ public abstract class HeroAbility : MonoBehaviour
     /// <summary>
     /// Stores data for deferred projectile spawn via Animation Event.
     /// </summary>
-    public void PrepareProjectile(int attackIndex, float damage, bool flipX, bool isAbility)
+    public void PrepareProjectile(int attackIndex, float damage, float energyGain, bool flipX, bool isAbility)
     {
         pendingHitboxIndex = attackIndex;
         pendingDamage = damage;
+        pendingEnergyGain = energyGain;
         pendingFlipX = flipX;
         pendingIsAbility = isAbility;
         projectileReady = true;
@@ -123,7 +125,7 @@ public abstract class HeroAbility : MonoBehaviour
         if (pendingIsAbility)
             ServerAbility1(pendingFlipX);
         else
-            ServerAttack(pendingHitboxIndex, pendingDamage, pendingFlipX);
+            ServerAttack(pendingHitboxIndex, pendingDamage, pendingEnergyGain, pendingFlipX);
     }
 
     // Последний использованный триггер — нужен для синхронизации на сервере
@@ -141,7 +143,7 @@ public abstract class HeroAbility : MonoBehaviour
     {
         var hitbox = GetHitbox(pendingHitboxIndex);
         if (hitbox != null)
-            hitbox.Activate(pendingDamage, pendingEnergyGain);
+            hitbox.Activate(pendingDamage, pendingEnergyGain, pendingStaggerDamage);
     }
 
     /// <summary>
@@ -157,11 +159,12 @@ public abstract class HeroAbility : MonoBehaviour
     /// <summary>
     /// Подготавливает данные для Animation Event. Вызывается перед SetTrigger.
     /// </summary>
-    protected void PrepareHitbox(int index, float damage, float energyGain = 0f)
+    protected void PrepareHitbox(int index, float damage, float energyGain = 0f, float staggerDamage = 0f)
     {
         pendingHitboxIndex = index;
         pendingDamage = damage;
         pendingEnergyGain = energyGain;
+        pendingStaggerDamage = staggerDamage;
     }
 
     /// <summary>
@@ -177,9 +180,9 @@ public abstract class HeroAbility : MonoBehaviour
     /// Публичный доступ для PrepareHitbox — используется PlayerController
     /// при выполнении атаки на сервере (Command).
     /// </summary>
-    public void PrepareHitboxPublic(int index, float damage, float energyGain = 0f)
+    public void PrepareHitboxPublic(int index, float damage, float energyGain = 0f, float staggerDamage = 0f)
     {
-        PrepareHitbox(index, damage, energyGain);
+        PrepareHitbox(index, damage, energyGain, staggerDamage);
     }
 
     // Возвращает текущий кулдаун для UI

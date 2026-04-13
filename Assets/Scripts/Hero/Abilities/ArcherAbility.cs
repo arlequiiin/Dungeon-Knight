@@ -42,7 +42,7 @@ public class ArcherAbility : HeroAbility
     public override void Attack2() { }
 
     // Server-side: spawn arrow
-    public override void ServerAttack(int attackIndex, float damage, bool flipX)
+    public override void ServerAttack(int attackIndex, float damage, float energyGain, bool flipX)
     {
         if (arrowPrefab == null) return;
 
@@ -51,7 +51,7 @@ public class ArcherAbility : HeroAbility
         var arrow = Instantiate(arrowPrefab, spawnPos, Quaternion.identity);
         var proj = arrow.GetComponent<Projectile>();
         if (proj != null)
-            proj.Init(damage, dir, arrowSpeed, gameObject);
+            proj.Init(damage, dir, arrowSpeed, gameObject, energyGain);
 
         NetworkServer.Spawn(arrow);
     }
