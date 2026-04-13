@@ -22,6 +22,14 @@ MonoBehaviour:
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
+  attack1EnergyGain: 5
+  attack2EnergyGain: 8
+  attack1StaggerDamage: 25
+  attack2StaggerDamage: 50
+  maxPoise: 40
+  staggerDuration: 1
+  dodgeEnergyCost: 15
+  ability1EnergyCost: 25
   targetSearchRadius: 5
   ability1Cooldown: 5
   dodgeForce: 8

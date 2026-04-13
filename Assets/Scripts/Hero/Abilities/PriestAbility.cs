@@ -40,7 +40,7 @@ public class PriestAbility : HeroAbility
     public override void Attack2() { }
 
     // Server-side: AoE damage on nearest enemy
-    public override void ServerAttack(int attackIndex, float damage, bool flipX)
+    public override void ServerAttack(int attackIndex, float damage, float energyGain, bool flipX)
     {
         if (attackExplosionPrefab == null) return;
 
@@ -50,7 +50,7 @@ public class PriestAbility : HeroAbility
         var explosionObj = Instantiate(attackExplosionPrefab, target.position, Quaternion.identity);
         var aoe = explosionObj.GetComponent<AoeExplosion>();
         if (aoe != null)
-            aoe.Init(damage);
+            aoe.Init(damage, gameObject, energyGain);
 
         NetworkServer.Spawn(explosionObj);
     }

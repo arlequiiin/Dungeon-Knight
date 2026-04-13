@@ -17,7 +17,7 @@ public class SkeletonGreatswordAI : MobAI
         float damage = GetAttackDamage(attack);
         string trigger = attack < TriggerNames.Length ? TriggerNames[attack] : "Attack1";
 
-        PrepareHitbox(attack, damage);
+        PrepareHitbox(attack, damage, GetAttackStaggerDamage(attack));
         animator.SetTrigger(trigger);
         RpcPlayTrigger(trigger);
     }

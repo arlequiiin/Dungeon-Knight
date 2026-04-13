@@ -31,7 +31,7 @@ public class SkeletonArcherAI : MobAI
     {
         if (target == null || !IsTargetAlive())
         {
-            target = null;
+            SetTarget(null);
             ResumeAgent();
             state = State.Patrol;
             SetPatrolDestination();

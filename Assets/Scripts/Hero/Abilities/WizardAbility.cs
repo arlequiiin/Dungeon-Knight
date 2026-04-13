@@ -40,7 +40,7 @@ public class WizardAbility : HeroAbility
     public override void Attack2() { }
 
     // Server-side: spawn fireball
-    public override void ServerAttack(int attackIndex, float damage, bool flipX)
+    public override void ServerAttack(int attackIndex, float damage, float energyGain, bool flipX)
     {
         if (fireballPrefab == null) return;
 
@@ -49,7 +49,7 @@ public class WizardAbility : HeroAbility
         var spell = Instantiate(fireballPrefab, spawnPos, Quaternion.identity);
         var proj = spell.GetComponent<Projectile>();
         if (proj != null)
-            proj.Init(damage, dir, fireballSpeed, gameObject);
+            proj.Init(damage, dir, fireballSpeed, gameObject, energyGain);
 
         NetworkServer.Spawn(spell);
     }

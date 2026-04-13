@@ -30,6 +30,7 @@ public abstract class MobAI : NetworkBehaviour
     protected float recoveryDuration;
     protected bool canBeInterrupted;
     protected float[] attackDamages;
+    protected float[] attackStaggerDamages;
     protected float[] attackWeights;
 
     // --- Components ---
@@ -39,7 +40,7 @@ public abstract class MobAI : NetworkBehaviour
     protected SpriteRenderer spriteRenderer;
 
     // --- FSM ---
-    protected enum State { Patrol, Chase, CircleWait, AttackWindup, Attack, HitReaction, Recovery }
+    protected enum State { Patrol, Chase, CircleWait, AttackWindup, Attack, HitReaction, Recovery, Stagger }
     protected State state = State.Patrol;
 
     // --- Target ---
@@ -56,6 +57,7 @@ public abstract class MobAI : NetworkBehaviour
     protected float windupTimer;
     private float hitReactionTimer;
     private float recoveryTimer;
+    private float staggerTimer;
 
     // --- SyncVar for client animation ---
     [SyncVar] private bool syncIsMoving;
@@ -64,6 +66,7 @@ public abstract class MobAI : NetworkBehaviour
     // --- Hitboxes (same pattern as HeroAbility) ---
     private WeaponHitbox[] weaponHitboxes;
     protected float pendingDamage;
+    protected float pendingStaggerDamage;
     protected int pendingHitboxIndex;
 
     // === Scaling ===
@@ -105,6 +108,16 @@ public abstract class MobAI : NetworkBehaviour
         attackDamages = new float[mobData.attackDamages.Length];
         for (int i = 0; i < mobData.attackDamages.Length; i++)
             attackDamages[i] = mobData.attackDamages[i] * dmgScale;
+
+        // Stagger damages (если не задано — дефолт 5)
+        attackStaggerDamages = new float[mobData.attackDamages.Length];
+        for (int i = 0; i < attackStaggerDamages.Length; i++)
+        {
+            attackStaggerDamages[i] = (mobData.attackStaggerDamages != null && i < mobData.attackStaggerDamages.Length)
+                ? mobData.attackStaggerDamages[i]
+                : 5f;
+        }
+
         attackWeights = mobData.attackWeights;
 
         // Windup & Reaction
@@ -119,6 +132,9 @@ public abstract class MobAI : NetworkBehaviour
 
         // Health (scaled)
         health.SetMaxHealth(mobData.maxHealth * hpScale);
+
+        // Poise (scales with difficulty, not with player count)
+        health.SetPoise(mobData.maxPoise * hpScale, mobData.poiseRecoveryRate, mobData.staggerDuration);
 
         // Knockback resistance
         var hitEffect = GetComponent<HitEffect>();
@@ -152,7 +168,10 @@ public abstract class MobAI : NetworkBehaviour
     {
         ReleaseSlot();
         if (groupManager != null)
+        {
+            groupManager.NotifyTargetChanged(this, target, null);
             groupManager.Unregister(this);
+        }
     }
 
     // === Update: FSM dispatch ===
@@ -178,6 +197,7 @@ public abstract class MobAI : NetworkBehaviour
             case State.Attack:       UpdateAttack();      break;
             case State.HitReaction:  UpdateHitReaction(); break;
             case State.Recovery:     UpdateRecovery();    break;
+            case State.Stagger:      UpdateStagger();     break;
         }
 
         bool moving = agent.velocity.sqrMagnitude > 0.01f;
@@ -190,10 +210,10 @@ public abstract class MobAI : NetworkBehaviour
 
     private void UpdatePatrol()
     {
-        var player = FindNearestPlayer();
+        var player = FindTarget();
         if (player != null)
         {
-            target = player;
+            SetTarget(player);
             state = State.Chase;
             isWaitingAtPatrolPoint = false;
             return;
@@ -223,7 +243,7 @@ public abstract class MobAI : NetworkBehaviour
     {
         if (target == null || !IsTargetAlive())
         {
-            target = null;
+            SetTarget(null);
             ReleaseSlot();
             state = State.Patrol;
             SetPatrolDestination();
@@ -234,7 +254,7 @@ public abstract class MobAI : NetworkBehaviour
 
         if (dist > loseRange)
         {
-            target = null;
+            SetTarget(null);
             ReleaseSlot();
             state = State.Patrol;
             SetPatrolDestination();
@@ -265,7 +285,7 @@ public abstract class MobAI : NetworkBehaviour
     {
         if (target == null || !IsTargetAlive())
         {
-            target = null;
+            SetTarget(null);
             state = State.Patrol;
             SetPatrolDestination();
             return;
@@ -290,7 +310,7 @@ public abstract class MobAI : NetworkBehaviour
     {
         if (target == null || !IsTargetAlive())
         {
-            target = null;
+            SetTarget(null);
             ResumeAgent();
             state = State.Patrol;
             return;
@@ -332,7 +352,7 @@ public abstract class MobAI : NetworkBehaviour
 
         if (target == null || !IsTargetAlive())
         {
-            target = null;
+            SetTarget(null);
             ResumeAgent();
             state = State.Patrol;
             SetPatrolDestination();
@@ -362,7 +382,7 @@ public abstract class MobAI : NetworkBehaviour
                 state = State.Chase;
             else
             {
-                target = null;
+                SetTarget(null);
                 state = State.Patrol;
                 SetPatrolDestination();
             }
@@ -381,7 +401,7 @@ public abstract class MobAI : NetworkBehaviour
                 state = State.Chase;
             else
             {
-                target = null;
+                SetTarget(null);
                 state = State.Patrol;
                 SetPatrolDestination();
             }
@@ -439,7 +459,7 @@ public abstract class MobAI : NetworkBehaviour
         if (health.IsDead) return;
 
         if (!canBeInterrupted) return;
-        if (state == State.HitReaction) return;
+        if (state == State.HitReaction || state == State.Stagger) return;
 
         // Deactivate hitbox if attack was interrupted
         DisableHitbox();
@@ -447,6 +467,46 @@ public abstract class MobAI : NetworkBehaviour
         state = State.HitReaction;
         hitReactionTimer = hitReactionDuration;
         StopAgent();
+    }
+
+    /// <summary>
+    /// Called from MobHealth when poise reaches 0 — enter stagger (stunned).
+    /// </summary>
+    public void OnStagger(float duration)
+    {
+        if (!isServer) return;
+        if (health.IsDead) return;
+
+        DisableHitbox();
+        state = State.Stagger;
+        staggerTimer = duration;
+        StopAgent();
+    }
+
+    /// <summary>
+    /// Called from MobHealth when stagger ends.
+    /// </summary>
+    public void OnStaggerEnd()
+    {
+        if (!isServer) return;
+        if (health.IsDead) return;
+        if (state != State.Stagger) return;
+
+        ResumeAgent();
+        if (target != null && IsTargetAlive())
+            state = State.Chase;
+        else
+        {
+            SetTarget(null);
+            state = State.Patrol;
+            SetPatrolDestination();
+        }
+    }
+
+    private void UpdateStagger()
+    {
+        StopAgent();
+        // Stagger управляется MobHealth через Invoke — здесь просто ждём
     }
 
     protected void EnterRecovery()
@@ -477,6 +537,17 @@ public abstract class MobAI : NetworkBehaviour
             agent.SetDestination(hit.position);
     }
 
+    /// <summary>
+    /// Выбирает цель с учётом распределения по группе (если есть менеджер).
+    /// Без менеджера — ближайший игрок.
+    /// </summary>
+    protected Transform FindTarget()
+    {
+        if (groupManager != null)
+            return groupManager.AssignTarget(this, detectionRange);
+        return FindNearestPlayer();
+    }
+
     protected Transform FindNearestPlayer()
     {
         float bestDist = detectionRange;
@@ -497,6 +568,18 @@ public abstract class MobAI : NetworkBehaviour
         }
 
         return best;
+    }
+
+    /// <summary>
+    /// Устанавливает новую цель и уведомляет менеджер группы о смене.
+    /// </summary>
+    protected void SetTarget(Transform newTarget)
+    {
+        if (target == newTarget) return;
+        var oldTarget = target;
+        target = newTarget;
+        if (groupManager != null)
+            groupManager.NotifyTargetChanged(this, oldTarget, newTarget);
     }
 
     protected bool IsTargetAlive()
@@ -521,6 +604,13 @@ public abstract class MobAI : NetworkBehaviour
         if (attackDamages == null || index < 0 || index >= attackDamages.Length)
             return 10f;
         return attackDamages[index];
+    }
+
+    protected float GetAttackStaggerDamage(int index)
+    {
+        if (attackStaggerDamages == null || index < 0 || index >= attackStaggerDamages.Length)
+            return 5f;
+        return attackStaggerDamages[index];
     }
 
     /// <summary>
@@ -552,10 +642,11 @@ public abstract class MobAI : NetworkBehaviour
         return 0;
     }
 
-    protected void PrepareHitbox(int index, float damage)
+    protected void PrepareHitbox(int index, float damage, float staggerDmg = 0f)
     {
         pendingHitboxIndex = index;
         pendingDamage = damage;
+        pendingStaggerDamage = staggerDmg;
     }
 
     private WeaponHitbox GetHitbox(int index)
@@ -569,7 +660,7 @@ public abstract class MobAI : NetworkBehaviour
     {
         var hitbox = GetHitbox(pendingHitboxIndex);
         if (hitbox != null)
-            hitbox.Activate(pendingDamage);
+            hitbox.Activate(pendingDamage, 0f, pendingStaggerDamage);
     }
 
     public void DisableHitbox()

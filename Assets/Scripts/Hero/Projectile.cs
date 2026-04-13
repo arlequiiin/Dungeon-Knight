@@ -40,6 +40,7 @@ public class Projectile : NetworkBehaviour
 
     private float damage;
     private float speed;
+    private float energyGain;
     private Rigidbody2D rb;
     private Collider2D col;
     private bool initialized;
@@ -60,11 +61,12 @@ public class Projectile : NetworkBehaviour
         col.isTrigger = true;
     }
 
-    public void Init(float projectileDamage, Vector2 direction, float projectileSpeed, GameObject projectileOwner = null)
+    public void Init(float projectileDamage, Vector2 direction, float projectileSpeed, GameObject projectileOwner = null, float projectileEnergyGain = 0f)
     {
         damage = projectileDamage;
         speed = projectileSpeed;
         owner = projectileOwner;
+        energyGain = projectileEnergyGain;
         initialized = true;
 
         float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -200,6 +202,7 @@ public class Projectile : NetworkBehaviour
 
         if (explosionRadius > 0f)
         {
+            bool hitAnyMob = false;
             var hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
             foreach (var hit in hits)
             {
@@ -211,6 +214,7 @@ public class Projectile : NetworkBehaviour
                 if (mob != null && !mob.IsDead)
                 {
                     mob.TakeDamage(damage);
+                    hitAnyMob = true;
                     continue;
                 }
 
@@ -219,13 +223,19 @@ public class Projectile : NetworkBehaviour
                     hero.TakeDamage(damage);
             }
 
+            if (hitAnyMob)
+                RestoreOwnerEnergy();
+
             RpcExplode();
             Invoke(nameof(DestroySelf), explosionDuration);
         }
         else
         {
             if (mobHealth != null)
+            {
                 mobHealth.TakeDamage(damage);
+                RestoreOwnerEnergy();
+            }
             else if (heroStats != null)
                 heroStats.TakeDamage(damage);
 
@@ -244,6 +254,14 @@ public class Projectile : NetworkBehaviour
         var anim = GetComponent<Animator>();
         if (anim != null)
             anim.SetTrigger("Explode");
+    }
+
+    private void RestoreOwnerEnergy()
+    {
+        if (energyGain <= 0f || owner == null) return;
+        var ownerStats = owner.GetComponent<HeroStats>();
+        if (ownerStats != null)
+            ownerStats.RestoreEnergy(energyGain);
     }
 
     private void DestroySelf()

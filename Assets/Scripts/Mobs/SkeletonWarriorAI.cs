@@ -10,7 +10,7 @@ public class SkeletonWarriorAI : MobAI
     protected override void PerformAttack()
     {
         FaceTarget();
-        PrepareHitbox(0, GetAttackDamage(0));
+        PrepareHitbox(0, GetAttackDamage(0), GetAttackStaggerDamage(0));
         animator.SetTrigger("Attack1");
         RpcPlayTrigger("Attack1");
     }
