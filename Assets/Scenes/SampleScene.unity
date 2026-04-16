@@ -533660,6 +533660,7 @@ MonoBehaviour:
     weight: 60
   - prefab: {fileID: 3738057844671139991, guid: a9ad269ddef27d441b62a5ceef67f80e, type: 3}
     weight: 45
+  bossPrefab: {fileID: 1294678635453260241, guid: bfbe365aac3f9af409ce198842987c48, type: 3}
   mobsPerNormalRoom: 6
 --- !u!1 &1172224625
 GameObject:

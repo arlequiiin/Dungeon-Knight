@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 7470567967621399021}
   - component: {fileID: -1497797128705788531}
   - component: {fileID: 755060195839418103}
+  - component: {fileID: 9089123280086635786}
   m_Layer: 7
   m_Name: SkeletonOverlord
   m_TagString: Untagged
@@ -292,6 +293,9 @@ MonoBehaviour:
   onDeath:
     m_PersistentCalls:
       m_Calls: []
+  onHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &-1497797128705788531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,6 +322,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortByY
   offset: 10000
+--- !u!114 &9089123280086635786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0845bc992c34774aa03703708b3d061, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkeletonOverlordAI
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  mobData: {fileID: 11400000, guid: c3b61abe5deed9541bfa90934bf39e0f, type: 2}
+  summonPrefabs:
+  - {fileID: 2722922200427301075, guid: 49e1089dde35fd843a7ef069a8fee5aa, type: 3}
+  - {fileID: 3738057844671139991, guid: a9ad269ddef27d441b62a5ceef67f80e, type: 3}
+  - {fileID: 1294678635453260241, guid: e6d42bf1745ef5547a58075c734c78b4, type: 3}
+  - {fileID: 5303612760217901525, guid: 97c247eb8ab7d9344a7c11b2e53164a9, type: 3}
+  summonsPerWave: 2
+  summonCooldown: 12
+  summonAnimDuration: 1
+  maxActiveMinions: 6
 --- !u!1 &1643836152134245473
 GameObject:
   m_ObjectHideFlags: 0
