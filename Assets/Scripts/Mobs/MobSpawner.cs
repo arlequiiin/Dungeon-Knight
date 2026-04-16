@@ -11,6 +11,9 @@ public class MobSpawner : MonoBehaviour
     [Header("Мобы")]
     [SerializeField] private MobSpawnEntry[] mobPrefabs;
 
+    [Header("Босс")]
+    [SerializeField] private GameObject bossPrefab;
+
     [Header("Настройки спавна")]
     [SerializeField] private int mobsPerNormalRoom = 1;
 
@@ -19,8 +22,12 @@ public class MobSpawner : MonoBehaviour
     private int currentPlayerCount;
     private float currentDifficulty;
 
+    // Boss instance — exposed for UI binding
+    private GameObject bossInstance;
+    public GameObject BossInstance => bossInstance;
+
     /// <summary>
-    /// Спавнит мобов во всех нормальных комнатах подземелья.
+    /// Спавнит мобов во всех нормальных комнатах и босса в Boss-комнате.
     /// Должен вызываться после BakeNavMesh().
     /// </summary>
     public void SpawnMobs(GridWalkGenerator generator, int seed, int playerCount = 1, float difficulty = 1f)
@@ -50,7 +57,32 @@ public class MobSpawner : MonoBehaviour
         {
             if (cell.roomType == RoomType.Normal)
                 SpawnMobsInRoom(cell);
+            else if (cell.roomType == RoomType.Boss)
+                SpawnBossInRoom(cell);
         }
+    }
+
+    private void SpawnBossInRoom(CellData cell)
+    {
+        if (bossPrefab == null)
+        {
+            Debug.LogWarning("[MobSpawner] bossPrefab not assigned, skipping Boss room");
+            return;
+        }
+
+        Vector2 pos = cell.RoomCenter;
+        bossInstance = Instantiate(bossPrefab, pos, Quaternion.identity);
+
+        var ai = bossInstance.GetComponent<MobAI>();
+        if (ai != null)
+            ai.Init(pos, null, currentPlayerCount, currentDifficulty);
+
+        var bossHealth = bossInstance.GetComponent<MobHealth>();
+        if (bossHealth != null)
+            bossHealth.SetBoss(true);
+
+        NetworkServer.Spawn(bossInstance);
+        Debug.Log($"[MobSpawner] Boss spawned at {pos}");
     }
 
     private void SpawnMobsInRoom(CellData cell)

@@ -14,21 +14,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Overlord
   mobType: 4
-  maxHealth: 40
+  maxHealth: 400
   detectionRange: 5
   loseRange: 8
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
-  - 10
+  - 30
+  - 50
+  attackStaggerDamages: []
   attackWeights: []
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
   moveSpeed: 1
+  attackWindupDuration: 0.3
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
-  knockbackResistance: 0
+  maxPoise: 30
+  poiseRecoveryRate: 0.5
+  staggerDuration: 1.5
+  knockbackResistance: 0.7
+  projectilePrefab: {fileID: 0}
   coinDropMin: 1
   coinDropMax: 3

@@ -272,6 +272,8 @@ MonoBehaviour:
   hudPrefab: {fileID: 8363856641086588102, guid: 338d4a9e9e130ce4096271f6c02f9f4d, type: 3}
   deathScreenPrefab: {fileID: 4104276264662686505, guid: 95a95c3b5ee9e134b8152952cea6dc92, type: 3}
   pauseMenuPrefab: {fileID: 6501599416650171848, guid: 898fed814bfe3314ca47833e685a2256, type: 3}
+  bossHealthUIPrefab: {fileID: 1021356243722150743, guid: 33d1ddd1315ce44419dc2cc7648f8737, type: 3}
+  victoryScreenPrefab: {fileID: 1848035784922410505, guid: 09eded967f5085a4b8222a93b6c03769, type: 3}
 --- !u!114 &2836491762058753401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,6 +300,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   isDodging: 0
+  hasHyperArmor: 0
 --- !u!114 &8259631912024887503
 MonoBehaviour:
   m_ObjectHideFlags: 0

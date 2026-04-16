@@ -39,6 +39,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject hudPrefab;
     [SerializeField] private GameObject deathScreenPrefab;
     [SerializeField] private GameObject pauseMenuPrefab;
+    [SerializeField] private GameObject bossHealthUIPrefab;
+    [SerializeField] private GameObject victoryScreenPrefab;
     private PlayerHUD hud;
 
     public event System.Action onInteract;
@@ -192,6 +194,18 @@ public class PlayerController : NetworkBehaviour
             var deathObj = Instantiate(deathScreenPrefab);
             var deathScreen = deathObj.GetComponent<DeathScreenUI>();
             deathScreen?.Init(stats);
+        }
+
+        // Boss HP bar — только в данже
+        if (bossHealthUIPrefab != null && inGame)
+        {
+            Instantiate(bossHealthUIPrefab);
+        }
+
+        // Экран победы — только в данже
+        if (victoryScreenPrefab != null && inGame)
+        {
+            Instantiate(victoryScreenPrefab);
         }
 
         // Меню паузы — в данже и в лобби

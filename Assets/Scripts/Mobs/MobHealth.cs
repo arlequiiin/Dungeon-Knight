@@ -8,10 +8,14 @@ using UnityEngine.Events;
 /// </summary>
 public class MobHealth : NetworkBehaviour
 {
+    [SyncVar]
     private float maxHealth = 40f;
 
     [SyncVar(hook = nameof(OnHealthChanged))]
     private float currentHealth;
+
+    [SyncVar]
+    private bool isBoss;
 
     private bool isDead;
 
@@ -31,7 +35,10 @@ public class MobHealth : NetworkBehaviour
     public UnityEvent onDeath;
 
     public bool IsDead => isDead;
+    public bool IsBoss => isBoss;
     public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
+    public float HealthNormalized => maxHealth > 0 ? currentHealth / maxHealth : 0f;
 
     public override void OnStartServer()
     {
@@ -47,6 +54,11 @@ public class MobHealth : NetworkBehaviour
         maxHealth = value;
         currentHealth = value;
     }
+
+    /// <summary>
+    /// Marks this mob as a boss (enables boss HP bar on clients).
+    /// </summary>
+    public void SetBoss(bool value) => isBoss = value;
 
     /// <summary>
     /// Sets poise params (from MobData). Call before NetworkServer.Spawn().
@@ -238,5 +250,10 @@ public class MobHealth : NetworkBehaviour
 
     private void DestroyMob() => NetworkServer.Destroy(gameObject);
 
-    private void OnHealthChanged(float oldVal, float newVal) { }
+    private void OnHealthChanged(float oldVal, float newVal)
+    {
+        onHealthChanged?.Invoke(newVal, maxHealth);
+    }
+
+    public UnityEvent<float, float> onHealthChanged;
 }
