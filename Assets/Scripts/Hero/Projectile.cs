@@ -183,6 +183,8 @@ public class Projectile : NetworkBehaviour
         if (!NetworkServer.active) return;
         if (hasHit) return;
 
+        // Пропускаем trigger-коллайдеры (RoomController, зоны детекта и т.д.)
+        if (other.isTrigger) return;
         if (other.GetComponent<Projectile>() != null) return;
         var root = other.transform.root.gameObject;
         if (owner != null && root == owner) return;

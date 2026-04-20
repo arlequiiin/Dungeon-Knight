@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
 /// <summary>
-/// Спавнит мобов в комнатах после генерации подземелья.
-/// Вызывается только на сервере из GridWalkDungeonGenerator.
-/// Поддерживает несколько типов мобов (массив префабов).
+/// Спавнит мобов в комнатах подземелья.
+/// Вызывается только на сервере. Инициализируется из GridWalkDungeonGenerator,
+/// а спавн мобов происходит по запросу RoomController при входе игрока в комнату.
 /// </summary>
 public class MobSpawner : MonoBehaviour
 {
@@ -27,47 +28,78 @@ public class MobSpawner : MonoBehaviour
     public GameObject BossInstance => bossInstance;
 
     /// <summary>
-    /// Спавнит мобов во всех нормальных комнатах и босса в Boss-комнате.
-    /// Должен вызываться после BakeNavMesh().
+    /// Инициализирует спавнер (seed, масштабирование).
+    /// Вызывать один раз после генерации подземелья, перед SpawnRoomMobs/SpawnRoomBoss.
     /// </summary>
-    public void SpawnMobs(GridWalkGenerator generator, int seed, int playerCount = 1, float difficulty = 1f)
+    public void Initialize(int seed, int playerCount = 1, float difficulty = 1f)
     {
-        if (!NetworkServer.active)
-        {
-            Debug.LogWarning("[MobSpawner] SpawnMobs called on non-server, ignoring");
-            return;
-        }
-
-        if (mobPrefabs == null || mobPrefabs.Length == 0)
-        {
-            Debug.LogError("[MobSpawner] mobPrefabs not assigned!");
-            return;
-        }
+        if (!NetworkServer.active) return;
 
         currentPlayerCount = playerCount;
         currentDifficulty = difficulty;
 
         totalWeight = 0;
-        foreach (var entry in mobPrefabs)
-            totalWeight += entry.weight;
+        if (mobPrefabs != null)
+            foreach (var entry in mobPrefabs)
+                totalWeight += entry.weight;
 
         rng = new System.Random(seed + 42);
-
-        foreach (var cell in generator.Graph.cells)
-        {
-            if (cell.roomType == RoomType.Normal)
-                SpawnMobsInRoom(cell);
-            else if (cell.roomType == RoomType.Boss)
-                SpawnBossInRoom(cell);
-        }
     }
 
-    private void SpawnBossInRoom(CellData cell)
+    /// <summary>
+    /// Спавнит мобов в обычной комнате. Возвращает список MobHealth для отслеживания.
+    /// Вызывается из RoomController при входе игрока.
+    /// </summary>
+    public List<MobHealth> SpawnRoomMobs(CellData cell)
     {
+        if (!NetworkServer.active) return null;
+        if (mobPrefabs == null || mobPrefabs.Length == 0)
+        {
+            Debug.LogWarning("[MobSpawner] mobPrefabs not assigned!");
+            return null;
+        }
+
+        var result = new List<MobHealth>();
+
+        // Создаём менеджер группы для комнаты
+        var groupObj = new GameObject($"MobGroup_{cell.roomOrigin}");
+        groupObj.transform.position = (Vector3)(Vector2)cell.RoomCenter;
+        var group = groupObj.AddComponent<MobGroupManager>();
+
+        for (int i = 0; i < mobsPerNormalRoom; i++)
+        {
+            Vector2 pos = GetRandomFloorPosition(cell);
+            GameObject prefab = PickRandomPrefab();
+            GameObject mob = Instantiate(prefab, pos, Quaternion.identity);
+
+            var ai = mob.GetComponent<MobAI>();
+            if (ai != null)
+            {
+                ai.Init(cell.RoomCenter, group, currentPlayerCount, currentDifficulty);
+                group.Register(ai);
+            }
+
+            NetworkServer.Spawn(mob);
+
+            var health = mob.GetComponent<MobHealth>();
+            if (health != null)
+                result.Add(health);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Спавнит босса в Boss-комнате. Возвращает MobHealth для отслеживания.
+    /// Вызывается из RoomController при входе игрока.
+    /// </summary>
+    public MobHealth SpawnRoomBoss(CellData cell)
+    {
+        if (!NetworkServer.active) return null;
         if (bossPrefab == null)
         {
-            Debug.LogWarning("[MobSpawner] bossPrefab not assigned, skipping Boss room");
-            return;
+            Debug.LogWarning("[MobSpawner] bossPrefab not assigned!");
+            return null;
         }
 
         Vector2 pos = cell.RoomCenter;
@@ -77,41 +109,14 @@ public class MobSpawner : MonoBehaviour
         if (ai != null)
             ai.Init(pos, null, currentPlayerCount, currentDifficulty);
 
-        var bossHealth = bossInstance.GetComponent<MobHealth>();
-        if (bossHealth != null)
-            bossHealth.SetBoss(true);
+        var health = bossInstance.GetComponent<MobHealth>();
+        if (health != null)
+            health.SetBoss(true);
 
         NetworkServer.Spawn(bossInstance);
         Debug.Log($"[MobSpawner] Boss spawned at {pos}");
-    }
 
-    private void SpawnMobsInRoom(CellData cell)
-    {
-        // Создаём менеджер группы для комнаты
-        var groupObj = new GameObject($"MobGroup_{cell.roomOrigin}");
-        groupObj.transform.position = (Vector3)(Vector2)cell.RoomCenter;
-        var group = groupObj.AddComponent<MobGroupManager>();
-
-        for (int i = 0; i < mobsPerNormalRoom; i++)
-        {
-            Vector2 pos = GetRandomFloorPosition(cell);
-            SpawnMob(pos, cell.RoomCenter, group);
-        }
-    }
-
-    private void SpawnMob(Vector2 pos, Vector2 roomCenter, MobGroupManager group)
-    {
-        GameObject prefab = PickRandomPrefab();
-        GameObject mob = Instantiate(prefab, pos, Quaternion.identity);
-
-        var ai = mob.GetComponent<MobAI>();
-        if (ai != null)
-        {
-            ai.Init(roomCenter, group, currentPlayerCount, currentDifficulty);
-            group.Register(ai);
-        }
-
-        NetworkServer.Spawn(mob);
+        return health;
     }
 
     private GameObject PickRandomPrefab()
@@ -134,7 +139,6 @@ public class MobSpawner : MonoBehaviour
     /// </summary>
     private Vector2 GetRandomFloorPosition(CellData cell)
     {
-        // Пробуем найти случайный тайл пола с отступом от стен
         int margin = 1;
         int attempts = 20;
 
@@ -142,7 +146,7 @@ public class MobSpawner : MonoBehaviour
         {
             int x = rng.Next(cell.roomOrigin.x + margin, cell.roomOrigin.x + cell.roomSize.x - margin);
             int y = rng.Next(cell.roomOrigin.y + margin, cell.roomOrigin.y + cell.roomSize.y - margin);
-            var tile = new UnityEngine.Vector2Int(x, y);
+            var tile = new Vector2Int(x, y);
 
             if (cell.floorTiles.Contains(tile))
                 return new Vector2(x + 0.5f, y + 0.5f);

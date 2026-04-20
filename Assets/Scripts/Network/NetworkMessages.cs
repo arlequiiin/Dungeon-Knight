@@ -27,3 +27,11 @@ public struct HeroSelectionsUpdate : NetworkMessage
 {
     public HeroSelection[] selections;
 }
+
+// ── Room State Sync ──
+
+public struct RoomStateMessage : NetworkMessage
+{
+    public int roomIndex;
+    public byte state; // 0 = Idle, 1 = Active, 2 = Cleared
+}
