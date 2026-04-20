@@ -124,6 +124,7 @@ public class MobHealth : NetworkBehaviour
     [Server]
     private void ExitStagger()
     {
+        if (isDead) return;
         isStaggered = false;
         currentPoise = maxPoise;
 
@@ -218,10 +219,11 @@ public class MobHealth : NetworkBehaviour
             rb.bodyType = RigidbodyType2D.Static;
         }
 
-        // Ставим триггер Death — аниматор перейдёт Hurt → Death по transition
+        // Сброс скорости аниматора (может быть 0 после стагера)
         var anim = GetComponent<Animator>();
         if (anim != null)
         {
+            anim.speed = 1f;
             foreach (var param in anim.parameters)
             {
                 if (param.type == AnimatorControllerParameterType.Trigger && param.name != "Death")

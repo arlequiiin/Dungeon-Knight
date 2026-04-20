@@ -24,6 +24,7 @@ public class GridWalkDungeonGenerator : MonoBehaviour
     private GridWalkGenerator generator;
     private Transform decorContainer;
     private Transform treeContainer;
+    private Transform roomContainer;
 
     public GridWalkGenerator Generator => generator;
     public GridWalkConfig Config => config;
@@ -63,9 +64,13 @@ public class GridWalkDungeonGenerator : MonoBehaviour
         // Запекаем NavMesh после всех объектов
         BakeNavMesh();
 
-        // Спавним мобов после запекания NavMesh
-        int playerCount = Mirror.NetworkServer.connections.Count;
-        mobSpawner?.SpawnMobs(generator, config.seed, playerCount);
+        // Инициализируем спавнер (мобы спавнятся по входу игрока в комнату через RoomController)
+        if (Mirror.NetworkServer.active)
+        {
+            int playerCount = Mathf.Max(1, Mirror.NetworkServer.connections.Count);
+            mobSpawner?.Initialize(config.seed, playerCount);
+        }
+        SetupRoomControllers();
     }
 
     public void RegenerateDungeon()
@@ -147,6 +152,35 @@ public class GridWalkDungeonGenerator : MonoBehaviour
         }
 
         Debug.Log($"[GridWalk] Заспавнено деревьев: {treeContainer.childCount}");
+    }
+
+    private void SetupRoomControllers()
+    {
+        // Очистка старых контроллеров при регенерации
+        RoomController.ClearRegistry();
+        if (roomContainer != null)
+            Destroy(roomContainer.gameObject);
+        roomContainer = new GameObject("RoomControllers").transform;
+
+        int halfWidth = config.corridorWidth / 2;
+        var graph = generator.Graph;
+
+        for (int i = 0; i < graph.cells.Count; i++)
+        {
+            var cell = graph.cells[i];
+            // RoomController только для комнат с мобами
+            if (cell.roomType != RoomType.Normal && cell.roomType != RoomType.Boss)
+                continue;
+
+            var go = new GameObject($"Room_{i}_{cell.roomType}");
+            go.transform.position = cell.RoomCenter;
+            go.transform.SetParent(roomContainer);
+
+            var rc = go.AddComponent<RoomController>();
+            rc.Init(i, cell, graph, halfWidth, mobSpawner);
+        }
+
+        Debug.Log($"[GridWalk] RoomControllers созданы: {roomContainer.childCount}");
     }
 
     private void BakeNavMesh()

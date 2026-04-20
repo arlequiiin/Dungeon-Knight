@@ -46,6 +46,7 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         base.OnStartClient();
         NetworkClient.RegisterHandler<SeedBroadcastMessage>(OnSeedReceived);
+        NetworkClient.RegisterHandler<RoomStateMessage>(OnRoomStateReceived);
     }
 
     public override void OnServerSceneChanged(string sceneName)
@@ -263,6 +264,13 @@ public class DungeonKnightNetworkManager : NetworkManager
     private void OnClientRequestedSeed(NetworkConnectionToClient conn, RequestSeedMessage msg)
     {
         conn.Send(new SeedBroadcastMessage { seed = authoritativeSeed });
+    }
+
+    private void OnRoomStateReceived(RoomStateMessage msg)
+    {
+        // Хост уже обработал локально в RoomController
+        if (NetworkServer.active) return;
+        RoomController.OnRoomStateChanged(msg.roomIndex, msg.state);
     }
 
     private void OnSeedReceived(SeedBroadcastMessage msg)
