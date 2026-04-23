@@ -339,6 +339,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mobData: {fileID: 11400000, guid: c3b61abe5deed9541bfa90934bf39e0f, type: 2}
+  spriteFacesLeft: 1
   summonPrefabs:
   - {fileID: 2722922200427301075, guid: 49e1089dde35fd843a7ef069a8fee5aa, type: 3}
   - {fileID: 3738057844671139991, guid: a9ad269ddef27d441b62a5ceef67f80e, type: 3}

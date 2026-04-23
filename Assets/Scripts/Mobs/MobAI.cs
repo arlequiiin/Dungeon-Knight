@@ -17,6 +17,9 @@ public abstract class MobAI : NetworkBehaviour
     [Header("Mob Data")]
     public MobData mobData;
 
+    [Tooltip("Включить, если спрайт моба по умолчанию смотрит влево (инвертирует flip)")]
+    public bool spriteFacesLeft;
+
     // --- Runtime stats (applied from MobData + scaling) ---
     protected float detectionRange;
     protected float loseRange;
@@ -181,7 +184,7 @@ public abstract class MobAI : NetworkBehaviour
         // Animation and flip on all clients via SyncVar
         animator.SetBool("IsMoving", syncIsMoving);
         if (spriteRenderer != null)
-            spriteRenderer.flipX = syncFlipX;
+            spriteRenderer.flipX = spriteFacesLeft ? !syncFlipX : syncFlipX;
 
         if (!isServer) return;
         if (health.IsDead) return;
