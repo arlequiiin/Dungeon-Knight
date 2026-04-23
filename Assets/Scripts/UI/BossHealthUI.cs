@@ -59,16 +59,25 @@ public class BossHealthUI : MonoBehaviour
             Hide();
     }
 
+    private float _debugTimer;
     private void TryFindBoss()
     {
         // Search all MobHealth in the scene for the one marked as boss
-        foreach (var mh in FindObjectsByType<MobHealth>(FindObjectsSortMode.None))
+        var all = FindObjectsByType<MobHealth>(FindObjectsSortMode.None);
+        foreach (var mh in all)
         {
             if (mh.IsBoss && !mh.IsDead)
             {
                 Bind(mh);
                 return;
             }
+        }
+
+        _debugTimer -= Time.deltaTime;
+        if (_debugTimer <= 0f)
+        {
+            _debugTimer = 2f;
+            Debug.Log($"[BossHealthUI] searching... MobHealths found: {all.Length}; IsBoss flags: [{string.Join(",", System.Array.ConvertAll(all, m => m.IsBoss + "/" + m.IsDead))}]");
         }
     }
 

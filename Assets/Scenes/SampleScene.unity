@@ -533613,7 +533613,7 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 253337a6d0cc5324496630e0d093d5e6, type: 2}
   gridWalkRenderer: {fileID: 1010216386}
   navMeshSurface: {fileID: 446979322}
-  generateOnStart: 0
+  generateOnStart: 1
   volcBubblePrefabs:
   - {fileID: 7945956865140596473, guid: 610b2233ca4306944951cf1fa246c4e7, type: 3}
   - {fileID: 2465768106952814203, guid: 875690994c3579a4f8f5988403dadf0e, type: 3}

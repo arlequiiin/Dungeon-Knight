@@ -46,6 +46,7 @@ public class Projectile : NetworkBehaviour
     private bool initialized;
     private bool hasHit;
     private GameObject owner;
+    private bool ownerIsMob;
     private float currentAngle;
 
     // Homing: saved target position (not tracking)
@@ -66,6 +67,7 @@ public class Projectile : NetworkBehaviour
         damage = projectileDamage;
         speed = projectileSpeed;
         owner = projectileOwner;
+        ownerIsMob = owner != null && owner.GetComponent<MobHealth>() != null;
         energyGain = projectileEnergyGain;
         initialized = true;
 
@@ -192,6 +194,10 @@ public class Projectile : NetworkBehaviour
         var mobHealth = other.GetComponentInParent<MobHealth>();
         var heroStats = other.GetComponentInParent<HeroStats>();
 
+        // Снаряды мобов не бьют других мобов (friendly fire)
+        if (ownerIsMob && mobHealth != null)
+            return;
+
         // Hit a wall/obstacle — destroy projectile
         if (mobHealth == null && heroStats == null)
         {
@@ -215,6 +221,7 @@ public class Projectile : NetworkBehaviour
                 var mob = hit.GetComponentInParent<MobHealth>();
                 if (mob != null && !mob.IsDead)
                 {
+                    if (ownerIsMob) continue;
                     mob.TakeDamage(damage);
                     hitAnyMob = true;
                     continue;
