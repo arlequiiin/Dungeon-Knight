@@ -112,7 +112,7 @@ public class MobGroupManager : MonoBehaviour
         {
             if (identity == null) continue;
             var heroStats = identity.GetComponent<HeroStats>();
-            if (heroStats == null || heroStats.IsDead) continue;
+            if (heroStats == null || heroStats.IsDead || heroStats.IsDowned) continue;
 
             float d = Vector2.Distance(mob.transform.position, identity.transform.position);
             if (d < detectionRange)

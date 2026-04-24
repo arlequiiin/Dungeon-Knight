@@ -41,6 +41,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject pauseMenuPrefab;
     [SerializeField] private GameObject bossHealthUIPrefab;
     [SerializeField] private GameObject victoryScreenPrefab;
+    [SerializeField] private GameObject gameOverUIPrefab;
     private PlayerHUD hud;
 
     public event System.Action onInteract;
@@ -206,6 +207,12 @@ public class PlayerController : NetworkBehaviour
         if (victoryScreenPrefab != null && inGame)
         {
             Instantiate(victoryScreenPrefab);
+        }
+
+        // Экран поражения — только в данже
+        if (gameOverUIPrefab != null && inGame)
+        {
+            Instantiate(gameOverUIPrefab);
         }
 
         // Меню паузы — в данже и в лобби

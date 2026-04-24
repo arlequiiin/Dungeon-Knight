@@ -136,6 +136,15 @@ public class RoomController : MonoBehaviour
 
         if (NetworkServer.active)
         {
+            // Воскрешаем всех упавших игроков с 30% HP/маны
+            foreach (var identity in NetworkServer.spawned.Values)
+            {
+                if (identity == null) continue;
+                var hs = identity.GetComponent<HeroStats>();
+                if (hs != null && hs.IsDowned)
+                    hs.ForceRevive();
+            }
+
             NetworkServer.SendToAll(new RoomStateMessage
             {
                 roomIndex = roomIndex,
