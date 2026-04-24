@@ -560,7 +560,7 @@ public abstract class MobAI : NetworkBehaviour
         {
             if (identity == null) continue;
             var heroStats = identity.GetComponent<HeroStats>();
-            if (heroStats == null || heroStats.IsDead) continue;
+            if (heroStats == null || heroStats.IsDead || heroStats.IsDowned) continue;
 
             float d = Vector2.Distance(transform.position, identity.transform.position);
             if (d < bestDist)
@@ -588,7 +588,7 @@ public abstract class MobAI : NetworkBehaviour
     protected bool IsTargetAlive()
     {
         var heroStats = target.GetComponent<HeroStats>();
-        return heroStats != null && !heroStats.IsDead;
+        return heroStats != null && !heroStats.IsDead && !heroStats.IsDowned;
     }
 
     private void FlipSprite()

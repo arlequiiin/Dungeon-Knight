@@ -198,6 +198,19 @@ public class Projectile : NetworkBehaviour
         if (ownerIsMob && mobHealth != null)
             return;
 
+        // Мобы не могут бить упавших игроков (пролетают мимо)
+        if (ownerIsMob && heroStats != null && heroStats.IsDowned)
+            return;
+
+        // Снаряды союзника по упавшему → revive (без hit-эффектов)
+        if (!ownerIsMob && heroStats != null && heroStats.IsDowned)
+        {
+            heroStats.ReviveDamage(damage);
+            hasHit = true;
+            NetworkServer.Destroy(gameObject);
+            return;
+        }
+
         // Hit a wall/obstacle — destroy projectile
         if (mobHealth == null && heroStats == null)
         {

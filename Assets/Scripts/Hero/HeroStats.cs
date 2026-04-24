@@ -21,9 +21,32 @@ public class HeroStats : NetworkBehaviour
     // Для UI и эффектов
     public UnityEvent<float, float> onHealthChanged;   // (current, max)
     public UnityEvent<float, float> onEnergyChanged;   // (current, max)
+    public UnityEvent<float, float> onDownedHealthChanged;  // (current, max)
     public UnityEvent onDeath;
+    public UnityEvent onDowned;
+    public UnityEvent onRevived;
 
     private bool isDead;
+
+    // === Downed (упавший герой) ===
+    public const float DOWNED_MAX_HEALTH = 50f;
+    private const float DOWNED_REGEN_DELAY = 3f;   // сек бездействия → регенерация
+    private const float DOWNED_REGEN_DURATION = 3f; // сек на полное восстановление
+    private const float REVIVE_HP_PERCENT = 0.3f;
+    private const float REVIVE_ENERGY_PERCENT = 0.3f;
+
+    [SyncVar(hook = nameof(OnDownedChanged))]
+    private bool isDowned;
+
+    [SyncVar(hook = nameof(OnDownedHealthChanged))]
+    private float downedHealth;
+
+    private float lastReviveHitTime;
+
+    public bool IsDowned => isDowned;
+    public float DownedHealth => downedHealth;
+    public float DownedMaxHealth => DOWNED_MAX_HEALTH;
+    public float DownedHealthNormalized => downedHealth / DOWNED_MAX_HEALTH;
 
     // Неуязвимость во время рывка (устанавливается через Command с клиента)
     [SyncVar]
@@ -60,6 +83,9 @@ public class HeroStats : NetworkBehaviour
     {
         if (isDead) return;
 
+        // Мобы не могут бить упавшего (WeaponHitbox/Projectile проверяют IsDowned, это защита)
+        if (isDowned) return;
+
         // Неуязвимость во время рывка
         if (IsDodging) return;
 
@@ -69,7 +95,7 @@ public class HeroStats : NetworkBehaviour
             RpcTriggerHurt();
 
         if (currentHealth <= 0f)
-            Die();
+            EnterDowned();
     }
 
     // Восстановление здоровья — вызывается только на сервере
@@ -188,6 +214,163 @@ public class HeroStats : NetworkBehaviour
         var controller = GetComponent<PlayerController>();
         if (controller != null)
             controller.ResetAttackState();
+    }
+
+    // === Downed System ===
+
+    [Server]
+    private void EnterDowned()
+    {
+        if (isDowned || isDead) return;
+
+        isDowned = true;
+        downedHealth = DOWNED_MAX_HEALTH;
+        lastReviveHitTime = Time.time;
+
+        // Прерываем атаку и отключаем управление
+        var controller = GetComponent<PlayerController>();
+        if (controller != null)
+        {
+            controller.ResetAttackState();
+            controller.enabled = false;
+        }
+
+        // Останавливаем тело (kinematic чтобы мобы не толкали, но триггер для revive работал)
+        var rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        }
+
+        RpcOnDowned();
+
+        // Проверка game over
+        GameOverWatcher.CheckAllDowned();
+    }
+
+    /// <summary>
+    /// Союзник бьёт упавшего игрока → снимает downed-HP. При 0 → Revive.
+    /// </summary>
+    [Server]
+    public void ReviveDamage(float amount)
+    {
+        if (!isDowned || isDead) return;
+
+        downedHealth = Mathf.Max(0f, downedHealth - amount);
+        lastReviveHitTime = Time.time;
+
+        if (downedHealth <= 0f)
+            Revive();
+    }
+
+    [Server]
+    private void Revive()
+    {
+        if (!isDowned) return;
+
+        isDowned = false;
+        downedHealth = DOWNED_MAX_HEALTH;
+        currentHealth = maxHealth * REVIVE_HP_PERCENT;
+        currentEnergy = maxEnergy * REVIVE_ENERGY_PERCENT;
+
+        var controller = GetComponent<PlayerController>();
+        if (controller != null)
+            controller.enabled = true;
+
+        var rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.bodyType = RigidbodyType2D.Dynamic;
+
+        RpcOnRevived();
+    }
+
+    /// <summary>
+    /// Вызывается RoomController при зачистке комнаты: воскрешает всех упавших с 30% HP/маны.
+    /// </summary>
+    [Server]
+    public void ForceRevive()
+    {
+        if (!isDowned || isDead) return;
+        Revive();
+    }
+
+    private void Update()
+    {
+        if (!isServer) return;
+        if (!isDowned || isDead) return;
+
+        // Регенерация downed-HP если нет ударов 3+ сек
+        if (downedHealth < DOWNED_MAX_HEALTH && Time.time - lastReviveHitTime >= DOWNED_REGEN_DELAY)
+        {
+            float regenPerSec = DOWNED_MAX_HEALTH / DOWNED_REGEN_DURATION;
+            downedHealth = Mathf.Min(DOWNED_MAX_HEALTH, downedHealth + regenPerSec * Time.deltaTime);
+        }
+    }
+
+    [ClientRpc]
+    private void RpcOnDowned()
+    {
+        // Анимация/визуал
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.ResetTrigger("Attack1");
+            anim.ResetTrigger("Attack2");
+            anim.ResetTrigger("Hurt");
+            anim.SetBool("IsMoving", false);
+            // Если в аниматоре есть триггер "Downed" — проиграем его, иначе fallback на Death
+            foreach (var p in anim.parameters)
+            {
+                if (p.type == AnimatorControllerParameterType.Trigger && p.name == "Downed")
+                {
+                    anim.SetTrigger("Downed");
+                    goto animDone;
+                }
+            }
+            anim.SetTrigger("Death");
+            animDone:;
+        }
+
+        var controller = GetComponent<PlayerController>();
+        if (controller != null)
+        {
+            controller.ResetAttackState();
+            controller.enabled = false;
+        }
+
+        onDowned?.Invoke();
+    }
+
+    [ClientRpc]
+    private void RpcOnRevived()
+    {
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.ResetTrigger("Death");
+            anim.ResetTrigger("Downed");
+            anim.Play("Idle", 0, 0f);
+        }
+
+        var controller = GetComponent<PlayerController>();
+        if (controller != null)
+            controller.enabled = true;
+
+        onRevived?.Invoke();
+    }
+
+    private void OnDownedChanged(bool oldVal, bool newVal)
+    {
+        if (newVal)
+            onDowned?.Invoke();
+        else
+            onRevived?.Invoke();
+    }
+
+    private void OnDownedHealthChanged(float oldVal, float newVal)
+    {
+        onDownedHealthChanged?.Invoke(newVal, DOWNED_MAX_HEALTH);
     }
 
     [Server]

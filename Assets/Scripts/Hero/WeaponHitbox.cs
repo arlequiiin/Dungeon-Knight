@@ -108,6 +108,15 @@ public class WeaponHitbox : MonoBehaviour
         var targetHeroStats = other.GetComponentInParent<HeroStats>();
         if (targetHeroStats != null)
         {
+            // Мобы не могут бить упавших игроков
+            if (targetHeroStats.IsDowned)
+            {
+                if (ownerIsMob) return;
+                // Союзник "бьёт" упавшего — это revive, без knockback/hitstop
+                targetHeroStats.ReviveDamage(damage);
+                return;
+            }
+
             targetHeroStats.TakeDamage(damage);
             ApplyHitEffects(targetHeroStats.gameObject, knockbackDir);
         }

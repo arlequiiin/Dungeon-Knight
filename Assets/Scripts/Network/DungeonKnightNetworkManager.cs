@@ -27,6 +27,7 @@ public class DungeonKnightNetworkManager : NetworkManager
         base.OnStartServer();
         dungeonGenerated = false;
         selectedHeroes.Clear();
+        GameOverWatcher.Reset();
         NetworkServer.RegisterHandler<RequestSeedMessage>(OnClientRequestedSeed);
     }
 
@@ -47,6 +48,12 @@ public class DungeonKnightNetworkManager : NetworkManager
         base.OnStartClient();
         NetworkClient.RegisterHandler<SeedBroadcastMessage>(OnSeedReceived);
         NetworkClient.RegisterHandler<RoomStateMessage>(OnRoomStateReceived);
+        NetworkClient.RegisterHandler<GameOverMessage>(OnGameOverReceived);
+    }
+
+    private void OnGameOverReceived(GameOverMessage msg)
+    {
+        GameOverUI.Show();
     }
 
     public override void OnServerSceneChanged(string sceneName)
