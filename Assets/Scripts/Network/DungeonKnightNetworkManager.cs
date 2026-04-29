@@ -53,7 +53,7 @@ public class DungeonKnightNetworkManager : NetworkManager
 
     private void OnGameOverReceived(GameOverMessage msg)
     {
-        GameOverUI.Show();
+        DeathScreenUI.ShowGameOver();
     }
 
     public override void OnServerSceneChanged(string sceneName)
@@ -324,6 +324,8 @@ public class DungeonKnightNetworkManager : NetworkManager
     public void ReturnToLobby()
     {
         if (!NetworkServer.active) return;
+        // Защита от повторного вызова (например двойной клик по кнопке)
+        if (!string.IsNullOrEmpty(networkSceneName) && networkSceneName.Contains("LobbyScene")) return;
         ServerChangeScene("LobbyScene");
     }
 

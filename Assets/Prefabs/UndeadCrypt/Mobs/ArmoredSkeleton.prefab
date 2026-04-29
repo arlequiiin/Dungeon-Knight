@@ -373,7 +373,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  hasShield: 1
   onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  onHealthChanged:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &3769746310109524339
@@ -406,6 +410,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mobData: {fileID: 11400000, guid: 7cc0600af21444e418ee4c69b846e1b7, type: 2}
+  spriteFacesLeft: 0
 --- !u!114 &-8319222820245989737
 MonoBehaviour:
   m_ObjectHideFlags: 0

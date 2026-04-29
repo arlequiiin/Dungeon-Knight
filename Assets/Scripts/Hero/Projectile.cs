@@ -235,6 +235,7 @@ public class Projectile : NetworkBehaviour
                 if (mob != null && !mob.IsDead)
                 {
                     if (ownerIsMob) continue;
+                    if (mob.TryBlock(damage, transform.position)) continue;
                     mob.TakeDamage(damage);
                     hitAnyMob = true;
                     continue;
@@ -242,7 +243,10 @@ public class Projectile : NetworkBehaviour
 
                 var hero = hit.GetComponentInParent<HeroStats>();
                 if (hero != null && !hero.IsDead)
+                {
+                    if (hero.TryBlock(damage, transform.position)) continue;
                     hero.TakeDamage(damage);
+                }
             }
 
             if (hitAnyMob)
@@ -255,11 +259,19 @@ public class Projectile : NetworkBehaviour
         {
             if (mobHealth != null)
             {
+                if (mobHealth.TryBlock(damage, transform.position))
+                {
+                    NetworkServer.Destroy(gameObject);
+                    return;
+                }
                 mobHealth.TakeDamage(damage);
                 RestoreOwnerEnergy();
             }
             else if (heroStats != null)
-                heroStats.TakeDamage(damage);
+            {
+                if (!heroStats.TryBlock(damage, transform.position))
+                    heroStats.TakeDamage(damage);
+            }
 
             NetworkServer.Destroy(gameObject);
         }

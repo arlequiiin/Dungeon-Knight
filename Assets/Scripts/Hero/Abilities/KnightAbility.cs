@@ -44,5 +44,4 @@ public class KnightAbility : HeroAbility
         }
     }
 
-    public bool IsShieldActive() => false;
 }

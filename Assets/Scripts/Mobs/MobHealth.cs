@@ -32,6 +32,29 @@ public class MobHealth : NetworkBehaviour
     public bool IsStaggered => isStaggered;
     public float DamageMultiplier => isStaggered ? 1.5f : 1f;
 
+    // === Shield (пассивный фронтальный блок для ArmoredSkeleton и т.п.) ===
+    [Header("Shield")]
+    public bool hasShield = false;
+
+    /// <summary>
+    /// Пытается заблокировать удар: фронтальный, моб не в стагере.
+    /// Урон полностью идёт в poise. Возвращает true если блок успешен.
+    /// </summary>
+    [Server]
+    public bool TryBlock(float incomingDamage, Vector2 attackerPos)
+    {
+        if (!hasShield || isDead || isStaggered) return false;
+
+        var sr = GetComponent<SpriteRenderer>();
+        bool facingLeft = sr != null && sr.flipX;
+        bool attackerOnLeft = attackerPos.x < transform.position.x;
+        bool isFrontalAttack = facingLeft == attackerOnLeft;
+        if (!isFrontalAttack) return false;
+
+        TakePoiseDamage(incomingDamage);
+        return true;
+    }
+
     public UnityEvent onDeath;
 
     public bool IsDead => isDead;

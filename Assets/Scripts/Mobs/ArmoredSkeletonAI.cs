@@ -15,7 +15,7 @@ public class ArmoredSkeletonAI : MobAI
         float damage = GetAttackDamage(attack);
         string trigger = attack == 0 ? "Attack1" : "Attack2";
 
-        PrepareHitbox(attack, damage);
+        PrepareHitbox(attack, damage, GetAttackStaggerDamage(attack));
         animator.SetTrigger(trigger);
         RpcPlayTrigger(trigger);
     }

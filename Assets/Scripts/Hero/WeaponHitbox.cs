@@ -89,6 +89,11 @@ public class WeaponHitbox : MonoBehaviour
         if (mobHealth != null)
         {
             if (ownerIsMob) return;
+
+            // Попытка блока щитом моба (фронтальный удар → весь урон в poise)
+            if (mobHealth.TryBlock(damage, owner.transform.position))
+                return;
+
             mobHealth.TakeDamage(damage);
             if (staggerDamage > 0f)
                 mobHealth.TakePoiseDamage(staggerDamage);
@@ -117,7 +122,16 @@ public class WeaponHitbox : MonoBehaviour
                 return;
             }
 
+            // Попытка блока щитом (фронтальный удар, расход энергии)
+            if (targetHeroStats.TryBlock(damage, owner.transform.position))
+            {
+                // Удар заблокирован — без knockback/hitstop
+                return;
+            }
+
             targetHeroStats.TakeDamage(damage);
+            if (staggerDamage > 0f)
+                targetHeroStats.TakePoiseDamage(staggerDamage);
             ApplyHitEffects(targetHeroStats.gameObject, knockbackDir);
         }
     }
