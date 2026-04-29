@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Overlord
   mobType: 4
-  maxHealth: 400
+  maxHealth: 300
   detectionRange: 5
   loseRange: 8
   attackRange: 0.8

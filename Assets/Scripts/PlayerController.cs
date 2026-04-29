@@ -41,7 +41,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject pauseMenuPrefab;
     [SerializeField] private GameObject bossHealthUIPrefab;
     [SerializeField] private GameObject victoryScreenPrefab;
-    [SerializeField] private GameObject gameOverUIPrefab;
     private PlayerHUD hud;
 
     public event System.Action onInteract;
@@ -166,7 +165,8 @@ public class PlayerController : NetworkBehaviour
             input.Player.Attack1.performed += _ => TryAttack1();
             input.Player.Attack2.performed += _ => TryAttack2();
             input.Player.Ability1.performed += _ => TryAbility1();
-            input.Player.Ability2.performed += _ => TryAbility2();
+            input.Player.Ability2.performed += _ => StartBlock();
+            input.Player.Ability2.canceled += _ => StopBlock();
             input.Player.Dodge.performed += _ => TryDodge();
             input.Player.Interaction.performed += _ => onInteract?.Invoke();
         }
@@ -207,12 +207,6 @@ public class PlayerController : NetworkBehaviour
         if (victoryScreenPrefab != null && inGame)
         {
             Instantiate(victoryScreenPrefab);
-        }
-
-        // Экран поражения — только в данже
-        if (gameOverUIPrefab != null && inGame)
-        {
-            Instantiate(gameOverUIPrefab);
         }
 
         // Меню паузы — в данже и в лобби
@@ -474,6 +468,29 @@ public class PlayerController : NetworkBehaviour
     private void TryAbility2()
     {
 
+    }
+
+    // === Блок щитом (удержание Ability2) ===
+
+    private void StartBlock()
+    {
+        if (!isLocalPlayer || !inGame) return;
+        if (stats == null || !stats.hasShield) return;
+        CmdSetBlocking(true);
+    }
+
+    private void StopBlock()
+    {
+        if (!isLocalPlayer) return;
+        if (stats == null || !stats.hasShield) return;
+        CmdSetBlocking(false);
+    }
+
+    [Command]
+    private void CmdSetBlocking(bool value)
+    {
+        if (stats != null)
+            stats.SetBlocking(value);
     }
 
     /// Атака с хитбоксом — сервер готовит урон и проигрывает анимацию,

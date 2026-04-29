@@ -57,6 +57,19 @@ public class HeroStats : NetworkBehaviour
     [SyncVar]
     public bool hasHyperArmor;
 
+    // Щит — игрок удерживает блок (расход энергии за каждый блокированный удар)
+    [SyncVar(hook = nameof(OnBlockingChanged))]
+    public bool isBlocking;
+    public bool hasShield;
+    private float blockEnergyPerDamage = 0.5f;
+
+    private void OnBlockingChanged(bool oldVal, bool newVal)
+    {
+        var anim = GetComponent<Animator>();
+        if (anim != null)
+            anim.SetBool("IsBlocking", newVal);
+    }
+
     // === Poise / Stagger ===
     private float maxPoise = 40f;
     private float currentPoise;
@@ -75,6 +88,48 @@ public class HeroStats : NetworkBehaviour
         maxPoise = data.maxPoise;
         currentPoise = maxPoise;
         staggerDuration = data.staggerDuration;
+        hasShield = data.hasShield;
+        blockEnergyPerDamage = data.blockEnergyPerDamage;
+    }
+
+    /// <summary>
+    /// Пытается заблокировать удар. Если щит активен и хватает энергии:
+    /// — урон HP=0, весь damage идёт в poise
+    /// — расходуется энергия пропорционально урону
+    /// Возвращает true если блок успешен.
+    /// Вызывается только на сервере.
+    /// </summary>
+    [Server]
+    public bool TryBlock(float incomingDamage, Vector2 attackerPos)
+    {
+        if (!hasShield || !isBlocking || isDead || isStaggered) return false;
+
+        // Фронтальная проверка: щит блокирует только спереди
+        var sr = GetComponent<SpriteRenderer>();
+        bool facingLeft = sr != null && sr.flipX;
+        bool attackerOnLeft = attackerPos.x < transform.position.x;
+        bool isFrontalAttack = facingLeft == attackerOnLeft;
+        if (!isFrontalAttack) return false;
+
+        // Проверка/расход энергии
+        float cost = incomingDamage * blockEnergyPerDamage;
+        if (currentEnergy < cost)
+        {
+            // Энергии не хватает — блок не срабатывает (получаем полный урон)
+            return false;
+        }
+        currentEnergy = Mathf.Max(0f, currentEnergy - cost);
+
+        // Урон полностью в poise
+        TakePoiseDamage(incomingDamage);
+        return true;
+    }
+
+    [Server]
+    public void SetBlocking(bool value)
+    {
+        if (!hasShield) { isBlocking = false; return; }
+        isBlocking = value;
     }
 
     // Получение урона — вызывается только на сервере
@@ -139,6 +194,7 @@ public class HeroStats : NetworkBehaviour
     private void EnterStagger()
     {
         isStaggered = true;
+        isBlocking = false;
 
         // Прерываем атаку
         var controller = GetComponent<PlayerController>();

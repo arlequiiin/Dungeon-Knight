@@ -31,6 +31,12 @@ public class HeroData : ScriptableObject
     public float maxPoise = 40f;
     public float staggerDuration = 1f;
 
+    [Header("Щит")]
+    [Tooltip("Может ли герой использовать щит (Knight, Templar)")]
+    public bool hasShield = false;
+    [Tooltip("Сколько энергии тратится на 1 ед. блокированного урона")]
+    public float blockEnergyPerDamage = 0.5f;
+
     [Header("Стоимость энергии")]
     public float dodgeEnergyCost = 15f;
     public float ability1EnergyCost = 25f;
