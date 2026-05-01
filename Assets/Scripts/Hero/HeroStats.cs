@@ -144,6 +144,11 @@ public class HeroStats : NetworkBehaviour
         // Неуязвимость во время рывка
         if (IsDodging) return;
 
+        // Применяем сопротивление урону от наград
+        var mods = GetComponent<RunModifiers>();
+        if (mods != null)
+            amount = mods.ModifyIncomingDamage(amount);
+
         currentHealth = Mathf.Max(0f, currentHealth - amount);
 
         if (!hasHyperArmor)
@@ -279,6 +284,14 @@ public class HeroStats : NetworkBehaviour
     {
         if (isDowned || isDead) return;
 
+        // Награда "Вторая жизнь" — автоматический revive с полным HP, без downed-фазы
+        var mods = GetComponent<RunModifiers>();
+        if (mods != null && mods.ConsumeExtraLife())
+        {
+            currentHealth = maxHealth;
+            return;
+        }
+
         isDowned = true;
         downedHealth = DOWNED_MAX_HEALTH;
         lastReviveHitTime = Time.time;
@@ -354,7 +367,16 @@ public class HeroStats : NetworkBehaviour
     private void Update()
     {
         if (!isServer) return;
-        if (!isDowned || isDead) return;
+        if (isDead) return;
+
+        // Пассивная регенерация энергии (награда EnergyRegen)
+        var mods = GetComponent<RunModifiers>();
+        if (!isDowned && mods != null && mods.energyRegenPerSecond > 0f && currentEnergy < maxEnergy)
+        {
+            currentEnergy = Mathf.Min(maxEnergy, currentEnergy + mods.energyRegenPerSecond * Time.deltaTime);
+        }
+
+        if (!isDowned) return;
 
         // Регенерация downed-HP если нет ударов 3+ сек
         if (downedHealth < DOWNED_MAX_HEALTH && Time.time - lastReviveHitTime >= DOWNED_REGEN_DELAY)

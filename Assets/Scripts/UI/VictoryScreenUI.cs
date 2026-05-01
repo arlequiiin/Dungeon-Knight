@@ -62,6 +62,8 @@ public class VictoryScreenUI : MonoBehaviour
         if (victoryPanel != null)
             victoryPanel.SetActive(true);
 
+        Time.timeScale = 0f;
+
         if (victoryTitle != null)
             victoryTitle.text = "VICTORY";
 
@@ -75,6 +77,7 @@ public class VictoryScreenUI : MonoBehaviour
 
     private void OnReturnToLobbyClicked()
     {
+        Time.timeScale = 1f;
         var netManager = (DungeonKnightNetworkManager)NetworkManager.singleton;
         if (netManager != null)
             netManager.ReturnToLobby();

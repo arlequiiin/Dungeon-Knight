@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5683961063059271316}
   - component: {fileID: -1713144737588099924}
   - component: {fileID: 7522342431975163271}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rocksmoke_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

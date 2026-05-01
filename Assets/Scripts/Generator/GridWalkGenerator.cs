@@ -296,12 +296,10 @@ public class GridWalkGenerator
         BossCell = graph.FindFarthestCell(StartCell);
         BossCell.roomType = RoomType.Boss;
 
-        // Листья графа (1 сосед) → сокровищница / магазин
+        // Листья графа (1 сосед) → сокровищницы
         var leaves = graph.FindLeaves(StartCell, BossCell);
-        for (int i = 0; i < leaves.Count; i++)
-        {
-            leaves[i].roomType = (i % 2 == 0) ? RoomType.Treasure : RoomType.Shop;
-        }
+        foreach (var leaf in leaves)
+            leaf.roomType = RoomType.Treasure;
 
         // Остальные — Normal (уже по умолчанию)
     }

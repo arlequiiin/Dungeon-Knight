@@ -22,12 +22,24 @@ MonoBehaviour:
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
+  attack1EnergyGain: 5
+  attack2EnergyGain: 8
+  attack1StaggerDamage: 5
+  attack2StaggerDamage: 10
+  maxPoise: 40
+  staggerDuration: 1
+  hasShield: 0
+  blockEnergyPerDamage: 0.5
+  dodgeEnergyCost: 15
+  ability1EnergyCost: 25
   targetSearchRadius: 5
   ability1Cooldown: 5
   dodgeForce: 8
   dodgeCooldown: 1
   dodgeDuration: 0.25
   weaponHitboxPrefabs: []
-  projectilePrefabs: []
+  projectilePrefabs:
+  - {fileID: 6875192012042578160, guid: 9f2a7fcd58c2f6e41beb30345edd31c6, type: 3}
+  - {fileID: 5178942649138263804, guid: ea9b624acc1fdf447bde56c843a8a7a2, type: 3}
   animatorController: {fileID: 9100000, guid: f9ed06562f70bcd45bb8a7d0f58e9ad8, type: 2}
   icon: {fileID: -663804655798916631, guid: 7ac95923f4cb2c5468e0606a84c7d07c, type: 3}

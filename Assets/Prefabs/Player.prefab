@@ -21,6 +21,8 @@ GameObject:
   - component: {fileID: 7080489714850796323}
   - component: {fileID: 7522341802160977564}
   - component: {fileID: 8158709264778462691}
+  - component: {fileID: 5050304135943438488}
+  - component: {fileID: -8859668820853188780}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -274,7 +276,7 @@ MonoBehaviour:
   pauseMenuPrefab: {fileID: 6501599416650171848, guid: 898fed814bfe3314ca47833e685a2256, type: 3}
   bossHealthUIPrefab: {fileID: 1021356243722150743, guid: 33d1ddd1315ce44419dc2cc7648f8737, type: 3}
   victoryScreenPrefab: {fileID: 1848035784922410505, guid: 09eded967f5085a4b8222a93b6c03769, type: 3}
-  gameOverUIPrefab: {fileID: 4104276264662686505, guid: 95a95c3b5ee9e134b8152952cea6dc92, type: 3}
+  ability1HoldThreshold: 1
 --- !u!114 &2836491762058753401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,6 +369,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortByY
   offset: 10000
+--- !u!114 &5050304135943438488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 867628235138429589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d2d4f95e77b924c80b98ff05e904ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RunModifiers
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  attackDamageBonus: 0
+  attack2DamageBonus: 0
+  damageResistance: 0
+  abilityPowerBonus: 0
+  abilityCooldownReduction: 0
+  energyRegenPerSecond: 0
+  attack2Unlocked: 0
+  extraLifeAvailable: 0
+--- !u!114 &-8859668820853188780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 867628235138429589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6dc834082017ad4abbfad50e68ff3d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChestInteractor
+  syncMethod: 0
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  chestUIPrefab: {fileID: 7177413231175478368, guid: 76ee759ce5d590a4db367ccd1a9b666b, type: 3}
 --- !u!1 &7482568045194482683
 GameObject:
   m_ObjectHideFlags: 0

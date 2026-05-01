@@ -1,37 +1,39 @@
+using System.Collections;
 using Mirror;
 using UnityEngine;
 
-// Священник: 1 атака (AoE на ближайшем враге), способность — AoE лечение союзников
+/// <summary>
+/// Священник:
+/// - Attack1 (ЛКМ): выбирает ближайшего врага в attackRange, наносит урон, спавнит AttackEffect на цели.
+/// - Ability1 короткое нажатие Q: лечит ближайшего союзника на healAmount, спавнит HealEffect на нём.
+/// - Ability1 удержание Q ≥ holdThreshold: лечит себя на healAmount/2, спавнит HealEffect на себе.
+/// Эффекты привязаны к цели как дочерние объекты, чтобы следовать за ней.
+/// </summary>
 public class PriestAbility : HeroAbility
 {
-    [Header("Атака — магический взрыв на враге")]
-    public float attackDamage = 20f;
+    [Header("Атака")]
     public float attackRange = 6f;
 
-    [Header("Ability1 — AoE лечение")]
+    [Header("Способность — лечение")]
     public float healAmount = 40f;
-    public float healRadius = 5f;
+    public float allySearchRadius = 8f;
 
-    // Assigned from HeroData.projectilePrefabs
-    private GameObject attackExplosionPrefab;  // [0]
-    private GameObject healEffectPrefab;       // [1]
-
-    protected override void Awake()
-    {
-        base.Awake();
-    }
+    // Префабы из HeroData.projectilePrefabs
+    private GameObject attackEffectPrefab; // [0]
+    private GameObject healEffectPrefab;   // [1]
 
     public override void ApplyHeroData(HeroData data)
     {
         base.ApplyHeroData(data);
         if (data.projectilePrefabs != null)
         {
-            if (data.projectilePrefabs.Length > 0) attackExplosionPrefab = data.projectilePrefabs[0];
+            if (data.projectilePrefabs.Length > 0) attackEffectPrefab = data.projectilePrefabs[0];
             if (data.projectilePrefabs.Length > 1) healEffectPrefab = data.projectilePrefabs[1];
         }
     }
 
-    // Client-side: only animation
+    // === Attack ===
+
     public override void Attack1()
     {
         PlayTrigger("Attack1");
@@ -39,52 +41,103 @@ public class PriestAbility : HeroAbility
 
     public override void Attack2() { }
 
-    // Server-side: AoE damage on nearest enemy
     public override void ServerAttack(int attackIndex, float damage, float energyGain, bool flipX)
     {
-        if (attackExplosionPrefab == null) return;
-
         Transform target = FindNearestEnemy();
         if (target == null) return;
 
-        var explosionObj = Instantiate(attackExplosionPrefab, target.position, Quaternion.identity);
-        var aoe = explosionObj.GetComponent<AoeExplosion>();
-        if (aoe != null)
-            aoe.Init(damage, gameObject, energyGain);
+        var mob = target.GetComponent<MobHealth>();
+        if (mob == null || mob.IsDead) return;
 
-        NetworkServer.Spawn(explosionObj);
+        mob.TakeDamage(damage);
+
+        // Энергия атакующему
+        if (energyGain > 0f)
+        {
+            var stats = GetComponent<HeroStats>();
+            if (stats != null) stats.RestoreEnergy(energyGain);
+        }
+
+        // VFX — на цели
+        SpawnEffectOnTarget(attackEffectPrefab, target);
     }
+
+    // === Ability1 — heal ===
 
     protected override void OnAbility1()
     {
         PlayTrigger("Ability1");
     }
 
-    // Server-side: AoE heal on self position
+    /// <summary>
+    /// Сервер: heal ally или self в зависимости от holdSelf.
+    /// Используем pendingFlipX как флаг "self heal" (передаётся из CmdAbilityAttack).
+    /// </summary>
     public override void ServerAbility1(bool flipX)
     {
-        // Heal self
-        var selfStats = GetComponent<HeroStats>();
-        if (selfStats != null)
-            selfStats.Heal(healAmount);
+        bool selfCast = flipX; // переиспользуем bool-параметр как "selfCast"
 
-        // Heal allies in radius
-        var colliders = Physics2D.OverlapCircleAll(transform.position, healRadius);
-        foreach (var col in colliders)
+        if (selfCast)
         {
-            if (col.gameObject == gameObject) continue;
-            var allyStats = col.GetComponent<HeroStats>();
-            if (allyStats != null && !allyStats.IsDead)
-                allyStats.Heal(healAmount);
+            // Self-heal только если HP не полное
+            var selfStats = GetComponent<HeroStats>();
+            if (selfStats != null && selfStats.CurrentHealth < selfStats.MaxHealth)
+                HealTarget(transform, healAmount * 0.5f);
         }
-
-        // VFX
-        if (healEffectPrefab != null)
+        else
         {
-            var fx = Instantiate(healEffectPrefab, transform.position, Quaternion.identity);
+            Transform ally = FindNearestWoundedAlly();
+            if (ally != null)
+                HealTarget(ally, healAmount);
+        }
+    }
+
+    /// <summary>
+    /// Клиентская проверка — есть ли валидная цель для каста.
+    /// Без этого Use забирает кулдаун и энергию даже если каст не сработает.
+    /// </summary>
+    public override bool CanCastAbility1(bool selfCast)
+    {
+        var selfStats = GetComponent<HeroStats>();
+
+        if (selfCast)
+            return selfStats != null && selfStats.CurrentHealth < selfStats.MaxHealth;
+
+        return FindNearestWoundedAllyClient() != null;
+    }
+
+    [Server]
+    private void HealTarget(Transform target, float amount)
+    {
+        var stats = target.GetComponent<HeroStats>();
+        if (stats != null && !stats.IsDead)
+            stats.Heal(amount);
+
+        SpawnEffectOnTarget(healEffectPrefab, target);
+    }
+
+    // === Helpers ===
+
+    [Server]
+    private void SpawnEffectOnTarget(GameObject prefab, Transform target)
+    {
+        if (prefab == null || target == null) return;
+
+        var fx = Instantiate(prefab, target.position, Quaternion.identity);
+        // Прикрепляем к цели чтобы эффект следовал за ней
+        fx.transform.SetParent(target, true);
+
+        // Сетевой эффект — спавним и автоудаляем через 2 сек
+        if (fx.GetComponent<NetworkIdentity>() != null)
+        {
             NetworkServer.Spawn(fx);
             var cleanup = fx.AddComponent<TimedNetworkDestroy>();
             cleanup.delay = 2f;
+        }
+        else
+        {
+            // Не-сетевой VFX — уничтожим локально (но это будет только на сервере; для клиентов нужен NetworkIdentity)
+            Destroy(fx, 2f);
         }
     }
 
@@ -97,7 +150,6 @@ public class PriestAbility : HeroAbility
         foreach (var hit in hits)
         {
             if (hit.gameObject == gameObject) continue;
-
             var mob = hit.GetComponent<MobHealth>();
             if (mob == null || mob.IsDead) continue;
 
@@ -108,7 +160,56 @@ public class PriestAbility : HeroAbility
                 best = hit.transform;
             }
         }
+        return best;
+    }
 
+    [Server]
+    private Transform FindNearestWoundedAlly()
+    {
+        float bestDist = allySearchRadius;
+        Transform best = null;
+
+        foreach (var identity in NetworkServer.spawned.Values)
+        {
+            if (identity == null) continue;
+            if (identity.gameObject == gameObject) continue;
+
+            var stats = identity.GetComponent<HeroStats>();
+            if (stats == null || stats.IsDead) continue;
+            if (stats.CurrentHealth >= stats.MaxHealth) continue; // фул HP — пропустить
+
+            float dist = Vector2.Distance(transform.position, identity.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = identity.transform;
+            }
+        }
+        return best;
+    }
+
+    /// <summary>
+    /// Клиентский поиск — использует FindObjectsByType, т.к. NetworkServer.spawned пуст на клиенте.
+    /// </summary>
+    private Transform FindNearestWoundedAllyClient()
+    {
+        float bestDist = allySearchRadius;
+        Transform best = null;
+
+        foreach (var hs in FindObjectsByType<HeroStats>(FindObjectsSortMode.None))
+        {
+            if (hs == null) continue;
+            if (hs.gameObject == gameObject) continue;
+            if (hs.IsDead) continue;
+            if (hs.CurrentHealth >= hs.MaxHealth) continue;
+
+            float dist = Vector2.Distance(transform.position, hs.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = hs.transform;
+            }
+        }
         return best;
     }
 }

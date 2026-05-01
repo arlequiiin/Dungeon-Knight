@@ -21,6 +21,10 @@ public class GridWalkDungeonGenerator : MonoBehaviour
     [Header("Мобы")]
     [SerializeField] private MobSpawner mobSpawner;
 
+    [Header("Сокровищницы")]
+    [SerializeField] private GameObject chestPrefab;
+    [SerializeField] private GameObject bossChestPrefab;
+
     private GridWalkGenerator generator;
     private Transform decorContainer;
     private Transform treeContainer;
@@ -168,6 +172,14 @@ public class GridWalkDungeonGenerator : MonoBehaviour
         for (int i = 0; i < graph.cells.Count; i++)
         {
             var cell = graph.cells[i];
+
+            // Сокровищница — спавним сундук на сервере
+            if (cell.roomType == RoomType.Treasure && Mirror.NetworkServer.active && chestPrefab != null)
+            {
+                var chestObj = Instantiate(chestPrefab, cell.RoomCenter, Quaternion.identity, roomContainer);
+                Mirror.NetworkServer.Spawn(chestObj);
+            }
+
             // RoomController только для комнат с мобами
             if (cell.roomType != RoomType.Normal && cell.roomType != RoomType.Boss)
                 continue;

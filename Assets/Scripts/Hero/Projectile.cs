@@ -180,6 +180,8 @@ public class Projectile : NetworkBehaviour
         return best;
     }
 
+    private static int decorationLayer = -2; // -2 = ещё не инициализирован, -1 = слой не существует
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!NetworkServer.active) return;
@@ -193,6 +195,17 @@ public class Projectile : NetworkBehaviour
 
         var mobHealth = other.GetComponentInParent<MobHealth>();
         var heroStats = other.GetComponentInParent<HeroStats>();
+
+        // Снаряды пролетают сквозь всё, что не является целью или декорацией.
+        // Декорации (деревья и т.п.) — на слое "Decoration", блокируют снаряды.
+        if (mobHealth == null && heroStats == null)
+        {
+            if (decorationLayer == -2)
+                decorationLayer = LayerMask.NameToLayer("Decoration");
+
+            if (decorationLayer < 0 || other.gameObject.layer != decorationLayer)
+                return; // не цель и не декорация — пропускаем
+        }
 
         // Снаряды мобов не бьют других мобов (friendly fire)
         if (ownerIsMob && mobHealth != null)
@@ -211,7 +224,7 @@ public class Projectile : NetworkBehaviour
             return;
         }
 
-        // Hit a wall/obstacle — destroy projectile
+        // Декорация — снаряд останавливается
         if (mobHealth == null && heroStats == null)
         {
             hasHit = true;

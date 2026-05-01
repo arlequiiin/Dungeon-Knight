@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19017636251dec499d2d7e392dc3c64, type: 3}
+  m_Name: ExtraLife
+  m_EditorClassIdentifier: Assembly-CSharp::RewardData
+  rewardName: ExtraLife
+  description: 
+  icon: {fileID: 0}
+  rarity: 2
+  price: 100
+  requiresMeleeWithSecondAttack: 0
+  unique: 1
+  effect: {fileID: 11400000, guid: 431add63d6e89da40965254a6a5b7f19, type: 2}

@@ -533624,6 +533624,8 @@ MonoBehaviour:
   - {fileID: 804439372036088765, guid: 6eec21704848abd4d8cdc09ff73ac4e9, type: 3}
   treesPerRoom: 3
   mobSpawner: {fileID: 1010216389}
+  chestPrefab: {fileID: 8273833115051504906, guid: 69e7003cf56b3074d88c83d84580bbbe, type: 3}
+  bossChestPrefab: {fileID: 8273833115051504906, guid: 69e7003cf56b3074d88c83d84580bbbe, type: 3}
 --- !u!4 &1010216388
 Transform:
   m_ObjectHideFlags: 0

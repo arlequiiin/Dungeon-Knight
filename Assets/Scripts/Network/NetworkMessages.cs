@@ -35,3 +35,10 @@ public struct RoomStateMessage : NetworkMessage
     public int roomIndex;
     public byte state; // 0 = Idle, 1 = Active, 2 = Cleared
 }
+
+// ── Economy ──
+
+public struct CoinDropMessage : NetworkMessage
+{
+    public int amount;
+}

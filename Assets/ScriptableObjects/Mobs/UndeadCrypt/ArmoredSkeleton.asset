@@ -36,5 +36,5 @@ MonoBehaviour:
   staggerDuration: 1.5
   knockbackResistance: 0
   projectilePrefab: {fileID: 0}
-  coinDropMin: 1
-  coinDropMax: 3
+  coinDropMin: 8
+  coinDropMax: 8
