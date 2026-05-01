@@ -49,6 +49,12 @@ public class DungeonKnightNetworkManager : NetworkManager
         NetworkClient.RegisterHandler<SeedBroadcastMessage>(OnSeedReceived);
         NetworkClient.RegisterHandler<RoomStateMessage>(OnRoomStateReceived);
         NetworkClient.RegisterHandler<GameOverMessage>(OnGameOverReceived);
+        NetworkClient.RegisterHandler<CoinDropMessage>(OnCoinDropReceived);
+    }
+
+    private void OnCoinDropReceived(CoinDropMessage msg)
+    {
+        CurrencyManager.Add(msg.amount);
     }
 
     private void OnGameOverReceived(GameOverMessage msg)
@@ -60,6 +66,10 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         base.OnServerSceneChanged(sceneName);
         dungeonGenerated = false;
+
+        // Сброс состояния game over между забегами
+        GameOverWatcher.Reset();
+        Time.timeScale = 1f;
 
         if (!sceneName.Contains("SampleScene")) return;
 

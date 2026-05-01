@@ -22,4 +22,4 @@ MonoBehaviour:
   extraEdges: 2
   shapeModifyChance: 0
   seed: 585426062
-  useRandomSeed: 0
+  useRandomSeed: 1

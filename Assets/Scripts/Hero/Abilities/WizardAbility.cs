@@ -59,6 +59,11 @@ public class WizardAbility : HeroAbility
         PlayTrigger("Ability1");
     }
 
+    public override bool CanCastAbility1(bool selfCast)
+    {
+        return FindNearestEnemy() != null;
+    }
+
     // Server-side: AoE explosion on nearest enemy
     public override void ServerAbility1(bool flipX)
     {
@@ -70,7 +75,7 @@ public class WizardAbility : HeroAbility
         var explosionObj = Instantiate(aoeExplosionPrefab, target.position, Quaternion.identity);
         var aoe = explosionObj.GetComponent<AoeExplosion>();
         if (aoe != null)
-            aoe.Init(aoeDamage);
+            aoe.Init(aoeDamage, gameObject);
 
         NetworkServer.Spawn(explosionObj);
     }

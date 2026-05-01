@@ -17,6 +17,13 @@ public abstract class HeroAbility : MonoBehaviour
 
     public bool CanUseAbility1 => ability1Timer <= 0f;
 
+    /// <summary>
+    /// Проверяет, есть ли валидная цель/условие для каста.
+    /// Переопределяется героями с условными абилками (Priest и т.п.).
+    /// По умолчанию всегда true.
+    /// </summary>
+    public virtual bool CanCastAbility1(bool selfCast) => true;
+
     protected virtual void Awake()
     {
         player = GetComponent<PlayerController>();
@@ -72,7 +79,9 @@ public abstract class HeroAbility : MonoBehaviour
     {
         if (!CanUseAbility1) return;
         OnAbility1();
-        ability1Timer = ability1Cooldown;
+
+        var mods = GetComponent<RunModifiers>();
+        ability1Timer = mods != null ? mods.ModifyAbilityCooldown(ability1Cooldown) : ability1Cooldown;
     }
 
     protected abstract void OnAbility1();

@@ -164,7 +164,8 @@ public class PlayerController : NetworkBehaviour
 
             input.Player.Attack1.performed += _ => TryAttack1();
             input.Player.Attack2.performed += _ => TryAttack2();
-            input.Player.Ability1.performed += _ => TryAbility1();
+            input.Player.Ability1.started += _ => OnAbility1Started();
+            input.Player.Ability1.canceled += _ => OnAbility1Canceled();
             input.Player.Ability2.performed += _ => StartBlock();
             input.Player.Ability2.canceled += _ => StopBlock();
             input.Player.Dodge.performed += _ => TryDodge();
@@ -443,6 +444,11 @@ public class PlayerController : NetworkBehaviour
         var ab = Ability;
         if (!isLocalPlayer || !inGame || !canAttack || ab == null) return;
         if (heroData != null && heroData.attackCount < 2) return;
+
+        // Вторая атака мили-героев заблокирована до награды UnlockSecondAttack
+        var mods = GetComponent<RunModifiers>();
+        if (mods != null && !mods.attack2Unlocked) return;
+
         canAttack = false;
 
         FaceAttackDirection();
@@ -454,15 +460,58 @@ public class PlayerController : NetworkBehaviour
 
     // --- Способности ---
 
-    private void TryAbility1()
+    [Header("Hold-to-self-cast (Priest и т.п.)")]
+    [Tooltip("Сколько держать Ability1, чтобы каст пошёл на себя вместо союзника")]
+    [SerializeField] private float ability1HoldThreshold = 1f;
+
+    private float ability1HoldStart;
+    private bool ability1Holding;
+
+    private bool ability1FiredThisHold;
+
+    private void OnAbility1Started()
+    {
+        if (!isLocalPlayer || !inGame) return;
+        ability1Holding = true;
+        ability1HoldStart = Time.time;
+        ability1FiredThisHold = false;
+    }
+
+    private void OnAbility1Canceled()
+    {
+        if (!ability1Holding) return;
+        ability1Holding = false;
+
+        // Если уже сработал self-cast по таймеру — ничего не делаем
+        if (ability1FiredThisHold) return;
+
+        // Короткое нажатие — каст на союзника
+        TryAbility1(false);
+    }
+
+    private void Update()
+    {
+        // Авто-срабатывание self-cast по достижении порога удержания
+        if (ability1Holding && !ability1FiredThisHold && isLocalPlayer)
+        {
+            if (Time.time - ability1HoldStart >= ability1HoldThreshold)
+            {
+                ability1FiredThisHold = true;
+                TryAbility1(true);
+            }
+        }
+    }
+
+    private void TryAbility1(bool selfCast = false)
     {
         var ab = Ability;
         if (!isLocalPlayer || !inGame || ab == null) return;
         if (!ab.CanUseAbility1) return;
+        if (!ab.CanCastAbility1(selfCast)) return;
 
         FaceAttackDirection();
         ab.UseAbility1();
-        CmdAbilityAttack(ab.PendingHitboxIndex, ab.PendingDamage, ab.LastTriggerName);
+        CmdAbilityAttack(ab.PendingHitboxIndex, ab.PendingDamage, ab.LastTriggerName, selfCast);
     }
 
     private void TryAbility2()
@@ -501,6 +550,14 @@ public class PlayerController : NetworkBehaviour
         var ab = Ability;
         if (ab == null) return;
 
+        // Серверная защита: Attack2 без разблокировки — отказ
+        if (attackIndex == 1)
+        {
+            var serverMods = GetComponent<RunModifiers>();
+            if (heroData != null && heroData.attackCount < 2) return;
+            if (serverMods != null && !serverMods.attack2Unlocked) return;
+        }
+
         // Получаем урон, энергию и stagger из HeroData
         float damage;
         float energyGain;
@@ -520,6 +577,11 @@ public class PlayerController : NetworkBehaviour
             staggerDamage = heroData != null ? heroData.attack2StaggerDamage : 10f;
             triggerName = "Attack2";
         }
+
+        // Применяем модификаторы урона от наград (SharpBlade и т.п.)
+        var dmgMods = GetComponent<RunModifiers>();
+        if (dmgMods != null)
+            damage = dmgMods.ModifyOutgoingDamage(damage, attackIndex);
 
         // Melee: подготавливаем хитбокс для Animation Event (EnableHitbox)
         ab.PrepareHitboxPublic(attackIndex, damage, energyGain, staggerDamage);
@@ -619,8 +681,12 @@ public class PlayerController : NetworkBehaviour
     /// Ability-атака — сервер получает данные хитбокса и триггер от клиента.
     /// </summary>
     [Command]
-    private void CmdAbilityAttack(int hitboxIndex, float damage, string triggerName)
+    private void CmdAbilityAttack(int hitboxIndex, float damage, string triggerName, bool selfCast)
     {
+        // Серверная проверка — есть ли валидная цель (защита от рассинхрона/чита)
+        var ab = Ability;
+        if (ab != null && !ab.CanCastAbility1(selfCast)) return;
+
         // Тратим энергию на ability
         float abilityCost = heroData != null ? heroData.ability1EnergyCost : 25f;
         if (stats != null && !stats.SpendEnergy(abilityCost)) return;
@@ -629,11 +695,17 @@ public class PlayerController : NetworkBehaviour
         if (stats != null)
             stats.hasHyperArmor = true;
 
-        var ab = Ability;
+        // Усиление способности от наград (AbilityPower)
+        var abilMods = GetComponent<RunModifiers>();
+        if (abilMods != null)
+            damage = abilMods.ModifyAbilityPower(damage);
+
         if (ab != null)
         {
             ab.PrepareHitboxPublic(hitboxIndex, damage);
-            ab.PrepareProjectile(hitboxIndex, damage, 0f, syncFlipX, true);
+            // Передаём флаг selfCast через bool-параметр PrepareProjectile.flipX
+            // (HeroAbility интерпретирует его как нужно — Priest читает как selfCast)
+            ab.PrepareProjectile(hitboxIndex, damage, 0f, selfCast, true);
         }
 
         // Для выделенного клиента — запускаем анимацию на сервере

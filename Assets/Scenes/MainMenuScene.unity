@@ -3516,6 +3516,10 @@ MonoBehaviour:
   - {fileID: 5303612760217901525, guid: 97c247eb8ab7d9344a7c11b2e53164a9, type: 3}
   - {fileID: 1066876977030457965, guid: f80dea35db03a4949b2dcc65a1673f79, type: 3}
   - {fileID: 9070029140339967514, guid: 1665d4274caa1d946b376ba20452ca0e, type: 3}
+  - {fileID: 5178942649138263804, guid: ea9b624acc1fdf447bde56c843a8a7a2, type: 3}
+  - {fileID: 6875192012042578160, guid: 9f2a7fcd58c2f6e41beb30345edd31c6, type: 3}
+  - {fileID: 705937399874536778, guid: 16cc57ceb1bb348468aad995ebaf3348, type: 3}
+  - {fileID: 8273833115051504906, guid: 69e7003cf56b3074d88c83d84580bbbe, type: 3}
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32

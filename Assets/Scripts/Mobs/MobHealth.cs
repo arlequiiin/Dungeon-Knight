@@ -212,7 +212,21 @@ public class MobHealth : NetworkBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        DropCoins();
         RpcOnDeath();
+    }
+
+    [Server]
+    private void DropCoins()
+    {
+        var data = GetComponent<MobAI>()?.mobData;
+        if (data == null) return;
+
+        int amount = UnityEngine.Random.Range(data.coinDropMin, data.coinDropMax + 1);
+        if (amount <= 0) return;
+
+        NetworkServer.SendToAll(new CoinDropMessage { amount = amount });
     }
 
     [ClientRpc]

@@ -52,6 +52,12 @@ public class PlayerHUD : MonoBehaviour
     private HeroData heroData;
     private readonly System.Collections.Generic.List<AllyPanel> allyPanels = new();
 
+    private void Awake()
+    {
+        SetCoins(CurrencyManager.Coins);
+        CurrencyManager.OnCoinsChanged += SetCoins;
+    }
+
     public void Init(HeroStats heroStats, HeroAbility heroAbility)
     {
         stats = heroStats;
@@ -89,6 +95,7 @@ public class PlayerHUD : MonoBehaviour
             stats.onDowned.RemoveListener(OnDowned);
             stats.onRevived.RemoveListener(OnRevived);
         }
+        CurrencyManager.OnCoinsChanged -= SetCoins;
     }
 
     private void OnDowned() => UpdateDownedOverlay();

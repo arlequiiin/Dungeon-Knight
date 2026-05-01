@@ -21,14 +21,20 @@ MonoBehaviour:
   attackCooldown: 1.2
   attackDamages:
   - 10
+  attackStaggerDamages: []
   attackWeights: []
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
   moveSpeed: 1.5
+  attackWindupDuration: 0.3
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
+  maxPoise: 30
+  poiseRecoveryRate: 0
+  staggerDuration: 1.5
   knockbackResistance: 0
-  coinDropMin: 1
+  projectilePrefab: {fileID: 0}
+  coinDropMin: 3
   coinDropMax: 3

@@ -20,11 +20,15 @@ public class HeroSelectionUI : MonoBehaviour
     [Header("Префаб карточки")]
     [SerializeField] private GameObject heroCardPrefab;
 
+    [Header("Валюта")]
+    [SerializeField] private TMP_Text coinText;
+
     [Header("Цвета")]
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color selectedColor = new Color(0.4f, 1f, 0.4f);
     [SerializeField] private Color takenColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
     [SerializeField] private Color currentHeroColor = new Color(0.4f, 0.7f, 1f);
+    [SerializeField] private Color lockedColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
 
     private HeroType? pendingSelection;
     private HeroCardSlot[] cardSlots;
@@ -41,6 +45,10 @@ public class HeroSelectionUI : MonoBehaviour
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated += RefreshCards;
 
+        CurrencyManager.OnCoinsChanged += OnCoinsChanged;
+        HeroUnlockManager.OnUnlocksChanged += RefreshCards;
+
+        UpdateCoinText();
         BuildCards();
         RefreshCards();
 
@@ -55,6 +63,9 @@ public class HeroSelectionUI : MonoBehaviour
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated -= RefreshCards;
 
+        CurrencyManager.OnCoinsChanged -= OnCoinsChanged;
+        HeroUnlockManager.OnUnlocksChanged -= RefreshCards;
+
         if (confirmButton != null)
             confirmButton.onClick.RemoveListener(OnConfirmClicked);
         if (readyButton != null)
@@ -62,6 +73,18 @@ public class HeroSelectionUI : MonoBehaviour
 
         isOpen = false;
         gameObject.SetActive(false);
+    }
+
+    private void OnCoinsChanged(int amount)
+    {
+        UpdateCoinText();
+        RefreshCards();
+    }
+
+    private void UpdateCoinText()
+    {
+        if (coinText != null)
+            coinText.text = CurrencyManager.Coins.ToString();
     }
 
     private void BuildCards()
@@ -88,8 +111,11 @@ public class HeroSelectionUI : MonoBehaviour
             {
                 Root = cardObj,
                 HeroType = hero.heroType,
+                Data = hero,
                 Icon = cardObj.transform.Find("Icon")?.GetComponent<Image>(),
                 NameText = cardObj.transform.Find("Name")?.GetComponent<TMP_Text>(),
+                PriceText = cardObj.transform.Find("Price")?.GetComponent<TMP_Text>(),
+                LockOverlay = cardObj.transform.Find("Lock")?.gameObject,
                 Background = cardObj.GetComponent<Image>(),
                 Button = cardObj.GetComponent<Button>()
             };
@@ -104,9 +130,9 @@ public class HeroSelectionUI : MonoBehaviour
                 slot.NameText.text = hero.heroName;
 
             // Захватываем значение для замыкания
-            var heroType = hero.heroType;
+            var heroData = hero;
             if (slot.Button != null)
-                slot.Button.onClick.AddListener(() => OnCardClicked(heroType));
+                slot.Button.onClick.AddListener(() => OnCardClicked(heroData));
 
             cardSlots[i] = slot;
         }
@@ -129,8 +155,31 @@ public class HeroSelectionUI : MonoBehaviour
             bool taken = lobby.IsHeroTaken(slot.HeroType);
             bool isCurrentHero = currentHero.HasValue && currentHero.Value == slot.HeroType;
             bool isPending = pendingSelection.HasValue && pendingSelection.Value == slot.HeroType;
+            bool unlocked = HeroUnlockManager.IsUnlocked(slot.Data);
 
-            if (taken)
+            // Показ замочка и цены
+            if (slot.LockOverlay != null) slot.LockOverlay.SetActive(!unlocked);
+            if (slot.PriceText != null)
+            {
+                if (unlocked)
+                {
+                    slot.PriceText.gameObject.SetActive(false);
+                }
+                else
+                {
+                    int cost = HeroUnlockManager.GetUnlockCost(slot.Data);
+                    slot.PriceText.gameObject.SetActive(true);
+                    slot.PriceText.text = $"{cost} душ";
+                    slot.PriceText.color = CurrencyManager.CanAfford(cost) ? Color.white : Color.red;
+                }
+            }
+
+            if (!unlocked)
+            {
+                slot.Background.color = lockedColor;
+                if (slot.Button != null) slot.Button.interactable = true; // клик = попытка купить
+            }
+            else if (taken)
             {
                 slot.Background.color = takenColor;
                 if (slot.Button != null) slot.Button.interactable = false;
@@ -161,18 +210,40 @@ public class HeroSelectionUI : MonoBehaviour
             readyButtonText.text = localReady ? "Not Ready" : "Ready";
     }
 
-    private void OnCardClicked(HeroType type)
-    {
-        var lobby = LobbyManager.Instance;
-        if (lobby != null && lobby.IsHeroTaken(type)) return;
 
-        pendingSelection = type;
+    private void OnCardClicked(HeroData data)
+    {
+        if (data == null) return;
+
+        // Если герой залочен — попытка купить
+        if (!HeroUnlockManager.IsUnlocked(data))
+        {
+            HeroUnlockManager.TryUnlock(data);
+            return;
+        }
+
+        var lobby = LobbyManager.Instance;
+        if (lobby != null && lobby.IsHeroTaken(data.heroType)) return;
+
+        pendingSelection = data.heroType;
         RefreshCards();
     }
 
     private void OnConfirmClicked()
     {
         if (!pendingSelection.HasValue) return;
+
+        // Защита: нельзя подтвердить выбор залоченного героя
+        var lobby = LobbyManager.Instance;
+        if (lobby != null)
+        {
+            foreach (var h in lobby.AllHeroes)
+            {
+                if (h != null && h.heroType == pendingSelection.Value && !HeroUnlockManager.IsUnlocked(h))
+                    return;
+            }
+        }
+
         NetworkClient.Send(new HeroSelectRequest { heroType = pendingSelection.Value });
         pendingSelection = null;
         RefreshCards();
@@ -187,8 +258,11 @@ public class HeroSelectionUI : MonoBehaviour
     {
         public GameObject Root;
         public HeroType HeroType;
+        public HeroData Data;
         public Image Icon;
         public TMP_Text NameText;
+        public TMP_Text PriceText;
+        public GameObject LockOverlay;
         public Image Background;
         public Button Button;
     }

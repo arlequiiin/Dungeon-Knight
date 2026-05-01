@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4552806095483744207}
   - component: {fileID: 133140216592472681}
   - component: {fileID: -359628426952483184}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: VolcBubble_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

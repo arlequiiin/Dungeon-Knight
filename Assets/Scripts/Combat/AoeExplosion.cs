@@ -31,13 +31,20 @@ public class AoeExplosion : NetworkBehaviour
         if (hasExploded) return;
         hasExploded = true;
 
+        bool ownerIsHero = owner != null && owner.GetComponent<HeroStats>() != null;
+        bool ownerIsMob = owner != null && owner.GetComponent<MobHealth>() != null;
+
         bool hitAnyMob = false;
         var hits = Physics2D.OverlapCircleAll(transform.position, radius);
         foreach (var hit in hits)
         {
+            var hitRoot = hit.transform.root.gameObject;
+            if (owner != null && hitRoot == owner) continue;
+
             var mobHealth = hit.GetComponent<MobHealth>();
             if (mobHealth != null && !mobHealth.IsDead)
             {
+                if (ownerIsMob) continue; // мобы не бьют друг друга
                 mobHealth.TakeDamage(damage);
                 hitAnyMob = true;
                 continue;
@@ -45,7 +52,10 @@ public class AoeExplosion : NetworkBehaviour
 
             var heroStats = hit.GetComponent<HeroStats>();
             if (heroStats != null && !heroStats.IsDead)
+            {
+                if (ownerIsHero) continue; // взрывы от игрока не бьют союзников
                 heroStats.TakeDamage(damage);
+            }
         }
 
         if (hitAnyMob && energyGain > 0f && owner != null)
