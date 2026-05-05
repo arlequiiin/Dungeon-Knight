@@ -20,6 +20,9 @@ public class MainMenuUI : MonoBehaviour
     [Header("Network")]
     [SerializeField] private DungeonKnightNetworkManager networkManager;
 
+    [Header("Settings")]
+    [SerializeField] private SettingsUI settingsUI;
+
     private const string DefaultIP = "localhost";
 
     private void Start()
@@ -103,6 +106,13 @@ public class MainMenuUI : MonoBehaviour
     }
 
     // ── Quit ──
+
+    public void OnSettingsClicked()
+    {
+        Debug.Log($"[MainMenu] OnSettingsClicked called. settingsUI is null? {settingsUI == null}");
+        if (settingsUI != null)
+            settingsUI.Open();
+    }
 
     public void OnQuitClicked()
     {

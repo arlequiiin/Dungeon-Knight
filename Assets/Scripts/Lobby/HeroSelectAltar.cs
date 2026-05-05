@@ -16,6 +16,7 @@ public class HeroSelectAltar : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         var pc = other.GetComponent<PlayerController>();
+        Debug.Log($"[Altar] OnTriggerEnter2D other={other.name} pc={pc != null} isLocal={(pc != null && pc.isLocalPlayer)}");
         if (pc == null || !pc.isLocalPlayer) return;
 
         localPlayer = pc;
@@ -44,6 +45,7 @@ public class HeroSelectAltar : MonoBehaviour
 
     private void OnPlayerInteract()
     {
+        Debug.Log($"[Altar] OnPlayerInteract uiNull={selectionUI == null} isOpen={(selectionUI != null && selectionUI.IsOpen)}");
         if (selectionUI == null) return;
 
         if (selectionUI.IsOpen)

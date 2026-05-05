@@ -19,12 +19,17 @@ public class ChestRewardUI : MonoBehaviour
 
     [Header("Close")]
     [SerializeField] private Button closeButton;
+    [Tooltip("Текст на кнопке закрытия. Если не назначен — заголовок не подменяется.")]
+    [SerializeField] private TMP_Text closeButtonLabel;
 
     private Action<int> onChosen;
 
-    public void Show(RewardData[] rewards, Action<int> callback)
+    public void Show(RewardData[] rewards, Action<int> callback, string closeLabel = "Close")
     {
         onChosen = callback;
+
+        if (closeButtonLabel != null)
+            closeButtonLabel.text = closeLabel;
 
         // Останавливаем время на момент выбора
         Time.timeScale = 0f;
@@ -45,9 +50,9 @@ public class ChestRewardUI : MonoBehaviour
 
             // Подсветка цены если не хватает
             if (cardPrices.Length > i)
-                cardPrices[i].color = CurrencyManager.CanAfford(r.price) ? Color.white : Color.red;
+                cardPrices[i].color = CurrencyManager.CanAffordRun(r.price) ? Color.white : Color.red;
 
-            cardButtons[i].interactable = CurrencyManager.CanAfford(r.price);
+            cardButtons[i].interactable = CurrencyManager.CanAffordRun(r.price);
             cardButtons[i].onClick.RemoveAllListeners();
             cardButtons[i].onClick.AddListener(() => Choose(idx));
         }

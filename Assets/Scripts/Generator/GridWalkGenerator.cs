@@ -19,16 +19,16 @@ public class GridWalkGenerator
     public CellData StartCell { get; private set; }
     public CellData BossCell { get; private set; }
 
-    public GridWalkGenerator(GridWalkConfig config)
+    public int Seed { get; }
+
+    public GridWalkGenerator(GridWalkConfig config, int seed)
     {
         this.config = config;
         config.ValidateAndFix();
 
-        if (config.useRandomSeed)
-            config.seed = System.Environment.TickCount;
-
-        random = new System.Random(config.seed);
-        Debug.Log($"[GridWalk] Seed: {config.seed}");
+        Seed = seed;
+        random = new System.Random(seed);
+        Debug.Log($"[GridWalk] Seed: {seed}");
     }
 
     public void Generate()

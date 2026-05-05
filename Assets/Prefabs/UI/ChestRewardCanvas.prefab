@@ -1341,6 +1341,7 @@ MonoBehaviour:
   - {fileID: 980559726481147503}
   - {fileID: 7591617490518664807}
   closeButton: {fileID: 2042500838327598549}
+  closeButtonLabel: {fileID: 1370661551737830886}
 --- !u!1 &7723137354569592557
 GameObject:
   m_ObjectHideFlags: 0

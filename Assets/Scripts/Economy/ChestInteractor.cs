@@ -68,12 +68,18 @@ public class ChestInteractor : NetworkBehaviour
         if (chestUIPrefab == null) return;
         if (chest.rewardPool == null) return;
 
-        // Roll наград локально с детерминированным сидом (id сундука + currency state)
-        // — server валидирует выбор, не пул.
-        var rng = new System.Random(chest.GetInstanceID() ^ Time.frameCount);
-        var mods = GetComponent<RunModifiers>();
-        var heroType = player.heroData != null ? player.heroData.heroType : HeroType.None;
-        var rewards = chest.rewardPool.RollChestRewards(chest.isBossChest, heroType, mods, rng);
+        // Награды роллятся ОДИН РАЗ на сундук и кэшируются — иначе игрок может
+        // закрывать/переоткрывать UI до тех пор, пока не выпадет нужное.
+        // Сид детерминированный по netId сундука, чтобы один и тот же сундук
+        // на всех клиентах показывал одинаковый набор.
+        var rewards = chest.GetOrRollRewards(player, () =>
+        {
+            int seed = unchecked((int)chest.netId) * 73856093;
+            var rng = new System.Random(seed);
+            var mods = GetComponent<RunModifiers>();
+            var heroType = player.heroData != null ? player.heroData.heroType : HeroType.None;
+            return chest.rewardPool.RollChestRewards(chest.isBossChest, heroType, mods, rng);
+        });
 
         if (rewards == null || rewards.Count == 0) return;
 
@@ -86,7 +92,12 @@ public class ChestInteractor : NetworkBehaviour
             return;
         }
 
-        activeUI.Show(rewards.ToArray(), chosenIndex => OnRewardChosen(chest, rewards.ToArray(), chosenIndex));
+        // Блокируем управление и способности игрока, пока открыто UI выбора награды
+        player.IsInputBlocked = true;
+
+        // Боссовый сундук — кнопка закрытия пишет "Continue", обычный — "Close".
+        string closeLabel = chest.isBossChest ? "Continue" : "Close";
+        activeUI.Show(rewards.ToArray(), chosenIndex => OnRewardChosen(chest, rewards.ToArray(), chosenIndex), closeLabel);
     }
 
     private void OnRewardChosen(Chest chest, RewardData[] offered, int idx)
@@ -94,7 +105,7 @@ public class ChestInteractor : NetworkBehaviour
         if (idx >= 0)
         {
             var reward = offered[idx];
-            if (CurrencyManager.TrySpend(reward.price))
+            if (CurrencyManager.TrySpendRun(reward.price))
             {
                 CmdApplyReward(chest.netIdentity, idx, GetRewardIds(offered));
             }
@@ -105,6 +116,15 @@ public class ChestInteractor : NetworkBehaviour
             Destroy(activeUI.gameObject);
             activeUI = null;
         }
+
+        // Если это был боссовый сундук — сообщаем серверу что мы закончили (выбор сделан или Continue),
+        // сервер ждёт всех клиентов и потом покажет VICTORY.
+        if (chest != null && chest.isBossChest)
+            BossRewardCoordinator.NotifyLocalPlayerDone();
+
+        // Снимаем блокировку управления — UI закрыто, игрок снова может двигаться/атаковать
+        if (player != null)
+            player.IsInputBlocked = false;
     }
 
     /// <summary>

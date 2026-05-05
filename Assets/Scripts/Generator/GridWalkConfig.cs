@@ -30,6 +30,7 @@ public class GridWalkConfig : ScriptableObject
     public float shapeModifyChance = 0.35f;
 
     [Header("Seed")]
+    [Tooltip("Используется только если useRandomSeed = false. SO не мутируется в рантайме — реальный сид забега хранится отдельно в DungeonKnightNetworkManager.")]
     public int seed = 0;
     public bool useRandomSeed = true;
 

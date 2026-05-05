@@ -38,6 +38,14 @@ public class PlayerHUD : MonoBehaviour
     [Header("Coins")]
     [SerializeField] private TMP_Text coinText;
 
+    [Header("Center Notification")]
+    [Tooltip("Большой текст по центру экрана (\"ROOM CLEARED\", \"BOSS DEFEATED\"). Может быть пустым.")]
+    [SerializeField] private TMP_Text centerNotificationText;
+    [Tooltip("Сколько секунд показывается текст уведомления")]
+    [SerializeField] private float notificationDuration = 2.5f;
+
+    public static PlayerHUD LocalInstance { get; private set; }
+
     private HeroStats stats;
     private HeroAbility ability;
 
@@ -52,10 +60,53 @@ public class PlayerHUD : MonoBehaviour
     private HeroData heroData;
     private readonly System.Collections.Generic.List<AllyPanel> allyPanels = new();
 
+    private bool ShowingMeta =>
+        UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.Contains("LobbyScene");
+
     private void Awake()
     {
-        SetCoins(CurrencyManager.Coins);
-        CurrencyManager.OnCoinsChanged += SetCoins;
+        LocalInstance = this;
+
+        // В лобби HUD показывает мета-валюту (постоянная, для разблокировки героев),
+        // в забеге — RunCoins (накопленные за текущий забег, тратятся в сундуках).
+        SetCoins(ShowingMeta ? CurrencyManager.MetaCoins : CurrencyManager.RunCoins);
+        CurrencyManager.OnRunCoinsChanged += OnRunCoinsChanged;
+        CurrencyManager.OnMetaCoinsChanged += OnMetaCoinsChanged;
+
+        if (centerNotificationText != null)
+            centerNotificationText.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Показать большой текст по центру экрана на duration секунд.
+    /// </summary>
+    public void ShowNotification(string text, float duration = -1f)
+    {
+        Debug.Log($"[HUD] ShowNotification text='{text}' centerTextNull={centerNotificationText == null}");
+        if (centerNotificationText == null) return;
+        if (duration < 0f) duration = notificationDuration;
+
+        StopCoroutine(nameof(NotificationRoutine));
+        centerNotificationText.text = text;
+        centerNotificationText.gameObject.SetActive(true);
+        StartCoroutine(NotificationRoutine(duration));
+    }
+
+    private System.Collections.IEnumerator NotificationRoutine(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        if (centerNotificationText != null)
+            centerNotificationText.gameObject.SetActive(false);
+    }
+
+    private void OnRunCoinsChanged(int amount)
+    {
+        if (!ShowingMeta) SetCoins(amount);
+    }
+
+    private void OnMetaCoinsChanged(int amount)
+    {
+        if (ShowingMeta) SetCoins(amount);
     }
 
     public void Init(HeroStats heroStats, HeroAbility heroAbility)
@@ -95,7 +146,10 @@ public class PlayerHUD : MonoBehaviour
             stats.onDowned.RemoveListener(OnDowned);
             stats.onRevived.RemoveListener(OnRevived);
         }
-        CurrencyManager.OnCoinsChanged -= SetCoins;
+        CurrencyManager.OnRunCoinsChanged -= OnRunCoinsChanged;
+        CurrencyManager.OnMetaCoinsChanged -= OnMetaCoinsChanged;
+
+        if (LocalInstance == this) LocalInstance = null;
     }
 
     private void OnDowned() => UpdateDownedOverlay();

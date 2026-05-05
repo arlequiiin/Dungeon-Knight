@@ -9,6 +9,9 @@ public class PauseMenuUI : MonoBehaviour
 {
     [SerializeField] private GameObject pausePanel;
 
+    [Header("Settings")]
+    [SerializeField] private SettingsUI settingsUI;
+
     private bool isPaused;
 
     private bool IsSolo =>
@@ -48,6 +51,13 @@ public class PauseMenuUI : MonoBehaviour
 
         if (IsSolo)
             Time.timeScale = 1f;
+    }
+
+    public void OnSettingsClicked()
+    {
+        Debug.Log($"[Pause] OnSettingsClicked called. settingsUI is null? {settingsUI == null}");
+        if (settingsUI != null)
+            settingsUI.Open();
     }
 
     public void OnReturnToMenuClicked()

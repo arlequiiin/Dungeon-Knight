@@ -30,7 +30,7 @@ public static class HeroUnlockManager
         if (IsUnlocked(data)) return true;
 
         int cost = GetUnlockCost(data);
-        if (!CurrencyManager.TrySpend(cost)) return false;
+        if (!CurrencyManager.TrySpendMeta(cost)) return false;
 
         PlayerPrefs.SetInt(Key(data.heroType), 1);
         PlayerPrefs.Save();

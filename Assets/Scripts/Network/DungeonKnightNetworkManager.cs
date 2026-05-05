@@ -28,7 +28,9 @@ public class DungeonKnightNetworkManager : NetworkManager
         dungeonGenerated = false;
         selectedHeroes.Clear();
         GameOverWatcher.Reset();
+        BossRewardCoordinator.Reset();
         NetworkServer.RegisterHandler<RequestSeedMessage>(OnClientRequestedSeed);
+        BossRewardCoordinator.RegisterServerHandlers();
     }
 
     public override void OnServerDisconnect(NetworkConnectionToClient conn)
@@ -50,11 +52,12 @@ public class DungeonKnightNetworkManager : NetworkManager
         NetworkClient.RegisterHandler<RoomStateMessage>(OnRoomStateReceived);
         NetworkClient.RegisterHandler<GameOverMessage>(OnGameOverReceived);
         NetworkClient.RegisterHandler<CoinDropMessage>(OnCoinDropReceived);
+        BossRewardCoordinator.RegisterClientHandlers();
     }
 
     private void OnCoinDropReceived(CoinDropMessage msg)
     {
-        CurrencyManager.Add(msg.amount);
+        CurrencyManager.AddRun(msg.amount);
     }
 
     private void OnGameOverReceived(GameOverMessage msg)
@@ -127,18 +130,16 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (dungeonGenerated) return;
 
-        if (dungeonConfig.useRandomSeed)
-            authoritativeSeed = System.Environment.TickCount;
-        else
-            authoritativeSeed = dungeonConfig.seed;
-
-        dungeonConfig.seed = authoritativeSeed;
-        dungeonConfig.useRandomSeed = false;
+        // Сид определяется КАЖДЫЙ забег заново. SO не мутируется — флаг useRandomSeed
+        // и поле seed остаются такими, как в ассете, и переживают рестарт игры без изменений.
+        authoritativeSeed = dungeonConfig.useRandomSeed
+            ? System.Environment.TickCount
+            : dungeonConfig.seed;
 
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
         if (dungeonGen != null)
         {
-            dungeonGen.GenerateDungeon();
+            dungeonGen.GenerateDungeon(authoritativeSeed);
             dungeonGenerated = true;
         }
         else
@@ -185,7 +186,8 @@ public class DungeonKnightNetworkManager : NetworkManager
     }
 
     /// <summary>
-    /// Возвращает случайного героя, не занятого другими игроками.
+    /// Возвращает случайного героя, не занятого другими игроками И разблокированного.
+    /// Если все герои заняты или ни один не разблокирован — фолбэк на defaultHeroData.
     /// </summary>
     private HeroData GetRandomAvailableHero()
     {
@@ -193,10 +195,14 @@ public class DungeonKnightNetworkManager : NetworkManager
             return defaultHeroData;
 
         var takenTypes = new HashSet<HeroType>(selectedHeroes.Values);
-        var available = allHeroes.Where(h => h != null && !takenTypes.Contains(h.heroType)).ToArray();
+        var available = allHeroes
+            .Where(h => h != null
+                        && !takenTypes.Contains(h.heroType)
+                        && HeroUnlockManager.IsUnlocked(h))
+            .ToArray();
 
         if (available.Length == 0)
-            return defaultHeroData; // Все заняты — фоллбэк
+            return defaultHeroData; // Все заняты или залочены — фоллбэк
 
         return available[Random.Range(0, available.Length)];
     }
@@ -294,13 +300,10 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (NetworkServer.active) return;
 
-        dungeonConfig.seed = msg.seed;
-        dungeonConfig.useRandomSeed = false;
-
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
         if (dungeonGen != null)
         {
-            dungeonGen.GenerateDungeon();
+            dungeonGen.GenerateDungeon(msg.seed);
         }
     }
 
@@ -320,6 +323,16 @@ public class DungeonKnightNetworkManager : NetworkManager
     public override void OnClientSceneChanged()
     {
         base.OnClientSceneChanged();
+
+        // Жизненный цикл валюты забега:
+        //   • Вход в SampleScene (старт забега) — обнуляем RunCoins, чтобы у игрока было 0 на счету.
+        //   • Возврат в LobbyScene (конец забега) — переливаем непотраченные RunCoins в мету.
+        string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        Debug.Log($"[Currency] OnClientSceneChanged scene='{scene}'");
+        if (scene.Contains("SampleScene"))
+            CurrencyManager.ResetRunCoins();
+        else if (scene.Contains("LobbyScene"))
+            CurrencyManager.ConvertRunToMeta();
 
         if (!NetworkServer.active)
         {
