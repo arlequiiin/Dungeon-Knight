@@ -25,6 +25,7 @@ public class RoomController : MonoBehaviour
 
     private readonly List<MobHealth> trackedMobs = new();
     private readonly List<GameObject> doorBlockers = new();
+    private GameObject bossChestPrefab;
 
     // ── Статический реестр для синхронизации по сети ──
     private static readonly Dictionary<int, RoomController> registry = new();
@@ -53,13 +54,14 @@ public class RoomController : MonoBehaviour
         rc.state = (RoomState)newState;
     }
 
-    public void Init(int index, CellData cell, DungeonGraph graph, int corridorHalfWidth, MobSpawner spawner)
+    public void Init(int index, CellData cell, DungeonGraph graph, int corridorHalfWidth, MobSpawner spawner, GameObject bossChestPrefab = null)
     {
         roomIndex = index;
         this.cell = cell;
         this.graph = graph;
         this.corridorHalfWidth = corridorHalfWidth;
         mobSpawner = spawner;
+        this.bossChestPrefab = bossChestPrefab;
 
         // Trigger-коллайдер покрывает всю площадь комнаты
         var col = gameObject.AddComponent<BoxCollider2D>();
@@ -75,9 +77,46 @@ public class RoomController : MonoBehaviour
     {
         if (!NetworkServer.active) return;
         if (state != RoomState.Idle) return;
-        if (other.GetComponent<PlayerController>() == null) return;
+        var triggeringPlayer = other.GetComponent<PlayerController>();
+        if (triggeringPlayer == null) return;
+
+        // Телепортируем всех живых (не downed) игроков ко входу — позиция игрока, активировавшего триггер.
+        // Это важно для мультиплеера: один игрок зашёл — остальные подтягиваются.
+        Vector3 entrancePos = triggeringPlayer.transform.position;
+        TeleportLivingPlayersToRoom(entrancePos, triggeringPlayer);
 
         ActivateRoom();
+    }
+
+    [Server]
+    private void TeleportLivingPlayersToRoom(Vector3 entrancePos, PlayerController exclude)
+    {
+        foreach (var conn in NetworkServer.connections.Values)
+        {
+            if (conn == null || conn.identity == null) continue;
+            var pc = conn.identity.GetComponent<PlayerController>();
+            if (pc == null) continue;
+            if (pc == exclude) continue;
+
+            var hs = pc.GetComponent<HeroStats>();
+            if (hs == null) continue;
+            if (hs.IsDead || hs.IsDowned) continue;
+
+            // Лёгкий разброс вокруг входа, чтобы игроки не наложились друг на друга.
+            Vector2 jitter = Random.insideUnitCircle * 0.5f;
+            Vector3 dest = entrancePos + new Vector3(jitter.x, jitter.y, 0f);
+
+            // Используем ServerTeleport у NetworkTransform — иначе клиенты будут плавно интерполировать
+            // через всю карту, а нам нужен мгновенный телепорт.
+            var nt = pc.GetComponent<Mirror.NetworkTransformBase>();
+            if (nt != null)
+                nt.ServerTeleport(dest, pc.transform.rotation);
+            else
+                pc.transform.position = dest;
+
+            var rb = pc.GetComponent<Rigidbody2D>();
+            if (rb != null) rb.linearVelocity = Vector2.zero;
+        }
     }
 
     private void ActivateRoom()
@@ -126,14 +165,35 @@ public class RoomController : MonoBehaviour
         if (!NetworkServer.active) return;
         if (state != RoomState.Active) return;
 
-        // Проверяем, все ли мобы мертвы
+        // Проверяем все trackedMobs (изначально заспавненные)
         foreach (var mob in trackedMobs)
         {
             if (mob != null && !mob.IsDead)
                 return;
         }
 
+        // Дополнительно проверяем призванных мобов в пределах комнаты —
+        // боссы (например SkeletonOverlord) спавнят миньонов после ActivateRoom,
+        // и они не попадают в trackedMobs.
+        if (HasLivingMobsInRoom())
+            return;
+
         ClearRoom();
+    }
+
+    private bool HasLivingMobsInRoom()
+    {
+        Vector2 roomMin = new Vector2(cell.roomOrigin.x, cell.roomOrigin.y);
+        Vector2 roomMax = roomMin + new Vector2(cell.roomSize.x, cell.roomSize.y);
+
+        foreach (var mh in FindObjectsByType<MobHealth>(FindObjectsSortMode.None))
+        {
+            if (mh == null || mh.IsDead) continue;
+            Vector2 p = mh.transform.position;
+            if (p.x >= roomMin.x && p.x <= roomMax.x && p.y >= roomMin.y && p.y <= roomMax.y)
+                return true;
+        }
+        return false;
     }
 
     private void ClearRoom()
@@ -152,6 +212,14 @@ public class RoomController : MonoBehaviour
 
         if (NetworkServer.active)
         {
+            // Спавн боссового сундука в центре комнаты — только когда умерли босс И все призванные мобы.
+            // (trackedMobs к этому моменту полностью пуст или весь IsDead, проверка в Update гарантирует это.)
+            if (isBoss && bossChestPrefab != null)
+            {
+                var chestObj = Instantiate(bossChestPrefab, cell.RoomCenter, Quaternion.identity);
+                NetworkServer.Spawn(chestObj);
+            }
+
             // Воскрешаем всех упавших игроков с 30% HP/маны
             foreach (var identity in NetworkServer.spawned.Values)
             {

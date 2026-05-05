@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1101184801285546024}
   - component: {fileID: 1893353723120332753}
   - component: {fileID: 5353420093584632887}
-  - component: {fileID: 285585079967817449}
   - component: {fileID: -5907627486707513883}
   - component: {fileID: -58089853072350093}
   - component: {fileID: 6965841900776599019}
@@ -20,6 +19,7 @@ GameObject:
   - component: {fileID: 8602859636935844929}
   - component: {fileID: 8321791920010443416}
   - component: {fileID: 5575683068333632904}
+  - component: {fileID: 8111836611329333711}
   m_Layer: 7
   m_Name: SkeletonArcher
   m_TagString: Untagged
@@ -145,52 +145,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!61 &285585079967817449
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3738057844671139991}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.093940824, y: 0.23589694}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.45}
-    oldSize: {x: 3.125, y: 3.125}
-    newSize: {x: 3.125, y: 3.125}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.36912984, y: 0.601954}
-  m_EdgeRadius: 0
 --- !u!50 &-5907627486707513883
 Rigidbody2D:
   serializedVersion: 5
@@ -288,7 +242,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  hasShield: 0
   onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  onHealthChanged:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &8602859636935844929
@@ -334,6 +292,45 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mobData: {fileID: 11400000, guid: cf0fb4f12f92ffd4588bf0d018abcf89, type: 2}
+  spriteFacesLeft: 0
   arrowSpeed: 10
   shootOffset: 0.3
+  shootHeightOffset: 0.2
   retreatRange: 2.5
+--- !u!70 &8111836611329333711
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3738057844671139991}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.090851404, y: 0.17611939}
+  m_Size: {x: 0.22478251, y: 0.4806242}
+  m_Direction: 0
