@@ -192,7 +192,7 @@ public class GridWalkDungeonGenerator : MonoBehaviour
             go.transform.SetParent(roomContainer);
 
             var rc = go.AddComponent<RoomController>();
-            rc.Init(i, cell, graph, halfWidth, mobSpawner);
+            rc.Init(i, cell, graph, halfWidth, mobSpawner, bossChestPrefab);
         }
 
         Debug.Log($"[GridWalk] RoomControllers созданы: {roomContainer.childCount}");

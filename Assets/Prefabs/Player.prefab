@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7175678571078909057}
   - component: {fileID: 7100958536788209757}
   - component: {fileID: -8103357778670235712}
-  - component: {fileID: 1434248621366660585}
   - component: {fileID: 298689582641508444}
   - component: {fileID: 1912571505844898942}
   - component: {fileID: -5301976238422979744}
@@ -23,6 +22,7 @@ GameObject:
   - component: {fileID: 8158709264778462691}
   - component: {fileID: 5050304135943438488}
   - component: {fileID: -8859668820853188780}
+  - component: {fileID: 2337801934487403392}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -127,52 +127,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!61 &1434248621366660585
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 867628235138429589}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.017278671, y: 0.20316124}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.45}
-    oldSize: {x: 3.125, y: 3.125}
-    newSize: {x: 3.125, y: 3.125}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.28313065, y: 0.5305824}
-  m_EdgeRadius: 0.12
 --- !u!50 &298689582641508444
 Rigidbody2D:
   serializedVersion: 5
@@ -410,6 +364,43 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   chestUIPrefab: {fileID: 7177413231175478368, guid: 76ee759ce5d590a4db367ccd1a9b666b, type: 3}
+--- !u!70 &2337801934487403392
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 867628235138429589}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.028951634, y: 0.0039105387}
+  m_Size: {x: 0.23470697, y: 0.1590348}
+  m_Direction: 1
 --- !u!1 &7482568045194482683
 GameObject:
   m_ObjectHideFlags: 0

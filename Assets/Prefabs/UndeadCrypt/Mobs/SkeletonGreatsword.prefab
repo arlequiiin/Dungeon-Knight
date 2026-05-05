@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 7182688816003238113}
   - component: {fileID: 2266503553194600219}
   - component: {fileID: 3541429460949644753}
-  - component: {fileID: 1672682340094277975}
   - component: {fileID: -1386086363234277782}
   - component: {fileID: 2472123834460427011}
   - component: {fileID: -6400957319029597539}
@@ -20,6 +19,7 @@ GameObject:
   - component: {fileID: 1243836199832461739}
   - component: {fileID: 4733505234720641837}
   - component: {fileID: 4399275723740269080}
+  - component: {fileID: 8192503593172245298}
   m_Layer: 7
   m_Name: SkeletonGreatsword
   m_TagString: Untagged
@@ -135,7 +135,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1294678635453260241}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.15
+  m_Radius: 0.12
   m_Speed: 1
   m_Acceleration: 8
   avoidancePriority: 50
@@ -144,56 +144,10 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 0.58
+  m_Height: 0.5
   m_BaseOffset: 0.05
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!61 &1672682340094277975
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294678635453260241}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.0739941, y: 0.2347334}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.45}
-    oldSize: {x: 3.125, y: 3.125}
-    newSize: {x: 3.125, y: 3.125}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.41312504, y: 0.59929514}
-  m_EdgeRadius: 0
 --- !u!50 &-1386086363234277782
 Rigidbody2D:
   serializedVersion: 5
@@ -291,7 +245,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  hasShield: 0
   onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  onHealthChanged:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &1243836199832461739
@@ -324,6 +282,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   mobData: {fileID: 11400000, guid: c7ba4f5bd8fc2e94f890f73424860c9a, type: 2}
+  spriteFacesLeft: 0
 --- !u!114 &4399275723740269080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -337,6 +296,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortByY
   offset: 10000
+--- !u!70 &8192503593172245298
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.084315486, y: 0.2077477}
+  m_Size: {x: 0.21946399, y: 0.53233874}
+  m_Direction: 0
 --- !u!1 &6213499344601499967
 GameObject:
   m_ObjectHideFlags: 0

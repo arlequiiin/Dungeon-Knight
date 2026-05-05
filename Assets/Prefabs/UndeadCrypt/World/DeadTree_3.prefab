@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 5920248936209389770}
   - component: {fileID: 3225289503416731865}
   - component: {fileID: -8741455608246589043}
-  - component: {fileID: 9217130195582788481}
   - component: {fileID: 7799154189769307678}
+  - component: {fileID: 1387498420665110915}
   m_Layer: 8
   m_Name: DeadTree_3
   m_TagString: Untagged
@@ -110,8 +110,21 @@ MonoBehaviour:
   m_Center: {x: -0.0731926, y: 0.22367287, z: 0}
   m_Area: 1
   m_AffectedAgents: ffffffff
---- !u!61 &9217130195582788481
-BoxCollider2D:
+--- !u!114 &7799154189769307678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804439372036088765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortByY
+  offset: 10000
+--- !u!70 &1387498420665110915
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -144,28 +157,6 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.08893204, y: 0.22037697}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.1}
-    oldSize: {x: 1.28125, y: 1.6875}
-    newSize: {x: 1.28125, y: 1.6875}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.26203918, y: 0.28928757}
-  m_EdgeRadius: 0
---- !u!114 &7799154189769307678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 804439372036088765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb0fa0a4b342e604facb6e2da898f2b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SortByY
-  offset: 10000
+  m_Offset: {x: -0.10837522, y: 0.12244654}
+  m_Size: {x: 0.4304353, y: 0.1489224}
+  m_Direction: 1
