@@ -11375,7 +11375,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fe861def9ca66045b00fc47eedf96d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroSelectAltar
-  selectionUI: {fileID: 1235621123}
+  selectionUI: {fileID: 1235621126}
   interactPrompt: {fileID: 2139844834}
 --- !u!58 &599247921
 CircleCollider2D:
@@ -11546,7 +11546,7 @@ GameObject:
   - component: {fileID: 1062977006}
   - component: {fileID: 1062977005}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: HeroSelectionUICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11784,7 +11784,7 @@ GameObject:
   - component: {fileID: 1235621121}
   - component: {fileID: 1235621125}
   - component: {fileID: 1235621124}
-  - component: {fileID: 1235621123}
+  - component: {fileID: 1235621126}
   m_Layer: 5
   m_Name: HeroSelectionPanel
   m_TagString: Untagged
@@ -11815,27 +11815,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1235621123
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1235621120}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6fa5bb9acead9444be33c79f62d8d68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HeroSelectionUI
-  cardContainer: {fileID: 514717547}
-  confirmButton: {fileID: 1244404487}
-  readyButton: {fileID: 526637176}
-  readyButtonText: {fileID: 1074555563}
-  heroCardPrefab: {fileID: 7730804646550004233, guid: 31a333233bf5f304e99eb19e3b632197, type: 3}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 0.4, g: 1, b: 0.4, a: 1}
-  takenColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.5}
-  currentHeroColor: {r: 0.4, g: 0.7, b: 1, a: 1}
 --- !u!114 &1235621124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11874,6 +11853,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1235621120}
   m_CullTransparentMesh: 1
+--- !u!114 &1235621126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235621120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6fa5bb9acead9444be33c79f62d8d68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroSelectionUI
+  cardContainer: {fileID: 514717547}
+  confirmButton: {fileID: 1244404487}
+  readyButton: {fileID: 526637176}
+  readyButtonText: {fileID: 1074555563}
+  heroCardPrefab: {fileID: 7730804646550004233, guid: 31a333233bf5f304e99eb19e3b632197, type: 3}
+  coinText: {fileID: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0.4, g: 1, b: 0.4, a: 1}
+  takenColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.5}
+  currentHeroColor: {r: 0.4, g: 0.7, b: 1, a: 1}
+  lockedColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.8}
 --- !u!1 &1244404485
 GameObject:
   m_ObjectHideFlags: 0

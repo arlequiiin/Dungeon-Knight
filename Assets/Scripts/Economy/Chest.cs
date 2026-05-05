@@ -24,7 +24,23 @@ public class Chest : NetworkBehaviour
 
     public bool IsOpened => isOpened;
 
+    // Закэшированные награды для этого сундука — ролл происходит один раз,
+    // повторное открытие UI показывает тот же набор (защита от рерола закрытием).
+    private List<RewardData> cachedRewards;
+
     private SpriteRenderer sr;
+
+    /// <summary>
+    /// Возвращает закэшированные награды или роллит их через rollFunc на первом обращении.
+    /// </summary>
+    public List<RewardData> GetOrRollRewards(PlayerController _, System.Func<List<RewardData>> rollFunc)
+    {
+        if (cachedRewards != null && cachedRewards.Count > 0)
+            return cachedRewards;
+
+        cachedRewards = rollFunc?.Invoke();
+        return cachedRewards;
+    }
 
     private void Awake()
     {

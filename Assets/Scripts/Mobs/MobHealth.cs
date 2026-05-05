@@ -272,9 +272,9 @@ public class MobHealth : NetworkBehaviour
 
         onDeath?.Invoke();
 
-        // Уничтожаем объект через 10 секунд
+        // Уничтожаем объект через 5 минут
         if (isServer)
-            Invoke(nameof(DestroyMob), 10f);
+            Invoke(nameof(DestroyMob), 300f);
     }
 
     [ClientRpc]

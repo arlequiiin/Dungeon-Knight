@@ -36,10 +36,13 @@ public class GridWalkDungeonGenerator : MonoBehaviour
     private void Start()
     {
         if (generateOnStart)
-            GenerateDungeon();
+        {
+            int s = config != null && !config.useRandomSeed ? config.seed : System.Environment.TickCount;
+            GenerateDungeon(s);
+        }
     }
 
-    public void GenerateDungeon()
+    public void GenerateDungeon(int seed)
     {
         if (config == null)
         {
@@ -57,7 +60,7 @@ public class GridWalkDungeonGenerator : MonoBehaviour
             }
         }
 
-        generator = new GridWalkGenerator(config);
+        generator = new GridWalkGenerator(config, seed);
         generator.Generate();
         gridWalkRenderer.RenderDungeon(generator, config);
 
@@ -72,14 +75,14 @@ public class GridWalkDungeonGenerator : MonoBehaviour
         if (Mirror.NetworkServer.active)
         {
             int playerCount = Mathf.Max(1, Mirror.NetworkServer.connections.Count);
-            mobSpawner?.Initialize(config.seed, playerCount);
+            mobSpawner?.Initialize(seed, playerCount);
         }
         SetupRoomControllers();
     }
 
-    public void RegenerateDungeon()
+    public void RegenerateDungeon(int seed)
     {
-        GenerateDungeon();
+        GenerateDungeon(seed);
     }
 
     private void SpawnVolcBubbles()
@@ -92,7 +95,7 @@ public class GridWalkDungeonGenerator : MonoBehaviour
 
         decorContainer = new GameObject("VolcBubbles").transform;
 
-        var random = new System.Random(config.seed);
+        var random = new System.Random(generator.Seed);
         var groundPositions = gridWalkRenderer.GroundPositions;
         int worldW = config.WorldWidth;
         int worldH = config.WorldHeight;
@@ -127,7 +130,7 @@ public class GridWalkDungeonGenerator : MonoBehaviour
 
         treeContainer = new GameObject("DeadTrees").transform;
 
-        var random = new System.Random(config.seed + 1);
+        var random = new System.Random(generator.Seed + 1);
 
         foreach (var cell in generator.Graph.cells)
         {

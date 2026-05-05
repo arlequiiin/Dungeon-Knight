@@ -4,9 +4,9 @@ using TMPro;
 using Mirror;
 
 /// <summary>
-/// Victory screen. Shown to all players when the boss dies.
-/// Server detects boss death and notifies all clients via ClientRpc on DungeonKnightNetworkManager.
-/// This component polls for boss death (simpler than event wiring across network).
+/// Экран победы. Показывается сразу при зачистке боссовой комнаты —
+/// триггерится из RoomController через статический метод TriggerVictory()
+/// (синхронизировано с RoomStateMessage Cleared, приходит всем клиентам одновременно).
 /// </summary>
 public class VictoryScreenUI : MonoBehaviour
 {
@@ -16,12 +16,13 @@ public class VictoryScreenUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI victorySubtitle;
     [SerializeField] private Button returnToLobbyButton;
 
+    private static VictoryScreenUI instance;
     private bool triggered;
-    private MobHealth bossHealth;
-    private bool searching = true;
 
     private void Awake()
     {
+        instance = this;
+
         if (victoryPanel != null)
             victoryPanel.SetActive(false);
 
@@ -29,34 +30,23 @@ public class VictoryScreenUI : MonoBehaviour
             returnToLobbyButton.onClick.AddListener(OnReturnToLobbyClicked);
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        if (triggered) return;
+        if (instance == this) instance = null;
+    }
 
-        // Find boss
-        if (searching)
-        {
-            foreach (var mh in FindObjectsByType<MobHealth>(FindObjectsSortMode.None))
-            {
-                if (mh.IsBoss)
-                {
-                    bossHealth = mh;
-                    searching = false;
-                    break;
-                }
-            }
-            return;
-        }
-
-        // Boss found — check if dead
-        if (bossHealth == null || bossHealth.IsDead)
-        {
-            ShowVictory();
-        }
+    /// <summary>
+    /// Вызывается из RoomController при Cleared-событии для боссовой комнаты.
+    /// </summary>
+    public static void TriggerVictory()
+    {
+        if (instance == null) return;
+        instance.ShowVictory();
     }
 
     private void ShowVictory()
     {
+        if (triggered) return;
         triggered = true;
 
         if (victoryPanel != null)
@@ -70,7 +60,6 @@ public class VictoryScreenUI : MonoBehaviour
         if (victorySubtitle != null)
             victorySubtitle.text = "The Undead Crypt has been cleansed!";
 
-        // Only show return button to host
         if (returnToLobbyButton != null)
             returnToLobbyButton.gameObject.SetActive(NetworkServer.active);
     }

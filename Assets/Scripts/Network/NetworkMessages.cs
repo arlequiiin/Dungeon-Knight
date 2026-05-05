@@ -42,3 +42,16 @@ public struct CoinDropMessage : NetworkMessage
 {
     public int amount;
 }
+
+// ── Boss Reward Sync ──
+
+/// <summary>
+/// Клиент → сервер: «я закончил выбор по боссовому сундуку (или закрыл его)».
+/// Сервер ждёт сообщения от всех подключённых, потом шлёт ShowVictoryMessage.
+/// </summary>
+public struct BossRewardDoneMessage : NetworkMessage { }
+
+/// <summary>
+/// Сервер → всем клиентам: «можно показать VICTORY».
+/// </summary>
+public struct ShowVictoryMessage : NetworkMessage { }

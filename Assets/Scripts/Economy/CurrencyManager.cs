@@ -2,56 +2,128 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Глобальный менеджер валюты ("душ").
-/// Хранит количество монет в PlayerPrefs — сохраняется между забегами и сессиями.
-/// Не требует сетевой синхронизации: каждый игрок копит свои душ локально.
+/// Менеджер валюты ("душ"). Две раздельные копилки:
+///   • MetaCoins — постоянные души для разблокировки героев в лобби, хранятся в PlayerPrefs.
+///   • RunCoins — души текущего забега, в памяти, сбрасываются в 0 при старте забега.
+///
+/// Монеты с мобов и покупки в сундуках работают с RunCoins.
+/// При завершении забега (возврат в лобби) непотраченный RunCoins переливается в MetaCoins.
 /// </summary>
 public static class CurrencyManager
 {
     private const string PrefKey = "dk_coins";
 
-    public static event Action<int> OnCoinsChanged;
+    public static event Action<int> OnMetaCoinsChanged;
+    public static event Action<int> OnRunCoinsChanged;
 
-    private static int cached = -1;
+    private static int metaCached = -1;
+    private static int runCoins;
+    private static bool sceneHookInstalled;
 
-    public static int Coins
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void InstallSceneHook()
+    {
+        if (sceneHookInstalled) return;
+        sceneHookInstalled = true;
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private static void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        Debug.Log($"[Currency] sceneLoaded='{scene.name}' (run={runCoins}, meta={MetaCoins})");
+        if (scene.name.Contains("SampleScene"))
+            ResetRunCoins();
+        else if (scene.name.Contains("LobbyScene"))
+            ConvertRunToMeta();
+    }
+
+    // ── Мета-валюта (лобби, разблокировка героев) ──
+
+    public static int MetaCoins
     {
         get
         {
-            if (cached < 0)
-                cached = PlayerPrefs.GetInt(PrefKey, 0);
-            return cached;
+            if (metaCached < 0)
+                metaCached = PlayerPrefs.GetInt(PrefKey, 0);
+            return metaCached;
         }
         private set
         {
-            cached = Mathf.Max(0, value);
-            PlayerPrefs.SetInt(PrefKey, cached);
+            metaCached = Mathf.Max(0, value);
+            PlayerPrefs.SetInt(PrefKey, metaCached);
             PlayerPrefs.Save();
-            OnCoinsChanged?.Invoke(cached);
+            OnMetaCoinsChanged?.Invoke(metaCached);
         }
     }
 
-    public static void Add(int amount)
+    public static void AddMeta(int amount)
     {
         if (amount <= 0) return;
-        Coins = Coins + amount;
+        MetaCoins = MetaCoins + amount;
     }
 
-    public static bool TrySpend(int amount)
+    public static bool TrySpendMeta(int amount)
     {
         if (amount <= 0) return true;
-        if (Coins < amount) return false;
-        Coins = Coins - amount;
+        if (MetaCoins < amount) return false;
+        MetaCoins = MetaCoins - amount;
         return true;
     }
 
-    public static bool CanAfford(int amount) => Coins >= amount;
+    public static bool CanAffordMeta(int amount) => MetaCoins >= amount;
+
+    // ── Валюта забега (сундуки, дроп с мобов) ──
+
+    public static int RunCoins => runCoins;
+
+    public static void AddRun(int amount)
+    {
+        if (amount <= 0) return;
+        runCoins += amount;
+        Debug.Log($"[Currency] +{amount} run coins (total run={runCoins}, meta={MetaCoins})");
+        OnRunCoinsChanged?.Invoke(runCoins);
+    }
+
+    public static bool TrySpendRun(int amount)
+    {
+        if (amount <= 0) return true;
+        if (runCoins < amount) return false;
+        runCoins -= amount;
+        OnRunCoinsChanged?.Invoke(runCoins);
+        return true;
+    }
+
+    public static bool CanAffordRun(int amount) => runCoins >= amount;
 
     /// <summary>
-    /// Только для отладки — обнулить копилку.
+    /// Сбрасывает RunCoins в 0. Вызывается при старте нового забега.
     /// </summary>
-    public static void DebugReset()
+    public static void ResetRunCoins()
     {
-        Coins = 0;
+        Debug.Log($"[Currency] ResetRunCoins (was {runCoins}, meta={MetaCoins})");
+        if (runCoins == 0) return;
+        runCoins = 0;
+        OnRunCoinsChanged?.Invoke(runCoins);
+    }
+
+    /// <summary>
+    /// Переливает непотраченные RunCoins в MetaCoins и обнуляет RunCoins.
+    /// Вызывается при завершении забега (возврат в лобби, смерть, победа).
+    /// </summary>
+    public static void ConvertRunToMeta()
+    {
+        Debug.Log($"[Currency] ConvertRunToMeta (run={runCoins}, meta_before={MetaCoins})");
+        if (runCoins <= 0) return;
+        AddMeta(runCoins);
+        runCoins = 0;
+        OnRunCoinsChanged?.Invoke(runCoins);
+    }
+
+    /// <summary>
+    /// Только для отладки/сброса прогресса — обнуляет мета-копилку.
+    /// </summary>
+    public static void DebugResetMeta()
+    {
+        MetaCoins = 0;
     }
 }

@@ -41,7 +41,14 @@ public class RoomController : MonoBehaviour
         if (newState == (byte)RoomState.Active && rc.state == RoomState.Idle)
             rc.LockDoors();
         else if (newState == (byte)RoomState.Cleared && rc.state == RoomState.Active)
+        {
             rc.UnlockDoors();
+
+            // Уведомление по центру экрана. BOSS DEFEATED — для боссовой комнаты, ROOM CLEARED — для обычной.
+            bool isBoss = rc.cell.roomType == RoomType.Boss;
+            if (PlayerHUD.LocalInstance != null)
+                PlayerHUD.LocalInstance.ShowNotification(isBoss ? "BOSS DEFEATED" : "ROOM CLEARED");
+        }
 
         rc.state = (RoomState)newState;
     }
@@ -133,6 +140,15 @@ public class RoomController : MonoBehaviour
     {
         state = RoomState.Cleared;
         UnlockDoors();
+
+        // Уведомление в HUD на хосте (на чистом клиенте — в OnRoomStateChanged через RoomStateMessage).
+        // Окно VICTORY триггерится отдельно — сервером, когда все клиенты сделали выбор по боссовому сундуку.
+        bool isBoss = cell.roomType == RoomType.Boss;
+        if (PlayerHUD.LocalInstance != null)
+            PlayerHUD.LocalInstance.ShowNotification(isBoss ? "BOSS DEFEATED" : "ROOM CLEARED");
+
+        if (NetworkServer.active && isBoss)
+            BossRewardCoordinator.OnBossDefeatedServer();
 
         if (NetworkServer.active)
         {

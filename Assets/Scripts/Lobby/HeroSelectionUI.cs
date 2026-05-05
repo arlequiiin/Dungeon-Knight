@@ -45,7 +45,7 @@ public class HeroSelectionUI : MonoBehaviour
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated += RefreshCards;
 
-        CurrencyManager.OnCoinsChanged += OnCoinsChanged;
+        CurrencyManager.OnMetaCoinsChanged += OnCoinsChanged;
         HeroUnlockManager.OnUnlocksChanged += RefreshCards;
 
         UpdateCoinText();
@@ -63,7 +63,7 @@ public class HeroSelectionUI : MonoBehaviour
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated -= RefreshCards;
 
-        CurrencyManager.OnCoinsChanged -= OnCoinsChanged;
+        CurrencyManager.OnMetaCoinsChanged -= OnCoinsChanged;
         HeroUnlockManager.OnUnlocksChanged -= RefreshCards;
 
         if (confirmButton != null)
@@ -77,14 +77,16 @@ public class HeroSelectionUI : MonoBehaviour
 
     private void OnCoinsChanged(int amount)
     {
+        Debug.Log($"[HeroSelectionUI] OnCoinsChanged event amount={amount}");
         UpdateCoinText();
         RefreshCards();
     }
 
     private void UpdateCoinText()
     {
+        Debug.Log($"[HeroSelectionUI] UpdateCoinText meta={CurrencyManager.MetaCoins} coinTextNull={coinText == null} coinTextName={(coinText != null ? coinText.name : "null")}");
         if (coinText != null)
-            coinText.text = CurrencyManager.Coins.ToString();
+            coinText.text = CurrencyManager.MetaCoins.ToString();
     }
 
     private void BuildCards()
@@ -170,7 +172,7 @@ public class HeroSelectionUI : MonoBehaviour
                     int cost = HeroUnlockManager.GetUnlockCost(slot.Data);
                     slot.PriceText.gameObject.SetActive(true);
                     slot.PriceText.text = $"{cost} душ";
-                    slot.PriceText.color = CurrencyManager.CanAfford(cost) ? Color.white : Color.red;
+                    slot.PriceText.color = CurrencyManager.CanAffordMeta(cost) ? Color.white : Color.red;
                 }
             }
 

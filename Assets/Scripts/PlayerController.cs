@@ -45,6 +45,13 @@ public class PlayerController : NetworkBehaviour
 
     public event System.Action onInteract;
 
+    /// <summary>
+    /// Блокировка ввода (например, когда открыто UI выбора награды сундука).
+    /// Игрок не может двигаться, атаковать, использовать способности и dodge,
+    /// но события interact продолжают работать (нужно для закрытия UI).
+    /// </summary>
+    public bool IsInputBlocked { get; set; }
+
     [SyncVar]
     private Vector2 syncMoveInput;
 
@@ -159,16 +166,16 @@ public class PlayerController : NetworkBehaviour
         {
             input = new PlayerInputActions();
 
-            input.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+            input.Player.Move.performed += ctx => { if (!IsInputBlocked) moveInput = ctx.ReadValue<Vector2>(); else moveInput = Vector2.zero; };
             input.Player.Move.canceled += ctx => moveInput = Vector2.zero;
 
-            input.Player.Attack1.performed += _ => TryAttack1();
-            input.Player.Attack2.performed += _ => TryAttack2();
-            input.Player.Ability1.started += _ => OnAbility1Started();
-            input.Player.Ability1.canceled += _ => OnAbility1Canceled();
-            input.Player.Ability2.performed += _ => StartBlock();
-            input.Player.Ability2.canceled += _ => StopBlock();
-            input.Player.Dodge.performed += _ => TryDodge();
+            input.Player.Attack1.performed += _ => { if (!IsInputBlocked) TryAttack1(); };
+            input.Player.Attack2.performed += _ => { if (!IsInputBlocked) TryAttack2(); };
+            input.Player.Ability1.started += _ => { if (!IsInputBlocked) OnAbility1Started(); };
+            input.Player.Ability1.canceled += _ => { if (!IsInputBlocked) OnAbility1Canceled(); };
+            input.Player.Ability2.performed += _ => { if (!IsInputBlocked) StartBlock(); };
+            input.Player.Ability2.canceled += _ => { if (!IsInputBlocked) StopBlock(); };
+            input.Player.Dodge.performed += _ => { if (!IsInputBlocked) TryDodge(); };
             input.Player.Interaction.performed += _ => onInteract?.Invoke();
         }
 
@@ -284,6 +291,9 @@ public class PlayerController : NetworkBehaviour
         // Клиент: читает input и отправляет на сервер
         if (isLocalPlayer)
         {
+            // Заблокированный ввод — гарантированно нулевое движение, даже если клавиша зажата
+            if (IsInputBlocked) moveInput = Vector2.zero;
+
             if (moveInput != syncMoveInput)
                 CmdSetMoveInput(moveInput);
 
