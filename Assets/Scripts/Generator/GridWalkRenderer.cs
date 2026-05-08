@@ -68,8 +68,6 @@ public class GridWalkRenderer : MonoBehaviour
         groundTilemap.RefreshAllTiles();
         lavaTilemap.RefreshAllTiles();
 
-        Debug.Log($"[GridWalkRenderer] Отрисовано: ground: {GroundPositions.Count} тайлов, " +
-                  $"комнат: {generator.Graph.cells.Count}, рёбер: {generator.Graph.edges.Count}");
     }
 
     private void CollectCorridors(DungeonGraph graph, GridWalkConfig config)

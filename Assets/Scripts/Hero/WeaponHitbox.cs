@@ -122,6 +122,11 @@ public class WeaponHitbox : MonoBehaviour
                 return;
             }
 
+            // Friendly fire отключён: игроки не наносят урон друг другу,
+            // если цель не downed (downed-кейс уже обработан выше как revive).
+            if (!ownerIsMob)
+                return;
+
             // Попытка блока щитом (фронтальный удар, расход энергии)
             if (targetHeroStats.TryBlock(damage, owner.transform.position))
             {

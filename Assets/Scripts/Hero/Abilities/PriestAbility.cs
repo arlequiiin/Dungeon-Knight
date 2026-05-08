@@ -123,22 +123,14 @@ public class PriestAbility : HeroAbility
     {
         if (prefab == null || target == null) return;
 
-        var fx = Instantiate(prefab, target.position, Quaternion.identity);
-        // Прикрепляем к цели чтобы эффект следовал за ней
-        fx.transform.SetParent(target, true);
+        var ni = target.GetComponent<NetworkIdentity>();
+        if (ni == null) return;
 
-        // Сетевой эффект — спавним и автоудаляем через 2 сек
-        if (fx.GetComponent<NetworkIdentity>() != null)
-        {
-            NetworkServer.Spawn(fx);
-            var cleanup = fx.AddComponent<TimedNetworkDestroy>();
-            cleanup.delay = 2f;
-        }
-        else
-        {
-            // Не-сетевой VFX — уничтожим локально (но это будет только на сервере; для клиентов нужен NetworkIdentity)
-            Destroy(fx, 2f);
-        }
+        // Индекс эффекта в HeroData.projectilePrefabs: 0 = attack, 1 = heal.
+        int effectIndex = (prefab == healEffectPrefab) ? 1 : 0;
+        var pc = GetComponent<PlayerController>();
+        if (pc != null)
+            pc.RpcShowEffectOnTarget(ni, effectIndex);
     }
 
     private Transform FindNearestEnemy()

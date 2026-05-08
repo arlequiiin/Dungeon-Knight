@@ -21,12 +21,21 @@ MonoBehaviour:
   attackCooldown: 1.2
   attackDamages:
   - 10
-  attackStaggerDamages: []
+  usesAttackSlot: 1
+  attackStaggerDamages:
+  - 5
+  - 5
   attackWeights: []
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
   moveSpeed: 1.5
+  navAcceleration: 8
+  navAngularSpeed: 540
+  navStoppingDistance: 1
+  navRadius: 0.4
+  navPriority: 50
+  navAvoidanceQuality: 2
   attackWindupDuration: 0.3
   hitReactionDuration: 0.3
   recoveryDuration: 0.4

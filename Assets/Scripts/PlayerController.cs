@@ -336,25 +336,30 @@ public class PlayerController : NetworkBehaviour
 
     private void FaceAttackDirection()
     {
-        float searchRadius = heroData != null ? heroData.targetSearchRadius : 5f;
-
-        // Ищем ближайшего врага (моба) в радиусе — без LayerMask, по компоненту MobHealth
-        var hits = Physics2D.OverlapCircleAll(transform.position, searchRadius);
         Transform nearest = null;
-        float minDist = float.MaxValue;
 
-        foreach (var hit in hits)
+        // Если включена настройка "атака к курсору" — пропускаем авто-наведение на врага.
+        if (!SettingsManager.AimToCursor)
         {
-            if (hit.gameObject == gameObject) continue;
+            float searchRadius = heroData != null ? heroData.targetSearchRadius : 5f;
 
-            var mob = hit.GetComponent<MobHealth>();
-            if (mob == null || mob.IsDead) continue;
+            // Ищем ближайшего врага (моба) в радиусе — без LayerMask, по компоненту MobHealth
+            var hits = Physics2D.OverlapCircleAll(transform.position, searchRadius);
+            float minDist = float.MaxValue;
 
-            float dist = Vector2.Distance(transform.position, hit.transform.position);
-            if (dist < minDist)
+            foreach (var hit in hits)
             {
-                minDist = dist;
-                nearest = hit.transform;
+                if (hit.gameObject == gameObject) continue;
+
+                var mob = hit.GetComponent<MobHealth>();
+                if (mob == null || mob.IsDead) continue;
+
+                float dist = Vector2.Distance(transform.position, hit.transform.position);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nearest = hit.transform;
+                }
             }
         }
 
@@ -731,6 +736,33 @@ public class PlayerController : NetworkBehaviour
         var anim = GetComponent<Animator>();
         if (anim != null)
             anim.SetTrigger(triggerName);
+    }
+
+    /// <summary>
+    /// Сервер шлёт всем клиентам команду показать VFX на цели.
+    /// Префаб берётся у HeroAbility этого игрока (effectIndex — индекс в projectilePrefabs HeroData).
+    /// </summary>
+    [ClientRpc]
+    public void RpcShowEffectOnTarget(NetworkIdentity targetId, int effectIndex)
+    {
+        if (targetId == null) return;
+        if (heroData == null || heroData.projectilePrefabs == null) return;
+        if (effectIndex < 0 || effectIndex >= heroData.projectilePrefabs.Length) return;
+        var prefab = heroData.projectilePrefabs[effectIndex];
+        if (prefab == null) return;
+
+        var fx = Instantiate(prefab, targetId.transform.position, Quaternion.identity);
+        fx.transform.SetParent(targetId.transform, true);
+        // Длительность = длине клипа Animator на префабе (если есть), иначе короткий fallback.
+        float lifetime = 0.7f;
+        var fxAnim = fx.GetComponentInChildren<Animator>();
+        if (fxAnim != null && fxAnim.runtimeAnimatorController != null)
+        {
+            var clips = fxAnim.runtimeAnimatorController.animationClips;
+            if (clips != null && clips.Length > 0)
+                lifetime = clips[0].length;
+        }
+        Destroy(fx, lifetime);
     }
 
     private void OnFlipChanged(bool oldVal, bool newVal)

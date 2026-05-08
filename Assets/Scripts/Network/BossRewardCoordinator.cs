@@ -42,7 +42,6 @@ public static class BossRewardCoordinator
     {
         waiting = true;
         donePlayers.Clear();
-        Debug.Log($"[BossReward] Waiting for {NetworkServer.connections.Count} player(s) to finish boss reward.");
     }
 
     [Server]
@@ -52,7 +51,6 @@ public static class BossRewardCoordinator
         if (conn == null) return;
 
         donePlayers.Add(conn.connectionId);
-        Debug.Log($"[BossReward] Player {conn.connectionId} done. {donePlayers.Count}/{NetworkServer.connections.Count}");
 
         // Все подключённые подтвердили — показываем VICTORY всем.
         if (donePlayers.Count >= NetworkServer.connections.Count)

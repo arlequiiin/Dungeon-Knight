@@ -22,6 +22,10 @@ public class SettingsUI : MonoBehaviour
     [Header("Полноэкранный режим")]
     [SerializeField] private Toggle fullscreenToggle;
 
+    [Header("Управление")]
+    [Tooltip("Если включён — атаки игрока всегда направлены к курсору, без авто-наведения.")]
+    [SerializeField] private Toggle aimToCursorToggle;
+
     [Header("Сброс прогресса (только из главного меню)")]
     [SerializeField] private bool showResetButton = false;
     [SerializeField] private Button resetProgressButton;
@@ -63,6 +67,12 @@ public class SettingsUI : MonoBehaviour
             fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggled);
         }
 
+        if (aimToCursorToggle != null)
+        {
+            aimToCursorToggle.SetIsOnWithoutNotify(SettingsManager.AimToCursor);
+            aimToCursorToggle.onValueChanged.AddListener(OnAimToCursorToggled);
+        }
+
         if (closeButton != null)
             closeButton.onClick.AddListener(Close);
 
@@ -88,7 +98,6 @@ public class SettingsUI : MonoBehaviour
     {
         var target = panelRoot != null ? panelRoot : gameObject;
         target.SetActive(true);
-        Debug.Log($"[SettingsUI] Open -> {target.name} active={target.activeSelf} parentActive={target.activeInHierarchy}");
     }
 
     public void Close()
@@ -112,6 +121,11 @@ public class SettingsUI : MonoBehaviour
     private void OnFullscreenToggled(bool on)
     {
         SettingsManager.Fullscreen = on;
+    }
+
+    private void OnAimToCursorToggled(bool on)
+    {
+        SettingsManager.AimToCursor = on;
     }
 
     private void UpdateMusicLabel(float v)

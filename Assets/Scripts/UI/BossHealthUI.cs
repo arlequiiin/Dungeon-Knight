@@ -59,7 +59,6 @@ public class BossHealthUI : MonoBehaviour
             Hide();
     }
 
-    private float _debugTimer;
     private void TryFindBoss()
     {
         // Search all MobHealth in the scene for the one marked as boss
@@ -71,13 +70,6 @@ public class BossHealthUI : MonoBehaviour
                 Bind(mh);
                 return;
             }
-        }
-
-        _debugTimer -= Time.deltaTime;
-        if (_debugTimer <= 0f)
-        {
-            _debugTimer = 2f;
-            Debug.Log($"[BossHealthUI] searching... MobHealths found: {all.Length}; IsBoss flags: [{string.Join(",", System.Array.ConvertAll(all, m => m.IsBoss + "/" + m.IsDead))}]");
         }
     }
 

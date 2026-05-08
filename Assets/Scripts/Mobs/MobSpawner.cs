@@ -9,19 +9,28 @@ using UnityEngine;
 /// </summary>
 public class MobSpawner : MonoBehaviour
 {
-    [Header("Мобы")]
+    [Header("Таблица спавна (ScriptableObject)")]
+    [Tooltip("Основной источник весов. Если не назначен — используется legacy-массив Mob Prefabs ниже.")]
+    [SerializeField] private MobSpawnTable spawnTable;
+
+    [Header("Legacy (fallback если spawnTable пустой)")]
     [SerializeField] private MobSpawnEntry[] mobPrefabs;
 
     [Header("Босс")]
     [SerializeField] private GameObject bossPrefab;
 
+    [Header("Индикатор спавна")]
+    [Tooltip("Префаб ArrowUI — стрелка-индикатор, показывается на месте будущего спавна моба.")]
+    [SerializeField] private GameObject spawnIndicatorPrefab;
+    public GameObject SpawnIndicatorPrefab => spawnIndicatorPrefab;
+
     [Header("Настройки спавна")]
     [SerializeField] private int mobsPerNormalRoom = 1;
 
     private System.Random rng;
-    private int totalWeight;
     private int currentPlayerCount;
     private float currentDifficulty;
+    private MobSpawnTable activeTable;
 
     // Boss instance — exposed for UI binding
     private GameObject bossInstance;
@@ -38,24 +47,51 @@ public class MobSpawner : MonoBehaviour
         currentPlayerCount = playerCount;
         currentDifficulty = difficulty;
 
-        totalWeight = 0;
-        if (mobPrefabs != null)
-            foreach (var entry in mobPrefabs)
-                totalWeight += entry.weight;
+        // Если SO-таблица назначена — используем её, иначе строим временную из legacy-массива.
+        activeTable = spawnTable != null ? spawnTable : BuildLegacyTable();
 
         rng = new System.Random(seed + 42);
     }
 
     /// <summary>
-    /// Спавнит мобов в обычной комнате. Возвращает список MobHealth для отслеживания.
-    /// Вызывается из RoomController при входе игрока.
+    /// Подменить таблицу спавна в рантайме (например, при смене биома/сложности).
     /// </summary>
-    public List<MobHealth> SpawnRoomMobs(CellData cell)
+    public void SetTable(MobSpawnTable table)
+    {
+        activeTable = table;
+    }
+
+    private MobSpawnTable BuildLegacyTable()
+    {
+        if (mobPrefabs == null || mobPrefabs.Length == 0) return null;
+        var t = ScriptableObject.CreateInstance<MobSpawnTable>();
+        t.entries = mobPrefabs;
+        return t;
+    }
+
+    /// <summary>
+    /// Только подбирает позиции для будущей волны мобов (без спавна).
+    /// Используется для предварительного показа индикаторов спавна.
+    /// </summary>
+    public Vector2[] PreparePositions(CellData cell, int count = -1)
+    {
+        if (count < 0) count = mobsPerNormalRoom;
+        var arr = new Vector2[count];
+        for (int i = 0; i < count; i++)
+            arr[i] = GetRandomFloorPosition(cell);
+        return arr;
+    }
+
+    /// <summary>
+    /// Спавнит мобов в обычной комнате по заранее подобранным позициям (если переданы).
+    /// Возвращает список MobHealth для отслеживания.
+    /// </summary>
+    public List<MobHealth> SpawnRoomMobs(CellData cell, Vector2[] presetPositions = null)
     {
         if (!NetworkServer.active) return null;
-        if (mobPrefabs == null || mobPrefabs.Length == 0)
+        if (activeTable == null || activeTable.entries == null || activeTable.entries.Length == 0)
         {
-            Debug.LogWarning("[MobSpawner] mobPrefabs not assigned!");
+            Debug.LogWarning("[MobSpawner] spawnTable / mobPrefabs не назначены!");
             return null;
         }
 
@@ -66,9 +102,10 @@ public class MobSpawner : MonoBehaviour
         groupObj.transform.position = (Vector3)(Vector2)cell.RoomCenter;
         var group = groupObj.AddComponent<MobGroupManager>();
 
-        for (int i = 0; i < mobsPerNormalRoom; i++)
+        int spawnCount = presetPositions != null ? presetPositions.Length : mobsPerNormalRoom;
+        for (int i = 0; i < spawnCount; i++)
         {
-            Vector2 pos = GetRandomFloorPosition(cell);
+            Vector2 pos = presetPositions != null ? presetPositions[i] : GetRandomFloorPosition(cell);
             GameObject prefab = PickRandomPrefab();
             GameObject mob = Instantiate(prefab, pos, Quaternion.identity);
 
@@ -114,24 +151,13 @@ public class MobSpawner : MonoBehaviour
             health.SetBoss(true);
 
         NetworkServer.Spawn(bossInstance);
-        Debug.Log($"[MobSpawner] Boss spawned at {pos}");
 
         return health;
     }
 
     private GameObject PickRandomPrefab()
     {
-        int roll = rng.Next(totalWeight);
-        int cumulative = 0;
-
-        foreach (var entry in mobPrefabs)
-        {
-            cumulative += entry.weight;
-            if (roll < cumulative)
-                return entry.prefab;
-        }
-
-        return mobPrefabs[0].prefab;
+        return activeTable != null ? activeTable.PickRandom(rng) : null;
     }
 
     /// <summary>

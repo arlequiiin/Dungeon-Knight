@@ -77,14 +77,12 @@ public class HeroSelectionUI : MonoBehaviour
 
     private void OnCoinsChanged(int amount)
     {
-        Debug.Log($"[HeroSelectionUI] OnCoinsChanged event amount={amount}");
         UpdateCoinText();
         RefreshCards();
     }
 
     private void UpdateCoinText()
     {
-        Debug.Log($"[HeroSelectionUI] UpdateCoinText meta={CurrencyManager.MetaCoins} coinTextNull={coinText == null} coinTextName={(coinText != null ? coinText.name : "null")}");
         if (coinText != null)
             coinText.text = CurrencyManager.MetaCoins.ToString();
     }
@@ -171,7 +169,7 @@ public class HeroSelectionUI : MonoBehaviour
                 {
                     int cost = HeroUnlockManager.GetUnlockCost(slot.Data);
                     slot.PriceText.gameObject.SetActive(true);
-                    slot.PriceText.text = $"{cost} душ";
+                    slot.PriceText.text = cost.ToString();
                     slot.PriceText.color = CurrencyManager.CanAffordMeta(cost) ? Color.white : Color.red;
                 }
             }

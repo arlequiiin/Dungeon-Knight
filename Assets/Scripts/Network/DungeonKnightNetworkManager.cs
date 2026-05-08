@@ -22,20 +22,92 @@ public class DungeonKnightNetworkManager : NetworkManager
     // Хранит выбор героя каждого подключённого игрока (переживает смену сцен)
     private readonly Dictionary<NetworkConnectionToClient, HeroType> selectedHeroes = new();
 
+    // Разблокировки героев у каждого клиента (присылаются клиентом при подключении).
+    private readonly Dictionary<NetworkConnectionToClient, HashSet<HeroType>> clientUnlocks = new();
+
     public override void OnStartServer()
     {
         base.OnStartServer();
         dungeonGenerated = false;
         selectedHeroes.Clear();
+        clientUnlocks.Clear();
         GameOverWatcher.Reset();
         BossRewardCoordinator.Reset();
         NetworkServer.RegisterHandler<RequestSeedMessage>(OnClientRequestedSeed);
+        NetworkServer.RegisterHandler<ClientUnlocksMessage>(OnClientUnlocksReceived);
         BossRewardCoordinator.RegisterServerHandlers();
+    }
+
+    [Server]
+    private void OnClientUnlocksReceived(NetworkConnectionToClient conn, ClientUnlocksMessage msg)
+    {
+        var set = new HashSet<HeroType>();
+        if (msg.unlockedHeroes != null)
+            foreach (var h in msg.unlockedHeroes) set.Add(h);
+        clientUnlocks[conn] = set;
+
+        // Если этому клиенту уже выдан герой, которого у него нет в разблокировках —
+        // переназначим на разблокированного. Это закрывает баг, когда сервер на старте
+        // выбирал героя по своим (хостовским) PlayerPrefs.
+        if (selectedHeroes.TryGetValue(conn, out var current) && !set.Contains(current) && !IsUnlockedByDefault(current))
+        {
+            var swap = PickUnlockedFor(conn);
+            if (swap != HeroType.None && swap != current)
+            {
+                selectedHeroes[conn] = swap;
+                SetHeroForConnection(conn, swap);
+
+                var lobbyManager = FindAnyObjectByType<LobbyManager>();
+                if (lobbyManager != null) lobbyManager.RegisterInitialHero(conn, swap);
+            }
+        }
+    }
+
+    private bool IsUnlockedByDefault(HeroType type)
+    {
+        var data = GetHeroData(type);
+        return data != null && data.unlockedByDefault;
+    }
+
+    /// <summary>
+    /// Разблокирован ли герой у конкретного клиента (по присланному ClientUnlocksMessage).
+    /// Используется LobbyManager для валидации выбора героя.
+    /// </summary>
+    [Server]
+    public bool IsHeroUnlockedForConn(NetworkConnectionToClient conn, HeroType type)
+    {
+        if (IsUnlockedByDefault(type)) return true;
+        return clientUnlocks.TryGetValue(conn, out var set) && set.Contains(type);
+    }
+
+    /// <summary>
+    /// Подобрать свободного героя, разблокированного у этого клиента.
+    /// Если присланы unlocks — фильтр строгий по ним. Если нет — фолбэк на дефолтных.
+    /// </summary>
+    [Server]
+    private HeroType PickUnlockedFor(NetworkConnectionToClient conn)
+    {
+        if (allHeroes == null || allHeroes.Length == 0) return HeroType.None;
+        var taken = new HashSet<HeroType>(selectedHeroes.Values);
+        bool hasUnlocks = clientUnlocks.TryGetValue(conn, out var unlocks);
+
+        var candidates = new List<HeroData>();
+        foreach (var h in allHeroes)
+        {
+            if (h == null) continue;
+            if (taken.Contains(h.heroType) && (!selectedHeroes.TryGetValue(conn, out var cur) || cur != h.heroType)) continue;
+            bool unlocked = h.unlockedByDefault || (hasUnlocks && unlocks.Contains(h.heroType));
+            if (unlocked) candidates.Add(h);
+        }
+
+        if (candidates.Count == 0) return HeroType.None;
+        return candidates[Random.Range(0, candidates.Count)].heroType;
     }
 
     public override void OnServerDisconnect(NetworkConnectionToClient conn)
     {
         selectedHeroes.Remove(conn);
+        clientUnlocks.Remove(conn);
 
         // Оповещаем LobbyManager чтобы он обновил бродкаст
         var lobbyManager = FindAnyObjectByType<LobbyManager>();
@@ -52,12 +124,33 @@ public class DungeonKnightNetworkManager : NetworkManager
         NetworkClient.RegisterHandler<RoomStateMessage>(OnRoomStateReceived);
         NetworkClient.RegisterHandler<GameOverMessage>(OnGameOverReceived);
         NetworkClient.RegisterHandler<CoinDropMessage>(OnCoinDropReceived);
+        NetworkClient.RegisterHandler<WaveAnnouncementMessage>(OnWaveAnnouncement);
+        NetworkClient.RegisterHandler<SpawnIndicatorsMessage>(OnSpawnIndicators);
         BossRewardCoordinator.RegisterClientHandlers();
     }
 
     private void OnCoinDropReceived(CoinDropMessage msg)
     {
         CurrencyManager.AddRun(msg.amount);
+    }
+
+    private void OnWaveAnnouncement(WaveAnnouncementMessage msg)
+    {
+        if (PlayerHUD.LocalInstance != null)
+            PlayerHUD.LocalInstance.ShowNotification($"WAVE {msg.wave}/{msg.total}");
+    }
+
+    private void OnSpawnIndicators(SpawnIndicatorsMessage msg)
+    {
+        var spawner = FindAnyObjectByType<MobSpawner>();
+        if (spawner == null || spawner.SpawnIndicatorPrefab == null) return;
+        if (msg.positions == null) return;
+
+        foreach (var pos in msg.positions)
+        {
+            var go = Instantiate(spawner.SpawnIndicatorPrefab, new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
+            Destroy(go, msg.duration);
+        }
     }
 
     private void OnGameOverReceived(GameOverMessage msg)
@@ -82,40 +175,15 @@ public class DungeonKnightNetworkManager : NetworkManager
 
     private void ReinitPlayersForDungeon()
     {
-        var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
-        Vector2 spawnPos = Vector2.zero;
-        if (dungeonGen?.Generator != null)
-            spawnPos = dungeonGen.Generator.StartCell.RoomCenter;
-
+        // Уничтожаем старых игроков (если они перенеслись через DontDestroyOnLoad).
+        // НЕ спавним новых сами — клиенты при загрузке сцены пришлют AddPlayerMessage,
+        // и OnServerAddPlayer создаст игроков с правильными хиро-данными.
         foreach (var conn in NetworkServer.connections.Values)
         {
             if (conn == null) continue;
-
-            // Если у игрока уже есть объект (перенесён через DontDestroyOnLoad)
             if (conn.identity != null)
             {
-                var player = conn.identity.gameObject;
-                player.transform.position = spawnPos;
-
-                HeroType heroType = selectedHeroes.TryGetValue(conn, out var ht)
-                    ? ht
-                    : defaultHeroData.heroType;
-
-                ReinitHeroOnPlayer(player, GetHeroData(heroType) ?? defaultHeroData);
-                Debug.Log($"[Network] Reinit player {conn.connectionId} as {heroType} at {spawnPos}");
-            }
-            else
-            {
-                // Объект не перенёсся — создаём заново
-                Debug.Log($"[Network] Respawning player {conn.connectionId}");
-                GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-
-                HeroData data = selectedHeroes.TryGetValue(conn, out var ht)
-                    ? GetHeroData(ht) ?? defaultHeroData
-                    : defaultHeroData;
-
-                InitHeroOnPlayer(player, data);
-                NetworkServer.AddPlayerForConnection(conn, player);
+                NetworkServer.Destroy(conn.identity.gameObject);
             }
         }
     }
@@ -124,6 +192,22 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         base.OnClientConnect();
         // base.OnClientConnect() уже вызывает AddPlayer при autoCreatePlayer = true
+
+        // Сообщаем серверу свои разблокировки, чтобы при назначении начального героя
+        // он не выдал нам залоченного.
+        SendUnlocksToServer();
+    }
+
+    private void SendUnlocksToServer()
+    {
+        if (allHeroes == null) return;
+        var unlocked = new System.Collections.Generic.List<HeroType>();
+        foreach (var h in allHeroes)
+        {
+            if (h == null) continue;
+            if (HeroUnlockManager.IsUnlocked(h)) unlocked.Add(h.heroType);
+        }
+        NetworkClient.Send(new ClientUnlocksMessage { unlockedHeroes = unlocked.ToArray() });
     }
 
     private void GenerateDungeonOnServer()
@@ -152,30 +236,54 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (conn.identity != null) return;
 
-        // Запрещаем подключение во время игры (только в лобби)
+        // Если у этого conn уже есть выбранный герой — значит это тот же игрок,
+        // который сменил сцену (лобби↔забег). Не отвергаем, спавним заново.
+        bool isReturningPlayer = selectedHeroes.ContainsKey(conn);
         bool inDungeon = IsInDungeon();
-        if (inDungeon)
+
+        if (inDungeon && !isReturningPlayer)
         {
-            Debug.Log($"[Network] Rejected player {conn.connectionId} — game already in progress.");
+            // Запрещаем НОВЫМ игрокам подключаться посреди забега.
+            Debug.Log($"[Network] Rejected new player {conn.connectionId} — game already in progress.");
             conn.Disconnect();
             return;
         }
 
-        GameObject player = Instantiate(playerPrefab, lobbySpawnPoint, Quaternion.identity);
+        // Позиция спавна: в забеге — стартовая комната, в лобби — lobbySpawnPoint.
+        Vector2 spawnPos = lobbySpawnPoint;
+        if (inDungeon)
+        {
+            var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
+            if (dungeonGen?.Generator != null)
+                spawnPos = dungeonGen.Generator.StartCell.RoomCenter;
+        }
 
-        // Назначаем случайного свободного героя
-        HeroData data = GetRandomAvailableHero();
-        selectedHeroes[conn] = data.heroType;
+        GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
+        // Герой: если у conn уже был выбран — используем его; иначе случайный свободный.
+        HeroData data;
+        if (isReturningPlayer)
+        {
+            data = GetHeroData(selectedHeroes[conn]) ?? defaultHeroData;
+        }
+        else
+        {
+            data = GetRandomAvailableHero();
+            selectedHeroes[conn] = data.heroType;
+        }
 
         InitHeroOnPlayer(player, data);
         NetworkServer.AddPlayerForConnection(conn, player);
 
-        // Синхронизируем выбор героя с LobbyManager
-        var lobbyManager = FindAnyObjectByType<LobbyManager>();
-        if (lobbyManager != null)
+        // Синхронизируем выбор героя с LobbyManager (только при первом входе).
+        if (!isReturningPlayer)
         {
-            lobbyManager.RegisterInitialHero(conn, data.heroType);
-            lobbyManager.SendCurrentStateToPlayer(conn);
+            var lobbyManager = FindAnyObjectByType<LobbyManager>();
+            if (lobbyManager != null)
+            {
+                lobbyManager.RegisterInitialHero(conn, data.heroType);
+                lobbyManager.SendCurrentStateToPlayer(conn);
+            }
         }
     }
 
@@ -186,8 +294,10 @@ public class DungeonKnightNetworkManager : NetworkManager
     }
 
     /// <summary>
-    /// Возвращает случайного героя, не занятого другими игроками И разблокированного.
-    /// Если все герои заняты или ни один не разблокирован — фолбэк на defaultHeroData.
+    /// Возвращает случайного героя, не занятого другими игроками,
+    /// разблокированного по умолчанию (на момент подключения сервер ещё не знает
+    /// клиентских разблокировок — они приходят отдельным сообщением и подменят
+    /// героя в OnClientUnlocksReceived если нужно).
     /// </summary>
     private HeroData GetRandomAvailableHero()
     {
@@ -198,7 +308,7 @@ public class DungeonKnightNetworkManager : NetworkManager
         var available = allHeroes
             .Where(h => h != null
                         && !takenTypes.Contains(h.heroType)
-                        && HeroUnlockManager.IsUnlocked(h))
+                        && h.unlockedByDefault)
             .ToArray();
 
         if (available.Length == 0)
@@ -322,13 +432,26 @@ public class DungeonKnightNetworkManager : NetworkManager
 
     public override void OnClientSceneChanged()
     {
-        base.OnClientSceneChanged();
+        // Делаем клиента ready, чтобы он принимал spawned-сообщения.
+        if (NetworkClient.connection != null && NetworkClient.connection.isAuthenticated && !NetworkClient.ready)
+            NetworkClient.Ready();
+
+        // AddPlayer вызываем ТОЛЬКО если у клиента ещё нет PlayerObject —
+        // т.е. при первом подключении к лобби. На последующих сменах сцен (лобби↔забег)
+        // сервер сам переносит существующего игрока в ReinitPlayersForDungeon, и повторный
+        // AddPlayer вызвал бы ошибку "There is already a player for this connection".
+        if (NetworkClient.connection != null
+            && NetworkClient.connection.isAuthenticated
+            && autoCreatePlayer
+            && NetworkClient.localPlayer == null)
+        {
+            NetworkClient.AddPlayer();
+        }
 
         // Жизненный цикл валюты забега:
         //   • Вход в SampleScene (старт забега) — обнуляем RunCoins, чтобы у игрока было 0 на счету.
         //   • Возврат в LobbyScene (конец забега) — переливаем непотраченные RunCoins в мету.
         string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        Debug.Log($"[Currency] OnClientSceneChanged scene='{scene}'");
         if (scene.Contains("SampleScene"))
             CurrencyManager.ResetRunCoins();
         else if (scene.Contains("LobbyScene"))

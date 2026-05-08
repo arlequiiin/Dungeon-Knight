@@ -28,7 +28,6 @@ public class GridWalkGenerator
 
         Seed = seed;
         random = new System.Random(seed);
-        Debug.Log($"[GridWalk] Seed: {seed}");
     }
 
     public void Generate()
@@ -51,7 +50,6 @@ public class GridWalkGenerator
         // Шаг 7: Назначение ролей
         AssignRoomRoles();
 
-        Debug.Log($"[GridWalk] Готово: {graph.cells.Count} комнат, {graph.edges.Count} рёбер");
     }
 
     // ==================== Шаг 1: Random Walk ====================

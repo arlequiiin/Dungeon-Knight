@@ -1,4 +1,5 @@
 using Mirror;
+using UnityEngine;
 
 public struct RequestSeedMessage : NetworkMessage { }
 
@@ -12,6 +13,16 @@ public struct SeedBroadcastMessage : NetworkMessage
 public struct HeroSelectRequest : NetworkMessage
 {
     public HeroType heroType;
+}
+
+/// <summary>
+/// Клиент → сервер при подключении: список разблокированных героев у этого клиента.
+/// Сервер использует его при выборе случайного начального героя, чтобы не дать
+/// клиенту персонажа, которого он сам не разблокировал.
+/// </summary>
+public struct ClientUnlocksMessage : NetworkMessage
+{
+    public HeroType[] unlockedHeroes;
 }
 
 public struct PlayerReadyMessage : NetworkMessage { }
@@ -34,6 +45,26 @@ public struct RoomStateMessage : NetworkMessage
 {
     public int roomIndex;
     public byte state; // 0 = Idle, 1 = Active, 2 = Cleared
+}
+
+/// <summary>
+/// Сервер → всем клиентам: началась новая волна противников в комнате.
+/// </summary>
+public struct WaveAnnouncementMessage : NetworkMessage
+{
+    public int wave;   // 1-based номер волны
+    public int total;  // всего волн
+}
+
+/// <summary>
+/// Сервер → всем клиентам: показать предупреждающие индикаторы спавна
+/// (стрелки) на указанных позициях. Через несколько секунд сервер заспавнит
+/// в этих местах мобов.
+/// </summary>
+public struct SpawnIndicatorsMessage : NetworkMessage
+{
+    public Vector2[] positions;
+    public float duration;
 }
 
 // ── Economy ──

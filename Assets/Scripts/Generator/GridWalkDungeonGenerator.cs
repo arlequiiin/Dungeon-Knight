@@ -118,7 +118,6 @@ public class GridWalkDungeonGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log($"[GridWalk] Заспавнено пузырьков: {decorContainer.childCount}");
     }
 
     private void SpawnDeadTrees()
@@ -158,7 +157,6 @@ public class GridWalkDungeonGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log($"[GridWalk] Заспавнено деревьев: {treeContainer.childCount}");
     }
 
     private void SetupRoomControllers()
@@ -195,7 +193,6 @@ public class GridWalkDungeonGenerator : MonoBehaviour
             rc.Init(i, cell, graph, halfWidth, mobSpawner, bossChestPrefab);
         }
 
-        Debug.Log($"[GridWalk] RoomControllers созданы: {roomContainer.childCount}");
     }
 
     private void BakeNavMesh()
@@ -211,34 +208,6 @@ public class GridWalkDungeonGenerator : MonoBehaviour
         }
 
         navMeshSurface.BuildNavMesh();
-        Debug.Log("[GridWalk] NavMesh запечён");
     }
 
-    private void PrintDungeonInfo()
-    {
-        var graph = generator.Graph;
-        Debug.Log($"[GridWalk] === Информация о подземелье ===");
-        Debug.Log($"[GridWalk] Всего комнат: {graph.cells.Count}, рёбер: {graph.edges.Count}");
-
-        int startCount = 0, normalCount = 0, bossCount = 0, treasureCount = 0, shopCount = 0;
-        foreach (var cell in graph.cells)
-        {
-            switch (cell.roomType)
-            {
-                case RoomType.Start: startCount++; break;
-                case RoomType.Normal: normalCount++; break;
-                case RoomType.Boss: bossCount++; break;
-                case RoomType.Treasure: treasureCount++; break;
-                case RoomType.Shop: shopCount++; break;
-            }
-        }
-
-        Debug.Log($"[GridWalk] Стартовых: {startCount}, Обычных: {normalCount}, " +
-                  $"Босс: {bossCount}, Сокровищниц: {treasureCount}, Магазинов: {shopCount}");
-
-        foreach (var cell in graph.cells)
-        {
-            Debug.Log($"[GridWalk]   {cell}");
-        }
-    }
 }

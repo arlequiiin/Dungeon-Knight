@@ -14,15 +14,18 @@ public static class SettingsManager
     private const string KeyMusic = "dk_music_volume";
     private const string KeySfx = "dk_sfx_volume";
     private const string KeyFullscreen = "dk_fullscreen";
+    private const string KeyAimToCursor = "dk_aim_to_cursor";
 
     public static event Action<float> OnMusicVolumeChanged;
     public static event Action<float> OnSfxVolumeChanged;
     public static event Action<bool> OnFullscreenChanged;
+    public static event Action<bool> OnAimToCursorChanged;
 
     private static bool initialized;
     private static float musicVolume = 1f;
     private static float sfxVolume = 1f;
     private static bool fullscreen = true;
+    private static bool aimToCursor;
 
     private static void EnsureInit()
     {
@@ -31,6 +34,7 @@ public static class SettingsManager
         musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(KeyMusic, 1f));
         sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(KeySfx, 1f));
         fullscreen = PlayerPrefs.GetInt(KeyFullscreen, Screen.fullScreen ? 1 : 0) == 1;
+        aimToCursor = PlayerPrefs.GetInt(KeyAimToCursor, 0) == 1;
         ApplyFullscreen(fullscreen);
     }
 
@@ -80,6 +84,23 @@ public static class SettingsManager
             PlayerPrefs.Save();
             ApplyFullscreen(value);
             OnFullscreenChanged?.Invoke(value);
+        }
+    }
+
+    /// <summary>
+    /// Если true — атаки игрока всегда направлены к позиции курсора (без авто-наведения на врага).
+    /// </summary>
+    public static bool AimToCursor
+    {
+        get { EnsureInit(); return aimToCursor; }
+        set
+        {
+            EnsureInit();
+            if (aimToCursor == value) return;
+            aimToCursor = value;
+            PlayerPrefs.SetInt(KeyAimToCursor, value ? 1 : 0);
+            PlayerPrefs.Save();
+            OnAimToCursorChanged?.Invoke(value);
         }
     }
 

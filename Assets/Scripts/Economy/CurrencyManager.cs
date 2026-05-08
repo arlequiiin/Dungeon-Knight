@@ -30,7 +30,6 @@ public static class CurrencyManager
 
     private static void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        Debug.Log($"[Currency] sceneLoaded='{scene.name}' (run={runCoins}, meta={MetaCoins})");
         if (scene.name.Contains("SampleScene"))
             ResetRunCoins();
         else if (scene.name.Contains("LobbyScene"))
@@ -80,7 +79,6 @@ public static class CurrencyManager
     {
         if (amount <= 0) return;
         runCoins += amount;
-        Debug.Log($"[Currency] +{amount} run coins (total run={runCoins}, meta={MetaCoins})");
         OnRunCoinsChanged?.Invoke(runCoins);
     }
 
@@ -100,7 +98,6 @@ public static class CurrencyManager
     /// </summary>
     public static void ResetRunCoins()
     {
-        Debug.Log($"[Currency] ResetRunCoins (was {runCoins}, meta={MetaCoins})");
         if (runCoins == 0) return;
         runCoins = 0;
         OnRunCoinsChanged?.Invoke(runCoins);
@@ -112,7 +109,6 @@ public static class CurrencyManager
     /// </summary>
     public static void ConvertRunToMeta()
     {
-        Debug.Log($"[Currency] ConvertRunToMeta (run={runCoins}, meta_before={MetaCoins})");
         if (runCoins <= 0) return;
         AddMeta(runCoins);
         runCoins = 0;

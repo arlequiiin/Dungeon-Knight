@@ -82,7 +82,6 @@ public class PlayerHUD : MonoBehaviour
     /// </summary>
     public void ShowNotification(string text, float duration = -1f)
     {
-        Debug.Log($"[HUD] ShowNotification text='{text}' centerTextNull={centerNotificationText == null}");
         if (centerNotificationText == null) return;
         if (duration < 0f) duration = notificationDuration;
 
@@ -197,12 +196,7 @@ public class PlayerHUD : MonoBehaviour
 
     private void RescanAllies()
     {
-        if (allyPanelPrefab == null || alliesContainer == null)
-        {
-            if (Time.frameCount % 120 == 0)
-                Debug.LogWarning($"[HUD] RescanAllies skipped — allyPanelPrefab={allyPanelPrefab != null} alliesContainer={alliesContainer != null}");
-            return;
-        }
+        if (allyPanelPrefab == null || alliesContainer == null) return;
 
         // Убираем панели, чей HeroStats исчез
         for (int i = allyPanels.Count - 1; i >= 0; i--)
@@ -216,8 +210,6 @@ public class PlayerHUD : MonoBehaviour
 
         // Находим всех других локальных HeroStats
         var all = FindObjectsByType<HeroStats>(FindObjectsSortMode.None);
-        if (Time.frameCount % 120 == 0)
-            Debug.Log($"[HUD] RescanAllies found {all.Length} HeroStats; current panels={allyPanels.Count}");
         foreach (var hs in all)
         {
             if (hs == stats) continue;

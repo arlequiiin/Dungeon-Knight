@@ -27,6 +27,14 @@ public class RoomController : MonoBehaviour
     private readonly List<GameObject> doorBlockers = new();
     private GameObject bossChestPrefab;
 
+    // Волны: для обычных комнат totalWaves = max(1, playerCount).
+    // Босс-комната всегда 1 "волна" (босс + его призывы).
+    private int totalWaves = 1;
+    private int currentWave; // 1-based индекс текущей волны
+    private float nextWaveDelay; // обратный отсчёт перед следующей волной
+    private bool waitingForNextWave;
+    private const float WaveDelaySeconds = 1.5f;
+
     // ── Статический реестр для синхронизации по сети ──
     private static readonly Dictionary<int, RoomController> registry = new();
 
@@ -80,12 +88,36 @@ public class RoomController : MonoBehaviour
         var triggeringPlayer = other.GetComponent<PlayerController>();
         if (triggeringPlayer == null) return;
 
-        // Телепортируем всех живых (не downed) игроков ко входу — позиция игрока, активировавшего триггер.
-        // Это важно для мультиплеера: один игрок зашёл — остальные подтягиваются.
-        Vector3 entrancePos = triggeringPlayer.transform.position;
+        // Телепортируем всех живых (не downed) игроков ко входу — там же, где встал
+        // активировавший триггер игрок, чуть глубже внутрь комнаты, чтобы не оказаться в коридоре.
+        Vector3 entrancePos = ComputeSafeEntrancePos(triggeringPlayer.transform.position);
         TeleportLivingPlayersToRoom(entrancePos, triggeringPlayer);
 
         ActivateRoom();
+    }
+
+    /// <summary>
+    /// Сдвигает позицию входа на пару тайлов в сторону центра комнаты —
+    /// чтобы союзники гарантированно оказались внутри (не в стене и не в коридоре),
+    /// но всё ещё рядом со входом, а не в центре под мобами.
+    /// </summary>
+    private Vector3 ComputeSafeEntrancePos(Vector3 rawEntrance)
+    {
+        Vector3 toCenter = (cell.RoomCenter - (Vector2)rawEntrance);
+        Vector3 shifted = rawEntrance;
+        if (toCenter.sqrMagnitude > 0.01f)
+            shifted += toCenter.normalized * 2f;
+
+        // Клампим по bbox комнаты с отступом от стен — гарантия что точка внутри.
+        float padding = 1.5f;
+        float minX = cell.roomOrigin.x + padding;
+        float maxX = cell.roomOrigin.x + cell.roomSize.x - padding;
+        float minY = cell.roomOrigin.y + padding;
+        float maxY = cell.roomOrigin.y + cell.roomSize.y - padding;
+
+        shifted.x = Mathf.Clamp(shifted.x, minX, maxX);
+        shifted.y = Mathf.Clamp(shifted.y, minY, maxY);
+        return shifted;
     }
 
     [Server]
@@ -102,8 +134,8 @@ public class RoomController : MonoBehaviour
             if (hs == null) continue;
             if (hs.IsDead || hs.IsDowned) continue;
 
-            // Лёгкий разброс вокруг входа, чтобы игроки не наложились друг на друга.
-            Vector2 jitter = Random.insideUnitCircle * 0.5f;
+            // Лёгкий разброс вокруг входа (≤ 0.7 тайла), чтобы игроки не наложились друг на друга.
+            Vector2 jitter = Random.insideUnitCircle * 0.3f;
             Vector3 dest = entrancePos + new Vector3(jitter.x, jitter.y, 0f);
 
             // Используем ServerTeleport у NetworkTransform — иначе клиенты будут плавно интерполировать
@@ -127,21 +159,25 @@ public class RoomController : MonoBehaviour
         // Спавн мобов — только на сервере
         if (NetworkServer.active)
         {
+            // Кол-во волн = кол-во подключённых игроков (минимум 1).
+            // Для босс-комнаты всегда 1 волна.
             if (cell.roomType == RoomType.Boss)
             {
+                totalWaves = 1;
                 var bossHealth = mobSpawner.SpawnRoomBoss(cell);
                 if (bossHealth != null)
                     trackedMobs.Add(bossHealth);
             }
             else
             {
-                var mobs = mobSpawner.SpawnRoomMobs(cell);
-                if (mobs != null)
-                    trackedMobs.AddRange(mobs);
+                totalWaves = Mathf.Max(1, NetworkServer.connections.Count);
+                SpawnWave(1);
             }
 
-            // Если мобов нет — сразу зачистка
-            if (trackedMobs.Count == 0)
+            currentWave = 1;
+
+            // Если босс-комната без босса — сразу зачистка (защита от ошибки конфигурации).
+            if (cell.roomType == RoomType.Boss && trackedMobs.Count == 0)
             {
                 ClearRoom();
                 return;
@@ -154,9 +190,55 @@ public class RoomController : MonoBehaviour
                 state = (byte)RoomState.Active
             });
 
-            Debug.Log($"[Room] Комната {roomIndex} ({cell.roomType}) активирована! Мобов: {trackedMobs.Count}");
+            Debug.Log($"[Room] Комната {roomIndex} ({cell.roomType}) активирована! Волн: {totalWaves}");
         }
     }
+
+    [Server]
+    private void SpawnWave(int waveIndex)
+    {
+        // Уведомление о номере волны (если волн больше одной)
+        if (totalWaves > 1)
+            NetworkServer.SendToAll(new WaveAnnouncementMessage
+            {
+                wave = waveIndex,
+                total = totalWaves
+            });
+
+        // Заранее выбираем позиции и шлём клиентам индикаторы (стрелки),
+        // через indicatorDelay секунд реально спавним мобов.
+        const float indicatorDelay = 2f;
+        var positions = mobSpawner.PreparePositions(cell);
+
+        if (mobSpawner.SpawnIndicatorPrefab != null)
+        {
+            NetworkServer.SendToAll(new SpawnIndicatorsMessage
+            {
+                positions = positions,
+                duration = indicatorDelay
+            });
+            StartCoroutine(SpawnAfterDelay(positions, indicatorDelay));
+        }
+        else
+        {
+            // Нет префаба индикатора — спавним сразу.
+            var mobs = mobSpawner.SpawnRoomMobs(cell, positions);
+            if (mobs != null) trackedMobs.AddRange(mobs);
+        }
+    }
+
+    [Server]
+    private System.Collections.IEnumerator SpawnAfterDelay(Vector2[] positions, float delay)
+    {
+        spawnPending = true;
+        yield return new WaitForSeconds(delay);
+        spawnPending = false;
+        if (state != RoomState.Active) yield break;
+        var mobs = mobSpawner.SpawnRoomMobs(cell, positions);
+        if (mobs != null) trackedMobs.AddRange(mobs);
+    }
+
+    private bool spawnPending; // true пока ждём задержку перед реальным спавном волны
 
     // ── Отслеживание зачистки ──
 
@@ -164,6 +246,23 @@ public class RoomController : MonoBehaviour
     {
         if (!NetworkServer.active) return;
         if (state != RoomState.Active) return;
+
+        // Пока ждём задержку индикаторов — мобов ещё не существует, не считаем волну зачищенной.
+        if (spawnPending) return;
+
+        // Если ждём следующую волну — отсчёт.
+        if (waitingForNextWave)
+        {
+            nextWaveDelay -= Time.deltaTime;
+            if (nextWaveDelay <= 0f)
+            {
+                waitingForNextWave = false;
+                currentWave++;
+                trackedMobs.Clear();
+                SpawnWave(currentWave);
+            }
+            return;
+        }
 
         // Проверяем все trackedMobs (изначально заспавненные)
         foreach (var mob in trackedMobs)
@@ -177,6 +276,15 @@ public class RoomController : MonoBehaviour
         // и они не попадают в trackedMobs.
         if (HasLivingMobsInRoom())
             return;
+
+        // Все мобы текущей волны мертвы.
+        if (currentWave < totalWaves)
+        {
+            // Запускаем задержку перед следующей волной.
+            waitingForNextWave = true;
+            nextWaveDelay = WaveDelaySeconds;
+            return;
+        }
 
         ClearRoom();
     }
