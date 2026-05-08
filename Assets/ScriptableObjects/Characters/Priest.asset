@@ -15,10 +15,10 @@ MonoBehaviour:
   heroName: Priest
   heroType: 6
   unlockedByDefault: 1
-  maxHealth: 120
-  maxEnergy: 100
-  moveSpeed: 2
-  attackCount: 4
+  maxHealth: 100
+  maxEnergy: 80
+  moveSpeed: 1.8
+  attackCount: 2
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
@@ -26,13 +26,13 @@ MonoBehaviour:
   attack2EnergyGain: 8
   attack1StaggerDamage: 5
   attack2StaggerDamage: 10
-  maxPoise: 40
-  staggerDuration: 1
+  maxPoise: 25
+  staggerDuration: 1.5
   hasShield: 0
   blockEnergyPerDamage: 0.5
-  dodgeEnergyCost: 15
+  dodgeEnergyCost: 18
   ability1EnergyCost: 25
-  targetSearchRadius: 5
+  targetSearchRadius: 4
   ability1Cooldown: 5
   dodgeForce: 8
   dodgeCooldown: 1

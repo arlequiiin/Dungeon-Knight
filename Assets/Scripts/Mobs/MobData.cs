@@ -19,6 +19,10 @@ public class MobData : ScriptableObject
     public float attackCooldown = 1.2f;
     public float[] attackDamages = { 10f };
 
+    [Tooltip("Использует ли моб слот атаки в группе (left/right у тела игрока). " +
+             "Меле — true, дальнобойные (лучник, маг) — false (атакуют с дистанции, слот не нужен).")]
+    public bool usesAttackSlot = true;
+
     [Header("Attack Stagger Damage")]
     [Tooltip("Poise damage per attack (same order as attackDamages). If empty, defaults to 5.")]
     public float[] attackStaggerDamages;
@@ -34,6 +38,27 @@ public class MobData : ScriptableObject
 
     [Header("Movement")]
     public float moveSpeed = 2f;
+
+    [Header("Navigation (NavMeshAgent)")]
+    [Tooltip("Ускорение. Низкое (5-8) — плавный разгон/торможение. Высокое (50+) — мгновенный старт/стоп.")]
+    public float navAcceleration = 8f;
+
+    [Tooltip("Скорость поворота в градусах/сек. 360-720 для естественности, 999+ для мгновенных разворотов.")]
+    public float navAngularSpeed = 540f;
+
+    [Tooltip("Расстояние до цели, на котором агент останавливается. Обычно ~ attackRange.")]
+    public float navStoppingDistance = 1f;
+
+    [Tooltip("Радиус агента — для obstacle avoidance. 0.3-0.5 типично.")]
+    public float navRadius = 0.4f;
+
+    [Tooltip("Приоритет (0=высокий, 99=низкий). Боссы 30, обычные 50, фоновые 70.")]
+    [Range(0, 99)]
+    public int navPriority = 50;
+
+    [Tooltip("Качество избегания препятствий. High для важных мобов, Medium для обычных, None для дешёвых статистов.")]
+    public UnityEngine.AI.ObstacleAvoidanceType navAvoidanceQuality =
+        UnityEngine.AI.ObstacleAvoidanceType.MedQualityObstacleAvoidance;
 
     [Header("Attack Windup")]
     [Tooltip("Delay before the attack animation starts (telegraph for player)")]

@@ -533653,6 +533653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 897b25c94bc86d04e9660627c6a3cdab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobSpawner
+  spawnTable: {fileID: 11400000, guid: b23b58b81d09d814b859f98201f2ed4e, type: 2}
   mobPrefabs:
   - prefab: {fileID: 2722922200427301075, guid: 49e1089dde35fd843a7ef069a8fee5aa, type: 3}
     weight: 15
@@ -533663,6 +533664,7 @@ MonoBehaviour:
   - prefab: {fileID: 3738057844671139991, guid: a9ad269ddef27d441b62a5ceef67f80e, type: 3}
     weight: 45
   bossPrefab: {fileID: 1294678635453260241, guid: bfbe365aac3f9af409ce198842987c48, type: 3}
+  spawnIndicatorPrefab: {fileID: 8083944790108834064, guid: ba12c876fe2d9fd4688adfe1871d128c, type: 3}
   mobsPerNormalRoom: 6
 --- !u!1 &1172224625
 GameObject:

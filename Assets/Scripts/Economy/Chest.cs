@@ -19,10 +19,32 @@ public class Chest : NetworkBehaviour
     [Tooltip("Радиус взаимодействия")]
     public float interactRadius = 1.5f;
 
+    [Tooltip("Подсказка \"Нажмите F\" — дочерний объект, включается когда локальный игрок в радиусе.")]
+    [SerializeField] private GameObject interactPrompt;
+
+    [Tooltip("Спрайт открытого сундука. Если не задан — используется только тонировка.")]
+    [SerializeField] private Sprite openedSprite;
+
     [SyncVar(hook = nameof(OnOpenedChanged))]
     private bool isOpened;
 
     public bool IsOpened => isOpened;
+
+    /// <summary>
+    /// Может ли этот игрок открыть сундук (с учётом боссовой логики "один раз на игрока").
+    /// </summary>
+    public bool IsOpenedFor(PlayerController player)
+    {
+        if (player == null) return isOpened;
+        if (!isBossChest) return isOpened;
+        // Боссовый сундук — индивидуальный для каждого игрока.
+        return openedBy.Contains(player.netId);
+    }
+
+    // Для боссового сундука — список netId игроков, которые уже забрали награду.
+    // Не SyncVar'ится по сети, т.к. валидация важна только на сервере;
+    // на клиенте используется локальный флаг localChosen в ChestInteractor.
+    private readonly HashSet<uint> openedBy = new HashSet<uint>();
 
     // Закэшированные награды для этого сундука — ролл происходит один раз,
     // повторное открытие UI показывает тот же набор (защита от рерола закрытием).
@@ -45,12 +67,36 @@ public class Chest : NetworkBehaviour
     private void Awake()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
+        if (interactPrompt != null)
+            interactPrompt.SetActive(false);
+    }
+
+    private void Update()
+    {
+        // Только клиент отображает prompt — для локального игрока, в зависимости от расстояния.
+        if (interactPrompt == null) return;
+        var localPlayer = NetworkClient.localPlayer;
+        if (localPlayer == null)
+        {
+            interactPrompt.SetActive(false);
+            return;
+        }
+
+        var pc = localPlayer.GetComponent<PlayerController>();
+        bool show = pc != null
+                    && !IsOpenedFor(pc)
+                    && Vector2.Distance(transform.position, localPlayer.transform.position) <= interactRadius;
+        if (interactPrompt.activeSelf != show)
+            interactPrompt.SetActive(show);
     }
 
     private void OnOpenedChanged(bool oldVal, bool newVal)
     {
-        if (newVal && sr != null)
-            sr.color = new Color(0.5f, 0.5f, 0.5f, 1f); // потускнел после открытия
+        if (!newVal || sr == null) return;
+        if (openedSprite != null)
+            sr.sprite = openedSprite;
+        else
+            sr.color = new Color(0.5f, 0.5f, 0.5f, 1f); // фолбэк — тонировка
     }
 
     /// <summary>
@@ -59,8 +105,18 @@ public class Chest : NetworkBehaviour
     [Server]
     public void TryOpenServer(PlayerController player, int chosenIndex, RewardData[] offered)
     {
-        if (isOpened) return;
         if (player == null) return;
+
+        // Боссовый сундук — отдельная награда для каждого игрока (если ещё не брал);
+        // обычный сундук — один на всех (если уже открыт — отказ).
+        if (isBossChest)
+        {
+            if (openedBy.Contains(player.netId)) return;
+        }
+        else
+        {
+            if (isOpened) return;
+        }
 
         // Проверка дистанции
         float dist = Vector2.Distance(transform.position, player.transform.position);
@@ -76,6 +132,9 @@ public class Chest : NetworkBehaviour
         var mods = player.GetComponent<RunModifiers>();
         reward.effect.Apply(stats, mods);
 
-        isOpened = true;
+        if (isBossChest)
+            openedBy.Add(player.netId);
+        else
+            isOpened = true;
     }
 }

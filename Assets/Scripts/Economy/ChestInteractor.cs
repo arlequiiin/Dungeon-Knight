@@ -14,6 +14,10 @@ public class ChestInteractor : NetworkBehaviour
     private PlayerController player;
     private ChestRewardUI activeUI;
 
+    // Локальный список сундуков, по которым этот клиент уже сделал выбор.
+    // Нужен потому что серверный openedBy для боссового сундука не SyncVar'ится.
+    private readonly System.Collections.Generic.HashSet<uint> locallyClosed = new();
+
     private void Awake()
     {
         player = GetComponent<PlayerController>();
@@ -38,7 +42,10 @@ public class ChestInteractor : NetworkBehaviour
 
         var chest = FindNearestChest();
         if (chest == null) return;
-        if (chest.IsOpened) return;
+        // Обычный сундук — общий, после первого открытия закрыт для всех.
+        if (!chest.isBossChest && chest.IsOpened) return;
+        // Боссовый — индивидуальный, проверяем локальный кэш "уже забирал".
+        if (chest.isBossChest && locallyClosed.Contains(chest.netId)) return;
 
         TryOpenChest(chest);
     }
@@ -120,7 +127,10 @@ public class ChestInteractor : NetworkBehaviour
         // Если это был боссовый сундук — сообщаем серверу что мы закончили (выбор сделан или Continue),
         // сервер ждёт всех клиентов и потом покажет VICTORY.
         if (chest != null && chest.isBossChest)
+        {
+            locallyClosed.Add(chest.netId);
             BossRewardCoordinator.NotifyLocalPlayerDone();
+        }
 
         // Снимаем блокировку управления — UI закрыто, игрок снова может двигаться/атаковать
         if (player != null)

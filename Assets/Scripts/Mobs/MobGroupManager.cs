@@ -72,6 +72,24 @@ public class MobGroupManager : MonoBehaviour
 
     public bool HasFreeSlot => leftSlot == null || rightSlot == null;
 
+    public bool IsLeftSlot(MobAI mob) => leftSlot == mob;
+    public bool IsRightSlot(MobAI mob) => rightSlot == mob;
+
+    /// <summary>
+    /// Точка, в которой моб должен стоять для атаки. Строго на одной горизонтали с целью —
+    /// чтобы горизонтальные атаки/снаряды попадали (особенно у лучников).
+    /// </summary>
+    public Vector2 GetSlotPosition(MobAI mob, Transform target, float attackRange)
+    {
+        if (target == null) return mob.transform.position;
+        bool isRight = (rightSlot == mob);
+        float sign = isRight ? 1f : -1f;
+        // Цель — точка чуть ближе к игроку чем attackRange, на одной горизонтали.
+        // NavMeshAgent остановится по stoppingDistance, до точки добираться вплотную не нужно.
+        float dist = Mathf.Max(0.3f, attackRange * 0.7f);
+        return new Vector2(target.position.x + sign * dist, target.position.y);
+    }
+
     /// <summary>
     /// Позиция для кружения. Мобы без слота равномерно распределяются по окружности.
     /// </summary>

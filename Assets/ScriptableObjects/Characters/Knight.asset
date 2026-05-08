@@ -15,7 +15,7 @@ MonoBehaviour:
   heroName: Knight
   heroType: 1
   unlockedByDefault: 1
-  maxHealth: 130
+  maxHealth: 150
   maxEnergy: 100
   moveSpeed: 1.8
   attackCount: 2
@@ -26,7 +26,7 @@ MonoBehaviour:
   attack2EnergyGain: 8
   attack1StaggerDamage: 5
   attack2StaggerDamage: 10
-  maxPoise: 40
+  maxPoise: 60
   staggerDuration: 1
   hasShield: 1
   blockEnergyPerDamage: 0.5
@@ -34,7 +34,7 @@ MonoBehaviour:
   ability1EnergyCost: 25
   targetSearchRadius: 5
   ability1Cooldown: 5
-  dodgeForce: 8
+  dodgeForce: 7
   dodgeCooldown: 1
   dodgeDuration: 0.25
   weaponHitboxPrefabs:

@@ -57,9 +57,14 @@ public class LobbyManager : NetworkBehaviour
         {
             if (kvp.Value == msg.heroType && kvp.Key != conn)
             {
-                Debug.Log($"[Lobby] Герой {msg.heroType} уже занят другим игроком");
                 return;
             }
+        }
+
+        // Проверяем что герой разблокирован у этого клиента (защита от несогласованного UI).
+        if (!NetManager.IsHeroUnlockedForConn(conn, msg.heroType))
+        {
+            return;
         }
 
         heroSelections[conn] = msg.heroType;
@@ -80,7 +85,6 @@ public class LobbyManager : NetworkBehaviour
         // Нельзя быть готовым без выбранного героя
         if (!heroSelections.ContainsKey(conn))
         {
-            Debug.Log("[Lobby] Игрок пытается быть готовым без выбора героя");
             return;
         }
 

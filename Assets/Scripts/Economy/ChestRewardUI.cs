@@ -31,8 +31,9 @@ public class ChestRewardUI : MonoBehaviour
         if (closeButtonLabel != null)
             closeButtonLabel.text = closeLabel;
 
-        // Останавливаем время на момент выбора
-        Time.timeScale = 0f;
+        // НЕ останавливаем время — иначе в кооперативе один игрок откроет сундук
+        // и заморозит всю игру у других. Локальная блокировка движения/способностей
+        // обеспечена через PlayerController.IsInputBlocked в ChestInteractor.
 
         for (int i = 0; i < cardButtons.Length; i++)
         {
@@ -46,7 +47,7 @@ public class ChestRewardUI : MonoBehaviour
             if (cardIcons.Length > i) cardIcons[i].sprite = r.icon;
             if (cardNames.Length > i) cardNames[i].text = r.rewardName;
             if (cardDescriptions.Length > i) cardDescriptions[i].text = r.description;
-            if (cardPrices.Length > i) cardPrices[i].text = $"{r.price} душ";
+            if (cardPrices.Length > i) cardPrices[i].text = r.price.ToString();
 
             // Подсветка цены если не хватает
             if (cardPrices.Length > i)
@@ -66,14 +67,6 @@ public class ChestRewardUI : MonoBehaviour
 
     private void Choose(int index)
     {
-        Time.timeScale = 1f;
         onChosen?.Invoke(index);
-    }
-
-    private void OnDestroy()
-    {
-        // На случай если уничтожили без выбора — вернуть время
-        if (Time.timeScale == 0f)
-            Time.timeScale = 1f;
     }
 }

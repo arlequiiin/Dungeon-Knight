@@ -109,7 +109,6 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnSettingsClicked()
     {
-        Debug.Log($"[MainMenu] OnSettingsClicked called. settingsUI is null? {settingsUI == null}");
         if (settingsUI != null)
             settingsUI.Open();
     }

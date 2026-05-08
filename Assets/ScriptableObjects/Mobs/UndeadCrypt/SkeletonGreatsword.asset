@@ -20,20 +20,35 @@ MonoBehaviour:
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
+  - 30
+  - 30
+  - 30
+  usesAttackSlot: 1
+  attackStaggerDamages:
   - 10
-  attackStaggerDamages: []
-  attackWeights: []
+  - 10
+  - 10
+  attackWeights:
+  - 50
+  - 50
+  - 50
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
-  moveSpeed: 1.35
-  attackWindupDuration: 0.3
+  moveSpeed: 1.1
+  navAcceleration: 5
+  navAngularSpeed: 540
+  navStoppingDistance: 1
+  navRadius: 0.4
+  navPriority: 50
+  navAvoidanceQuality: 2
+  attackWindupDuration: 0.5
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
   maxPoise: 30
   poiseRecoveryRate: 0
-  staggerDuration: 1.5
+  staggerDuration: 2.5
   knockbackResistance: 0
   projectilePrefab: {fileID: 0}
   coinDropMin: 5

@@ -224,6 +224,10 @@ public class Projectile : NetworkBehaviour
             return;
         }
 
+        // Friendly fire выключен: снаряды героя пролетают сквозь живых союзников.
+        if (!ownerIsMob && heroStats != null && !heroStats.IsDowned)
+            return;
+
         // Декорация — снаряд останавливается
         if (mobHealth == null && heroStats == null)
         {
@@ -257,6 +261,8 @@ public class Projectile : NetworkBehaviour
                 var hero = hit.GetComponentInParent<HeroStats>();
                 if (hero != null && !hero.IsDead)
                 {
+                    // Friendly fire выключен: AOE от героя не задевает живых союзников.
+                    if (!ownerIsMob && !hero.IsDowned) continue;
                     if (hero.TryBlock(damage, transform.position)) continue;
                     hero.TakeDamage(damage);
                 }

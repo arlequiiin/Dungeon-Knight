@@ -55,7 +55,6 @@ public class PauseMenuUI : MonoBehaviour
 
     public void OnSettingsClicked()
     {
-        Debug.Log($"[Pause] OnSettingsClicked called. settingsUI is null? {settingsUI == null}");
         if (settingsUI != null)
             settingsUI.Open();
     }

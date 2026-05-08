@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8935405ec7f48ae4c8225ac53ed00ac5
+guid: 4f30718dbf3b8ea49a71df3f91c19d63
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8347557189489763941
-    second: coin_4_0
+      213: 4386953514970804178
+    second: arrow_3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: coin_4_0
+      name: arrow_3_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 2
-        width: 10
-        height: 12
+        x: 0
+        y: 0
+        width: 16
+        height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b995432a6f4872c80800000000000000
-      internalID: -8347557189489763941
+      spriteID: 2df6cf19af691ec30800000000000000
+      internalID: 4386953514970804178
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: cb4323d0054838040a3e830f5238e161
     internalID: 0
     vertices: []
     indices: 
@@ -146,9 +146,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      coin_4_0: -8347557189489763941
+      arrow_3_0: 4386953514970804178
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

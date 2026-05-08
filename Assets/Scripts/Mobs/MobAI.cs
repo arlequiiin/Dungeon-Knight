@@ -82,10 +82,13 @@ public abstract class MobAI : NetworkBehaviour
         roomCenter = center;
         groupManager = group;
 
-        // Scale multiplier: +30% HP per extra player, difficulty scales everything
+        // Масштабирование от количества игроков:
+        //   +25% HP и +15% урона за каждого игрока сверх первого.
+        //   Пример: 2 игрока → 1.25× HP, 1.15× урон. 3 игрока → 1.5× HP, 1.3× урон.
+        // difficulty — общий множитель (для будущих настроек сложности).
         difficultyMultiplier = difficulty;
-        float hpScale = difficulty * (1f + 0.3f * (playerCount - 1));
-        float dmgScale = difficulty;
+        float hpScale = difficulty * (1f + 0.25f * (playerCount - 1));
+        float dmgScale = difficulty * (1f + 0.15f * (playerCount - 1));
 
         ApplyMobData(hpScale, dmgScale);
     }
@@ -129,9 +132,19 @@ public abstract class MobAI : NetworkBehaviour
         recoveryDuration = mobData.recoveryDuration;
         canBeInterrupted = mobData.canBeInterrupted;
 
-        // Movement
+        // Movement / Navigation
         if (agent != null)
+        {
             agent.speed = mobData.moveSpeed;
+            agent.acceleration = mobData.navAcceleration;
+            agent.angularSpeed = mobData.navAngularSpeed;
+            agent.stoppingDistance = mobData.navStoppingDistance;
+            agent.radius = mobData.navRadius;
+            agent.autoBraking = true;
+            agent.obstacleAvoidanceType = mobData.navAvoidanceQuality;
+            // Лёгкий рандом приоритета чтобы агенты не залипали друг на друге одинаково.
+            agent.avoidancePriority = Mathf.Clamp(mobData.navPriority + Random.Range(-3, 4), 0, 99);
+        }
 
         // Health (scaled)
         health.SetMaxHealth(mobData.maxHealth * hpScale);
@@ -264,6 +277,22 @@ public abstract class MobAI : NetworkBehaviour
             return;
         }
 
+        bool useSlot = mobData != null && mobData.usesAttackSlot;
+
+        // Дальнобойные — слот не запрашивают.
+        if (!useSlot)
+        {
+            if (dist <= attackRange)
+            {
+                agent.ResetPath();
+                state = State.Attack;
+                return;
+            }
+            agent.SetDestination(target.position);
+            return;
+        }
+
+        // Ближний бой — через слот-систему.
         float engageRange = groupManager != null ? groupManager.circleRadius : attackRange;
         if (dist <= engageRange)
         {
@@ -274,6 +303,7 @@ public abstract class MobAI : NetworkBehaviour
             }
         }
 
+        // В радиусе атаки — атакуем (без жёсткой привязки к точке).
         if (dist <= attackRange)
         {
             agent.ResetPath();
@@ -281,7 +311,13 @@ public abstract class MobAI : NetworkBehaviour
             return;
         }
 
-        agent.SetDestination(target.position);
+        // Цель назначения: позиция слота (по горизонтали с игроком). Если слот ещё не выдан —
+        // идём прямо на target. NavMeshAgent остановится сам по stoppingDistance.
+        Vector2 dest = groupManager != null && (groupManager.IsLeftSlot(this) || groupManager.IsRightSlot(this))
+            ? groupManager.GetSlotPosition(this, target, attackRange)
+            : (Vector2)target.position;
+
+        agent.SetDestination(dest);
     }
 
     private void UpdateCircleWait()
