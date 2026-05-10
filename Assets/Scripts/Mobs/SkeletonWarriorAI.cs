@@ -1,17 +1,5 @@
-using UnityEngine;
-
 /// <summary>
-/// Skeleton Warrior: basic melee mob.
-/// Single attack (Attack1), standard behavior.
-/// All stats come from MobData.
+/// Backward-compat alias for existing SkeletonWarrior prefabs.
+/// New mobs should use MeleeMobAI directly.
 /// </summary>
-public class SkeletonWarriorAI : MobAI
-{
-    protected override void PerformAttack()
-    {
-        FaceTarget();
-        PrepareHitbox(0, GetAttackDamage(0), GetAttackStaggerDamage(0));
-        animator.SetTrigger("Attack1");
-        RpcPlayTrigger("Attack1");
-    }
-}
+public class SkeletonWarriorAI : MeleeMobAI { }

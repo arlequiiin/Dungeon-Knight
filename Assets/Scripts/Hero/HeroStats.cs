@@ -206,6 +206,7 @@ public class HeroStats : NetworkBehaviour
         if (controller != null)
         {
             controller.ResetAttackState();
+            controller.ServerStopMovement();
             controller.enabled = false;
         }
 
@@ -231,6 +232,9 @@ public class HeroStats : NetworkBehaviour
     {
         var anim = GetComponent<Animator>();
         if (anim != null) anim.speed = 0f;
+
+        if (isLocalPlayer)
+            GetComponent<PlayerController>()?.ClientClearLocalInput();
 
         StartCoroutine(StaggerFlashCoroutine(duration));
     }
@@ -301,6 +305,7 @@ public class HeroStats : NetworkBehaviour
         if (controller != null)
         {
             controller.ResetAttackState();
+            controller.ServerStopMovement();
             controller.enabled = false;
         }
 
@@ -414,6 +419,8 @@ public class HeroStats : NetworkBehaviour
         if (controller != null)
         {
             controller.ResetAttackState();
+            if (isLocalPlayer)
+                controller.ClientClearLocalInput();
             controller.enabled = false;
         }
 
@@ -468,6 +475,8 @@ public class HeroStats : NetworkBehaviour
         if (controller != null)
         {
             controller.ResetAttackState();
+            if (isLocalPlayer)
+                controller.ClientClearLocalInput();
             controller.enabled = false;
         }
 

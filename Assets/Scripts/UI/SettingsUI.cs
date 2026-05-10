@@ -131,13 +131,13 @@ public class SettingsUI : MonoBehaviour
     private void UpdateMusicLabel(float v)
     {
         if (musicValueText != null)
-            musicValueText.text = Mathf.RoundToInt(v * 100f) + "%";
+            musicValueText.text = "Music: " + Mathf.RoundToInt(v * 100f) + "%";
     }
 
     private void UpdateSfxLabel(float v)
     {
         if (sfxValueText != null)
-            sfxValueText.text = Mathf.RoundToInt(v * 100f) + "%";
+            sfxValueText.text = "SFX: " + Mathf.RoundToInt(v * 100f) + "%";
     }
 
     // ── Сброс прогресса ──

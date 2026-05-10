@@ -33,6 +33,17 @@ public class GridWalkDungeonGenerator : MonoBehaviour
     public GridWalkGenerator Generator => generator;
     public GridWalkConfig Config => config;
 
+    /// <summary>
+    /// Применить настройки уровня перед генерацией. Вызывается DungeonKnightNetworkManager
+    /// когда у проекта используется LevelConfig. Если level == null — оставляем дефолты из инспектора.
+    /// </summary>
+    public void ApplyLevelConfig(LevelConfig level)
+    {
+        if (level == null) return;
+        if (level.dungeon != null) config = level.dungeon;
+        if (mobSpawner != null) mobSpawner.ApplyLevelConfig(level);
+    }
+
     private void Start()
     {
         if (generateOnStart)

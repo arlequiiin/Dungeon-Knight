@@ -686,6 +686,19 @@ public class PlayerController : NetworkBehaviour
         syncMoveInput = input;
     }
 
+    [Server]
+    public void ServerStopMovement()
+    {
+        syncMoveInput = Vector2.zero;
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+    }
+
+    public void ClientClearLocalInput()
+    {
+        moveInput = Vector2.zero;
+    }
+
     [Command]
     private void CmdSetFlip(bool flip)
     {

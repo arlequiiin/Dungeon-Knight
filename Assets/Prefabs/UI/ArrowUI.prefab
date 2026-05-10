@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4008774797102497297}
   - component: {fileID: 5400605466994595912}
   - component: {fileID: 2810464662326952447}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ArrowUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7438825297686306050, guid: 51339402cd9e3f74095493ee4b9d1785, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

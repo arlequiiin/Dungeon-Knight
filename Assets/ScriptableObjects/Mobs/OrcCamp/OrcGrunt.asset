@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f08c620d5a5ef1409036419f4f03903, type: 3}
+  m_Name: OrcGrunt
+  m_EditorClassIdentifier: Assembly-CSharp::MobData
+  mobName: Orc Grunt
+  maxHealth: 45
+  detectionRange: 5
+  loseRange: 8
+  attackRange: 0.9
+  attackCooldown: 1.1
+  attackDamages:
+  - 12
+  usesAttackSlot: 1
+  attackStaggerDamages:
+  - 6
+  attackWeights: []
+  attackTriggers: []
+  patrolRadius: 2.5
+  patrolWaitMin: 1
+  patrolWaitMax: 3
+  moveSpeed: 1.6
+  navAcceleration: 8
+  navAngularSpeed: 540
+  navStoppingDistance: 1
+  navRadius: 0.4
+  navPriority: 50
+  navAvoidanceQuality: 2
+  attackWindupDuration: 0.3
+  hitReactionDuration: 0.3
+  recoveryDuration: 0.4
+  canBeInterrupted: 1
+  maxPoise: 30
+  poiseRecoveryRate: 0
+  staggerDuration: 1.5
+  knockbackResistance: 0
+  projectilePrefab: {fileID: 0}
+  coinDropMin: 3
+  coinDropMax: 4

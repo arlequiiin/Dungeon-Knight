@@ -5,7 +5,6 @@ public class MobData : ScriptableObject
 {
     [Header("General")]
     public string mobName;
-    public MobType mobType;
 
     [Header("Health")]
     public float maxHealth = 40f;
@@ -30,6 +29,11 @@ public class MobData : ScriptableObject
     [Header("Attack Weights")]
     [Tooltip("Weights for each attack (same order as attackDamages). If empty, equal probability.")]
     public float[] attackWeights;
+
+    [Header("Animation Triggers")]
+    [Tooltip("Имена триггеров аниматора для каждой атаки (тот же порядок, что attackDamages). " +
+             "Если пусто — используется Attack1/Attack2/Attack3 по индексу.")]
+    public string[] attackTriggers;
 
     [Header("Patrol")]
     public float patrolRadius = 2.5f;
@@ -89,13 +93,4 @@ public class MobData : ScriptableObject
     [Header("Loot")]
     public int coinDropMin = 1;
     public int coinDropMax = 3;
-}
-
-public enum MobType
-{
-    SkeletonWarrior,
-    ArmoredSkeleton,
-    SkeletonGreatsword,
-    SkeletonArcher,
-    SkeletonOverlord
 }

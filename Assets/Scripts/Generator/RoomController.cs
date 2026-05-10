@@ -289,19 +289,38 @@ public class RoomController : MonoBehaviour
         ClearRoom();
     }
 
+    // Кэш чтобы не дёргать FindObjectsByType каждый кадр.
+    private float livingMobsCheckTimer;
+    private bool cachedHasLivingMobs;
+    private const float LivingMobsCheckInterval = 0.5f;
+
     private bool HasLivingMobsInRoom()
     {
+        livingMobsCheckTimer -= Time.deltaTime;
+        if (livingMobsCheckTimer > 0f)
+            return cachedHasLivingMobs;
+
+        livingMobsCheckTimer = LivingMobsCheckInterval;
+
         Vector2 roomMin = new Vector2(cell.roomOrigin.x, cell.roomOrigin.y);
         Vector2 roomMax = roomMin + new Vector2(cell.roomSize.x, cell.roomSize.y);
 
-        foreach (var mh in FindObjectsByType<MobHealth>(FindObjectsSortMode.None))
+        // Используем NetworkServer.spawned — это уже Dictionary всех заспавненных
+        // объектов сервера, в разы дешевле полного сканирования сцены.
+        cachedHasLivingMobs = false;
+        foreach (var identity in NetworkServer.spawned.Values)
         {
+            if (identity == null) continue;
+            var mh = identity.GetComponent<MobHealth>();
             if (mh == null || mh.IsDead) continue;
             Vector2 p = mh.transform.position;
             if (p.x >= roomMin.x && p.x <= roomMax.x && p.y >= roomMin.y && p.y <= roomMax.y)
-                return true;
+            {
+                cachedHasLivingMobs = true;
+                break;
+            }
         }
-        return false;
+        return cachedHasLivingMobs;
     }
 
     private void ClearRoom()
@@ -394,7 +413,13 @@ public class RoomController : MonoBehaviour
     private List<DoorInfo> ComputeDoorPositions()
     {
         var doors = new List<DoorInfo>();
-        int tileWidth = corridorHalfWidth * 2 + 1;
+        // Перекрываем коридор + по 1 тайлу стены с каждой стороны, чтобы игрок не мог
+        // проскользнуть впритык к верхнему/нижнему краю коридора и обойти блокировщик.
+        int corridorTiles = corridorHalfWidth * 2 + 1;
+        int crossWidth = corridorTiles + 2;
+        // Толщина по направлению прохода: 2 тайла исключают тоннелирование физики
+        // на быстром движении.
+        const float thickness = 2f;
 
         foreach (var (cellA, cellB) in graph.edges)
         {
@@ -409,28 +434,28 @@ public class RoomController : MonoBehaviour
             {
                 // Горизонтальное соединение
                 int centerY = (int)((cell.RoomCenter.y + other.RoomCenter.y) / 2f);
-                int doorX = diff.x > 0
+                float doorX = diff.x > 0
                     ? cell.roomOrigin.x + cell.roomSize.x  // правая стена → первый тайл коридора
                     : cell.roomOrigin.x - 1;                // левая стена → последний тайл коридора
 
                 doors.Add(new DoorInfo
                 {
                     center = new Vector2(doorX + 0.5f, centerY + 0.5f),
-                    size = new Vector2(1f, tileWidth)
+                    size = new Vector2(thickness, crossWidth)
                 });
             }
             else if (diff.y != 0)
             {
                 // Вертикальное соединение
                 int centerX = (int)((cell.RoomCenter.x + other.RoomCenter.x) / 2f);
-                int doorY = diff.y > 0
+                float doorY = diff.y > 0
                     ? cell.roomOrigin.y + cell.roomSize.y  // верхняя стена
                     : cell.roomOrigin.y - 1;                // нижняя стена
 
                 doors.Add(new DoorInfo
                 {
                     center = new Vector2(centerX + 0.5f, doorY + 0.5f),
-                    size = new Vector2(tileWidth, 1f)
+                    size = new Vector2(crossWidth, thickness)
                 });
             }
         }

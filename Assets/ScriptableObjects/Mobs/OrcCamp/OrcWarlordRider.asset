@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f08c620d5a5ef1409036419f4f03903, type: 3}
+  m_Name: OrcWarlordRider
+  m_EditorClassIdentifier: Assembly-CSharp::MobData
+  mobName: Orc Warlord Rider
+  maxHealth: 360
+  detectionRange: 5
+  loseRange: 8
+  attackRange: 2.4
+  attackCooldown: 1.3
+  attackDamages:
+  - 35
+  - 60
+  usesAttackSlot: 1
+  attackStaggerDamages:
+  - 25
+  - 55
+  attackWeights:
+  - 75
+  - 25
+  attackTriggers: []
+  patrolRadius: 2.5
+  patrolWaitMin: 1
+  patrolWaitMax: 3
+  moveSpeed: 1.5
+  navAcceleration: 8
+  navAngularSpeed: 540
+  navStoppingDistance: 1
+  navRadius: 0.55
+  navPriority: 30
+  navAvoidanceQuality: 2
+  attackWindupDuration: 0.4
+  hitReactionDuration: 0.3
+  recoveryDuration: 0.4
+  canBeInterrupted: 0
+  maxPoise: 65
+  poiseRecoveryRate: 1
+  staggerDuration: 2
+  knockbackResistance: 0.95
+  projectilePrefab: {fileID: 0}
+  coinDropMin: 70
+  coinDropMax: 70

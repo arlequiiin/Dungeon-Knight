@@ -30,12 +30,20 @@ public class BossHealthUI : MonoBehaviour
             bossBarPanel.SetActive(false);
     }
 
+    private float bossSearchTimer;
+    private const float BossSearchInterval = 1f;
+
     private void Update()
     {
-        // Try to find boss if not yet bound
+        // Try to find boss if not yet bound — but throttle the scan.
         if (!bound)
         {
-            TryFindBoss();
+            bossSearchTimer -= Time.deltaTime;
+            if (bossSearchTimer <= 0f)
+            {
+                bossSearchTimer = BossSearchInterval;
+                TryFindBoss();
+            }
             return;
         }
 

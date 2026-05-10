@@ -3680,7 +3680,7 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
-  dungeonConfig: {fileID: 11400000, guid: 253337a6d0cc5324496630e0d093d5e6, type: 2}
+  levelConfig: {fileID: 11400000, guid: 148e31f8f8db2b4449bd3114037ce845, type: 2}
   defaultHeroData: {fileID: 11400000, guid: be1916680f05f58428060de21892616d, type: 2}
   allHeroes:
   - {fileID: 11400000, guid: f7e80ac71d15a124084ae9ef9ec9acdf, type: 2}
