@@ -117,12 +117,19 @@ public class MobHealth : NetworkBehaviour
         }
         else
         {
-            // Hurt проигрывается только если моб выжил
-            RpcPlayHurt();
-
-            // Уведомляем AI о получении урона (HitReaction)
             var ai = GetComponent<MobAI>();
-            if (ai != null) ai.OnHit();
+
+            // Hurt-анимация И AI hit-reaction срабатывают только если урон превысил порог
+            // (% от maxHealth) из MobData. Мелкие тычки моб игнорирует — продолжает атаковать
+            // без вздрагивания. Порог 0 = реагирует всегда (старое поведение).
+            float threshold = ai != null && ai.mobData != null ? ai.mobData.hurtAnimDamageThreshold : 0f;
+            bool exceedsThreshold = threshold <= 0f
+                                    || (maxHealth > 0f && finalDamage / maxHealth >= threshold);
+            if (exceedsThreshold)
+            {
+                RpcPlayHurt();
+                if (ai != null) ai.OnHit();
+            }
         }
     }
 
@@ -220,6 +227,11 @@ public class MobHealth : NetworkBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        var data = GetComponent<MobAI>()?.mobData;
+        Analytics.Event("mob_killed",
+            "mob", data != null ? data.mobName : gameObject.name,
+            "boss", isBoss);
 
         DropCoins();
         RpcOnDeath();

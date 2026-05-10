@@ -93,6 +93,9 @@ public class RoomController : MonoBehaviour
         Vector3 entrancePos = ComputeSafeEntrancePos(triggeringPlayer.transform.position);
         TeleportLivingPlayersToRoom(entrancePos, triggeringPlayer);
 
+        Analytics.Event("room_enter", "room", roomIndex, "type", cell.roomType.ToString());
+        roomEnterTime = Time.time;
+
         ActivateRoom();
     }
 
@@ -159,8 +162,8 @@ public class RoomController : MonoBehaviour
         // Спавн мобов — только на сервере
         if (NetworkServer.active)
         {
-            // Кол-во волн = кол-во подключённых игроков (минимум 1).
-            // Для босс-комнаты всегда 1 волна.
+            // Босс-комната всегда 1 волна. Обычные — формула из LevelConfig:
+            // wavesBase + extraWavesPerPlayer × (playerCount - 1).
             if (cell.roomType == RoomType.Boss)
             {
                 totalWaves = 1;
@@ -170,7 +173,16 @@ public class RoomController : MonoBehaviour
             }
             else
             {
-                totalWaves = Mathf.Max(1, NetworkServer.connections.Count);
+                int playerCount = Mathf.Max(1, NetworkServer.connections.Count);
+                int wavesBase = 1;
+                int extraPerPlayer = 1;
+                var nm = Mirror.NetworkManager.singleton as DungeonKnightNetworkManager;
+                if (nm != null && nm.LevelConfig != null)
+                {
+                    wavesBase = nm.LevelConfig.wavesBase;
+                    extraPerPlayer = nm.LevelConfig.extraWavesPerPlayer;
+                }
+                totalWaves = Mathf.Max(1, wavesBase + extraPerPlayer * (playerCount - 1));
                 SpawnWave(1);
             }
 
@@ -264,18 +276,27 @@ public class RoomController : MonoBehaviour
             return;
         }
 
-        // Проверяем все trackedMobs (изначально заспавненные)
-        foreach (var mob in trackedMobs)
+        // Если все живые мобы либо уже сбегают, либо имеют флаг fleesWhenAlone —
+        // запускаем бегство и считаем комнату зачищенной. Боссовых комнат это не касается.
+        if (cell.roomType != RoomType.Boss && TryStartFleeingPhase())
         {
-            if (mob != null && !mob.IsDead)
+            // ClearRoom вызовется ниже, провалившись через все проверки живости.
+        }
+        else
+        {
+            // Проверяем все trackedMobs (изначально заспавненные)
+            foreach (var mob in trackedMobs)
+            {
+                if (mob != null && !mob.IsDead && !mob.GetComponent<MobAI>().IsFleeing)
+                    return;
+            }
+
+            // Дополнительно проверяем призванных мобов в пределах комнаты —
+            // боссы (например SkeletonOverlord) спавнят миньонов после ActivateRoom,
+            // и они не попадают в trackedMobs.
+            if (HasLivingMobsInRoom())
                 return;
         }
-
-        // Дополнительно проверяем призванных мобов в пределах комнаты —
-        // боссы (например SkeletonOverlord) спавнят миньонов после ActivateRoom,
-        // и они не попадают в trackedMobs.
-        if (HasLivingMobsInRoom())
-            return;
 
         // Все мобы текущей волны мертвы.
         if (currentWave < totalWaves)
@@ -293,6 +314,8 @@ public class RoomController : MonoBehaviour
     private float livingMobsCheckTimer;
     private bool cachedHasLivingMobs;
     private const float LivingMobsCheckInterval = 0.5f;
+
+    private float roomEnterTime;
 
     private bool HasLivingMobsInRoom()
     {
@@ -313,6 +336,9 @@ public class RoomController : MonoBehaviour
             if (identity == null) continue;
             var mh = identity.GetComponent<MobHealth>();
             if (mh == null || mh.IsDead) continue;
+            // Бегущие мобы не блокируют зачистку.
+            var ai = identity.GetComponent<MobAI>();
+            if (ai != null && ai.IsFleeing) continue;
             Vector2 p = mh.transform.position;
             if (p.x >= roomMin.x && p.x <= roomMax.x && p.y >= roomMin.y && p.y <= roomMax.y)
             {
@@ -323,10 +349,99 @@ public class RoomController : MonoBehaviour
         return cachedHasLivingMobs;
     }
 
+    /// <summary>
+    /// Если все живые мобы (отслеживаемые + в bbox комнаты) либо уже бегут,
+    /// либо имеют флаг fleesWhenAlone — запускаем бегство всем не-fleeing.
+    /// Возвращает true если фаза бегства активирована (или все уже бегут / нет живых).
+    /// </summary>
+    private bool TryStartFleeingPhase()
+    {
+        Vector2 roomMin = new Vector2(cell.roomOrigin.x, cell.roomOrigin.y);
+        Vector2 roomMax = roomMin + new Vector2(cell.roomSize.x, cell.roomSize.y);
+
+        bool anyLivingFighter = false;        // живой не-fleeing моб без fleesWhenAlone
+        bool anyLivingFleeCandidate = false;  // живой моб с fleesWhenAlone, ещё не убежавший
+
+        foreach (var identity in NetworkServer.spawned.Values)
+        {
+            if (identity == null) continue;
+            var mh = identity.GetComponent<MobHealth>();
+            if (mh == null || mh.IsDead) continue;
+            Vector2 p = mh.transform.position;
+            if (p.x < roomMin.x || p.x > roomMax.x || p.y < roomMin.y || p.y > roomMax.y) continue;
+
+            var ai = identity.GetComponent<MobAI>();
+            if (ai == null) continue;
+            if (ai.IsFleeing) continue;
+
+            bool canFlee = ai.mobData != null && ai.mobData.fleesWhenAlone;
+            if (canFlee) anyLivingFleeCandidate = true;
+            else anyLivingFighter = true;
+        }
+
+        // Запускаем бегство только если живых не-беглецов больше нет.
+        if (!anyLivingFighter && anyLivingFleeCandidate)
+        {
+            foreach (var identity in NetworkServer.spawned.Values)
+            {
+                if (identity == null) continue;
+                var ai = identity.GetComponent<MobAI>();
+                var mh = identity.GetComponent<MobHealth>();
+                if (ai == null || mh == null || mh.IsDead) continue;
+                if (ai.mobData == null || !ai.mobData.fleesWhenAlone) continue;
+                if (ai.IsFleeing) continue;
+
+                Vector2 dest = PickFleeDestination(ai.transform.position);
+                ai.StartFleeing(roomMin, roomMax, dest);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Выбирает точку, куда должен убежать моб: центр ближайшего соседа комнаты в графе.
+    /// Если соседей нет — fallback на ближайшую точку за стеной (легаси-поведение).
+    /// </summary>
+    private Vector2 PickFleeDestination(Vector2 mobPos)
+    {
+        if (cell.neighbors != null && cell.neighbors.Count > 0)
+        {
+            CellData best = null;
+            float bestDist = float.MaxValue;
+            foreach (var n in cell.neighbors)
+            {
+                if (n == null) continue;
+                float d = Vector2.Distance(mobPos, n.RoomCenter);
+                if (d < bestDist)
+                {
+                    bestDist = d;
+                    best = n;
+                }
+            }
+            if (best != null) return best.RoomCenter;
+        }
+
+        // Fallback: точка за ближайшей стеной комнаты.
+        Vector2 roomMin = new Vector2(cell.roomOrigin.x, cell.roomOrigin.y);
+        Vector2 roomMax = roomMin + new Vector2(cell.roomSize.x, cell.roomSize.y);
+        Vector2 center = (roomMin + roomMax) * 0.5f;
+        Vector2 dir = mobPos - center;
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+            return new Vector2(dir.x > 0 ? roomMax.x + 2f : roomMin.x - 2f, mobPos.y);
+        return new Vector2(mobPos.x, dir.y > 0 ? roomMax.y + 2f : roomMin.y - 2f);
+    }
+
     private void ClearRoom()
     {
         state = RoomState.Cleared;
         UnlockDoors();
+
+        Analytics.Event("room_clear",
+            "room", roomIndex,
+            "type", cell.roomType.ToString(),
+            "duration", Time.time - roomEnterTime);
 
         // Уведомление в HUD на хосте (на чистом клиенте — в OnRoomStateChanged через RoomStateMessage).
         // Окно VICTORY триггерится отдельно — сервером, когда все клиенты сделали выбор по боссовому сундуку.
@@ -347,13 +462,24 @@ public class RoomController : MonoBehaviour
                 NetworkServer.Spawn(chestObj);
             }
 
-            // Воскрешаем всех упавших игроков с 30% HP/маны
+            // Хил из LevelConfig: процент maxHealth восстанавливается всем живым игрокам.
+            // Упавшие сначала ревайвятся (на 30% HP), затем добивают хил сверху.
+            float healPercent = 0f;
+            var nm = Mirror.NetworkManager.singleton as DungeonKnightNetworkManager;
+            if (nm != null && nm.LevelConfig != null)
+                healPercent = nm.LevelConfig.healOnRoomClear;
+
             foreach (var identity in NetworkServer.spawned.Values)
             {
                 if (identity == null) continue;
                 var hs = identity.GetComponent<HeroStats>();
-                if (hs != null && hs.IsDowned)
+                if (hs == null) continue;
+
+                if (hs.IsDowned)
                     hs.ForceRevive();
+
+                if (!hs.IsDead && healPercent > 0f)
+                    hs.Heal(hs.MaxHealth * healPercent);
             }
 
             NetworkServer.SendToAll(new RoomStateMessage

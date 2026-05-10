@@ -28,6 +28,7 @@ public class MobSpawner : MonoBehaviour
     public GameObject SpawnIndicatorPrefab => spawnIndicatorPrefab;
 
     [Header("Настройки спавна")]
+    [Tooltip("Legacy: используется если LevelConfig не задан. Иначе берётся из LevelConfig.mobsPerNormalRoom.")]
     [SerializeField] private int mobsPerNormalRoom = 1;
     private int activeMobsPerNormalRoom = 1;
 
@@ -59,11 +60,11 @@ public class MobSpawner : MonoBehaviour
         // Босс: LevelConfig имеет приоритет над bossPrefab из инспектора.
         activeBossPrefab = activeLevel != null && activeLevel.bossPrefab != null ? activeLevel.bossPrefab : bossPrefab;
 
-        // Масштаб числа мобов в комнате: базовое значение из инспектора умножается на
-        // LevelConfig.perPlayerMobMultiplier (игроки сверх первого добавляют пропорционально).
+        // База мобов на комнату: LevelConfig имеет приоритет над полем инспектора.
+        int baseMobs = activeLevel != null ? activeLevel.mobsPerNormalRoom : mobsPerNormalRoom;
         float mobMul = activeLevel != null ? activeLevel.perPlayerMobMultiplier : 1f;
         int extraPlayers = Mathf.Max(0, playerCount - 1);
-        float scaled = mobsPerNormalRoom * (1f + mobMul * extraPlayers);
+        float scaled = baseMobs * (1f + mobMul * extraPlayers);
         activeMobsPerNormalRoom = Mathf.Max(1, Mathf.RoundToInt(scaled));
 
         rng = new System.Random(seed + 42);

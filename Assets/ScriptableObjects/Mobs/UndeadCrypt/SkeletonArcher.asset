@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: SkeletonArcher
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Archer
-  mobType: 3
   maxHealth: 35
   detectionRange: 6
   loseRange: 8
@@ -22,9 +21,11 @@ MonoBehaviour:
   attackDamages:
   - 10
   usesAttackSlot: 0
+  fleesWhenAlone: 1
   attackStaggerDamages:
   - 2
   attackWeights: []
+  attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
@@ -39,6 +40,7 @@ MonoBehaviour:
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
+  hurtAnimDamageThreshold: 0
   maxPoise: 20
   poiseRecoveryRate: 0
   staggerDuration: 1.5

@@ -18,6 +18,11 @@ public class RangedMobAI : MobAI
     [Tooltip("Если цель ближе этого расстояния — моб отступает.")]
     public float retreatRange = 2.5f;
 
+    // Направление выстрела фиксируется в PerformAttack (момент старта анимации) —
+    // чтобы стрела летела туда, куда моб начал замах, даже если игрок успеет
+    // обежать его за время анимации.
+    private Vector2 lockedShotDirection = Vector2.right;
+
     protected override void UpdateAttack()
     {
         if (target == null || !IsTargetAlive())
@@ -69,6 +74,11 @@ public class RangedMobAI : MobAI
         FaceTarget();
         PrepareProjectile();
 
+        // Защёлкиваем направление выстрела на момент замаха — иначе игрок может пробежать
+        // мимо во время windup'а и стрела полетит назад.
+        if (target != null)
+            lockedShotDirection = target.position.x < transform.position.x ? Vector2.left : Vector2.right;
+
         // Дальние мобы обычно используют атаку 0; если их несколько — можно ввести веса.
         int attack = ChooseWeightedAttack();
         string trigger = GetAttackTrigger(attack);
@@ -79,8 +89,6 @@ public class RangedMobAI : MobAI
 
     protected override void ServerSpawnProjectile()
     {
-        if (target == null) return;
-
         var prefab = mobData != null ? mobData.projectilePrefab : null;
         if (prefab == null)
         {
@@ -88,7 +96,7 @@ public class RangedMobAI : MobAI
             return;
         }
 
-        Vector2 dir = target.position.x < transform.position.x ? Vector2.left : Vector2.right;
+        Vector2 dir = lockedShotDirection;
         Vector3 spawnPos = transform.position + (Vector3)(dir * shootOffset) + Vector3.up * shootHeightOffset;
 
         var projectile = Instantiate(prefab, spawnPos, Quaternion.identity);

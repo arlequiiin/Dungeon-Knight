@@ -43,6 +43,7 @@ MonoBehaviour:
   hitReactionDuration: 0.3
   recoveryDuration: 0.45
   canBeInterrupted: 0
+  hurtAnimDamageThreshold: 0.1
   maxPoise: 70
   poiseRecoveryRate: 0
   staggerDuration: 1.5

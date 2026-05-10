@@ -14,22 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroData
   heroName: Templar
   heroType: 2
-  unlockedByDefault: 0
+  unlockedByDefault: 1
+  unlockCost: 100
   maxHealth: 180
   maxEnergy: 80
   moveSpeed: 1.5
   attackCount: 2
-  attack1Damage: 15
+  attack1Damage: 19
   attack2Damage: 25
   attackCooldown: 0.5
   attack1EnergyGain: 5
   attack2EnergyGain: 8
   attack1StaggerDamage: 5
   attack2StaggerDamage: 10
-  maxPoise: 40
+  maxPoise: 100
   staggerDuration: 1
   hasShield: 1
-  blockEnergyPerDamage: 0.3
+  blockEnergyPerDamage: 0.2
+  blockMoveSpeedMultiplier: 0.2
   dodgeEnergyCost: 15
   ability1EnergyCost: 25
   targetSearchRadius: 5

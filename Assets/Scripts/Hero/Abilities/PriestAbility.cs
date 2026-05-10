@@ -70,12 +70,11 @@ public class PriestAbility : HeroAbility
     }
 
     /// <summary>
-    /// Сервер: heal ally или self в зависимости от holdSelf.
-    /// Используем pendingFlipX как флаг "self heal" (передаётся из CmdAbilityAttack).
+    /// Сервер: heal ally или self в зависимости от selfCast.
     /// </summary>
     public override void ServerAbility1(bool flipX)
     {
-        bool selfCast = flipX; // переиспользуем bool-параметр как "selfCast"
+        bool selfCast = PendingSelfCast;
 
         if (selfCast)
         {

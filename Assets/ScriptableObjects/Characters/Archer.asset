@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroData
   heroName: Archer
   heroType: 4
-  unlockedByDefault: 1
+  unlockedByDefault: 0
+  unlockCost: 200
   maxHealth: 120
   maxEnergy: 100
   moveSpeed: 2
@@ -30,6 +31,7 @@ MonoBehaviour:
   staggerDuration: 0.5
   hasShield: 0
   blockEnergyPerDamage: 0.5
+  blockMoveSpeedMultiplier: 0.5
   dodgeEnergyCost: 15
   ability1EnergyCost: 25
   targetSearchRadius: 5

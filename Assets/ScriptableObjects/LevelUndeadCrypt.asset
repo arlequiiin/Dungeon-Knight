@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daab5c1a5c4cbd14dbc2994137d8f581, type: 3}
   m_Name: LevelUndeadCrypt
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
+  displayName: UNDEAD CRYPT
   dungeon: {fileID: 11400000, guid: 253337a6d0cc5324496630e0d093d5e6, type: 2}
   mobTable: {fileID: 11400000, guid: b23b58b81d09d814b859f98201f2ed4e, type: 2}
   bossPrefab: {fileID: 1294678635453260241, guid: bfbe365aac3f9af409ce198842987c48, type: 3}
   difficulty: 1
+  mobsPerNormalRoom: 5
   perPlayerMobMultiplier: 1
+  wavesBase: 1
+  extraWavesPerPlayer: 1
+  healOnRoomClear: 0.7

@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 3291588585306528819}
   - component: {fileID: 5637543018382280705}
   - component: {fileID: 2203681758548190643}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ArmoredOrc
   m_TagString: Untagged
   m_Icon: {fileID: 0}

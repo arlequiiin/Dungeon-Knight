@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48a80994e127ace468dc54cdfc03f665, type: 3}
-  m_Name: DungeonConfig
+  m_Name: DungeonOrcCamp
   m_EditorClassIdentifier: Assembly-CSharp::GridWalkConfig
-  roomCount: 10
+  roomCount: 7
   gridSize: {x: 4, y: 3}
   cellSize: {x: 10, y: 8}
   cellGap: 2
@@ -20,6 +20,7 @@ MonoBehaviour:
   roomMaxSize: {x: 10, y: 8}
   corridorWidth: 2
   extraEdges: 2
+  minTreasureRooms: 2
   shapeModifyChance: 0
   seed: 585426062
   useRandomSeed: 1

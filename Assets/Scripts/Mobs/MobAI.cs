@@ -43,8 +43,14 @@ public abstract class MobAI : NetworkBehaviour
     protected SpriteRenderer spriteRenderer;
 
     // --- FSM ---
-    protected enum State { Patrol, Chase, CircleWait, AttackWindup, Attack, HitReaction, Recovery, Stagger }
+    protected enum State { Patrol, Chase, CircleWait, AttackWindup, Attack, HitReaction, Recovery, Stagger, Flee }
     protected State state = State.Patrol;
+
+    public bool IsFleeing => state == State.Flee;
+
+    private Vector2 fleeRoomMin;
+    private Vector2 fleeRoomMax;
+    private Vector2 fleeTarget;
 
     // --- Target ---
     protected Transform target;
@@ -214,6 +220,7 @@ public abstract class MobAI : NetworkBehaviour
             case State.HitReaction:  UpdateHitReaction(); break;
             case State.Recovery:     UpdateRecovery();    break;
             case State.Stagger:      UpdateStagger();     break;
+            case State.Flee:         UpdateFlee();        break;
         }
 
         bool moving = agent.velocity.sqrMagnitude > 0.01f;
@@ -492,6 +499,29 @@ public abstract class MobAI : NetworkBehaviour
     /// <summary>
     /// Called from MobHealth.TakeDamage() — reaction to taking damage.
     /// </summary>
+    /// <summary>
+    /// Вызывается оружием/снарядом игрока ПОСЛЕ нанесения урона: моб берёт атакующего как цель,
+    /// даже если был в Patrol и не видел игрока. Игнорируется если уже мёртв или бежит.
+    /// </summary>
+    [Server]
+    public void NotifyAttacked(Transform attacker)
+    {
+        if (!isServer) return;
+        if (attacker == null) return;
+        if (health.IsDead) return;
+        if (state == State.Flee || state == State.Stagger) return;
+
+        var hs = attacker.GetComponent<HeroStats>();
+        if (hs == null || hs.IsDead || hs.IsDowned) return;
+
+        // Если уже преследует кого-то — не меняем (чтобы не «дёргался» между целями).
+        if (target != null && IsTargetAlive()) return;
+
+        SetTarget(attacker);
+        if (state == State.Patrol)
+            state = State.Chase;
+    }
+
     public void OnHit()
     {
         if (!isServer) return;
@@ -499,6 +529,7 @@ public abstract class MobAI : NetworkBehaviour
 
         if (!canBeInterrupted) return;
         if (state == State.HitReaction || state == State.Stagger) return;
+        if (state == State.Flee) return; // бегущего моба не остановить
 
         // Deactivate hitbox if attack was interrupted
         DisableHitbox();
@@ -553,6 +584,66 @@ public abstract class MobAI : NetworkBehaviour
         ReleaseSlot();
         state = State.Recovery;
         recoveryTimer = recoveryDuration;
+    }
+
+    private float fleeTimeoutTimer;
+    private const float FleeMaxDuration = 8f; // принудительный destroy если моб застрял
+
+    /// <summary>
+    /// Запустить бегство в указанную точку (центр соседней комнаты). Моб бежит ×2 скорости,
+    /// уничтожается когда добежал ИЛИ когда покинул исходную комнату И прошло достаточно времени.
+    /// </summary>
+    [Server]
+    public void StartFleeing(Vector2 roomMin, Vector2 roomMax, Vector2 destination)
+    {
+        if (health.IsDead) return;
+        if (state == State.Flee) return;
+
+        fleeRoomMin = roomMin;
+        fleeRoomMax = roomMax;
+        fleeTarget = destination;
+        fleeTimeoutTimer = FleeMaxDuration;
+
+        SetTarget(null);
+        ReleaseSlot();
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.speed = mobData.moveSpeed * 2f;
+            agent.isStopped = false;
+            agent.SetDestination(fleeTarget);
+        }
+
+        state = State.Flee;
+    }
+
+    private void UpdateFlee()
+    {
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+            agent.SetDestination(fleeTarget);
+
+        Vector2 p = transform.position;
+        bool outsideOriginalRoom = p.x < fleeRoomMin.x || p.x > fleeRoomMax.x
+                                   || p.y < fleeRoomMin.y || p.y > fleeRoomMax.y;
+
+        // Близко к цели (центр соседней комнаты) — задание выполнено, исчезаем.
+        if (Vector2.Distance(p, fleeTarget) < 1.5f)
+        {
+            NetworkServer.Destroy(gameObject);
+            return;
+        }
+
+        // Тайм-аут на случай застревания (NavMesh не связан, физика заклинила).
+        // Если моб уже покинул исходную комнату — точно вне поля зрения, можно уничтожать.
+        // Если ещё внутри — ждём, потом форсируем.
+        fleeTimeoutTimer -= Time.deltaTime;
+        if (fleeTimeoutTimer <= 0f)
+        {
+            if (outsideOriginalRoom)
+                NetworkServer.Destroy(gameObject);
+            else
+                fleeTimeoutTimer = 1f; // ещё секунду подождать, может выйдет
+        }
     }
 
     private void ReleaseSlot()

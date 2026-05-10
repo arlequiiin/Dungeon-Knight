@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MobSpawnTable
   entries:
   - prefab: {fileID: 2722922200427301075, guid: cb858c3701911dd439538e83801d9454, type: 3}
-    weight: 30
+    weight: 25
   - prefab: {fileID: 2722922200427301075, guid: 7edb0b2c0e7333843b6a0c5012b2078f, type: 3}
-    weight: 50
+    weight: 60
   - prefab: {fileID: 2722922200427301075, guid: 64952a4729866c74680f89e1d87c40b9, type: 3}
-    weight: 20
+    weight: 15

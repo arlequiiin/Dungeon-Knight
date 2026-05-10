@@ -15,6 +15,7 @@ MonoBehaviour:
   heroName: Soldier
   heroType: 0
   unlockedByDefault: 1
+  unlockCost: 100
   maxHealth: 120
   maxEnergy: 100
   moveSpeed: 2.2
@@ -22,6 +23,17 @@ MonoBehaviour:
   attack1Damage: 15
   attack2Damage: 25
   attackCooldown: 0.5
+  attack1EnergyGain: 5
+  attack2EnergyGain: 8
+  attack1StaggerDamage: 5
+  attack2StaggerDamage: 10
+  maxPoise: 40
+  staggerDuration: 1
+  hasShield: 0
+  blockEnergyPerDamage: 0.5
+  blockMoveSpeedMultiplier: 0.5
+  dodgeEnergyCost: 15
+  ability1EnergyCost: 18
   targetSearchRadius: 5
   ability1Cooldown: 5
   dodgeForce: 6

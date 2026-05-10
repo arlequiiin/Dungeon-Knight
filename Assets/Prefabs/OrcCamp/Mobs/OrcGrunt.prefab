@@ -227,7 +227,7 @@ GameObject:
   - component: {fileID: -2225518369973543289}
   - component: {fileID: -8576116500085738580}
   - component: {fileID: -9200514188018900813}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: OrcGrunt
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -25,6 +25,12 @@ public class GridWalkConfig : ScriptableObject
     [Range(0, 3)]
     public int extraEdges = 2;
 
+    [Header("Сокровищницы")]
+    [Tooltip("Гарантированный минимум комнат-сокровищниц. Если листьев графа меньше — " +
+             "сервер принудительно конвертирует обычные комнаты в сокровищницы.")]
+    [Range(0, 5)]
+    public int minTreasureRooms = 1;
+
     [Header("Модификация формы")]
     [Range(0f, 1f)]
     public float shapeModifyChance = 0.35f;

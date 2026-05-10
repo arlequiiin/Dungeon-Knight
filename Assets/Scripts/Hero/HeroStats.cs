@@ -298,6 +298,10 @@ public class HeroStats : NetworkBehaviour
 
         isDowned = true;
         downedHealth = DOWNED_MAX_HEALTH;
+
+        var pc = GetComponent<PlayerController>();
+        Analytics.Event("player_downed",
+            "hero", pc != null && pc.heroData != null ? pc.heroData.heroName : "?");
         lastReviveHitTime = Time.time;
 
         // Прерываем атаку и отключаем управление

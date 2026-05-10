@@ -19,7 +19,11 @@ public static class HeroUnlockManager
         return PlayerPrefs.GetInt(Key(data.heroType), 0) == 1;
     }
 
-    public static int GetUnlockCost(HeroData data) => DefaultUnlockCost;
+    public static int GetUnlockCost(HeroData data)
+    {
+        if (data == null) return DefaultUnlockCost;
+        return data.unlockCost > 0 ? data.unlockCost : DefaultUnlockCost;
+    }
 
     /// <summary>
     /// Тратит монеты и разблокирует героя. Возвращает true при успехе.
