@@ -13,13 +13,13 @@ GameObject:
   - component: {fileID: 2266503553194600219}
   - component: {fileID: 3541429460949644753}
   - component: {fileID: -6930640096290781121}
+  - component: {fileID: 6398797142922972528}
   - component: {fileID: 1745153935808569484}
   - component: {fileID: -3715105886661000315}
   - component: {fileID: 7470567967621399021}
   - component: {fileID: -1497797128705788531}
   - component: {fileID: 755060195839418103}
   - component: {fileID: 9089123280086635786}
-  - component: {fileID: 6398797142922972528}
   m_Layer: 7
   m_Name: SkeletonOverlord
   m_TagString: Untagged
@@ -173,7 +173,44 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
+--- !u!70 &6398797142922972528
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.2898306, y: 0.26956865}
+  m_Size: {x: 0.37850958, y: 0.6765397}
+  m_Direction: 0
 --- !u!114 &1745153935808569484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304,43 +341,6 @@ MonoBehaviour:
   summonCooldown: 12
   summonAnimDuration: 1
   maxActiveMinions: 6
---- !u!70 &6398797142922972528
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294678635453260241}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.2898306, y: 0.26956865}
-  m_Size: {x: 0.37850958, y: 0.6765397}
-  m_Direction: 0
 --- !u!1 &1643836152134245473
 GameObject:
   m_ObjectHideFlags: 0

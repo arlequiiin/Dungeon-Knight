@@ -13,13 +13,13 @@ GameObject:
   - component: {fileID: 2266503553194600219}
   - component: {fileID: 3541429460949644753}
   - component: {fileID: -1386086363234277782}
+  - component: {fileID: 8192503593172245298}
   - component: {fileID: 2472123834460427011}
   - component: {fileID: -6400957319029597539}
   - component: {fileID: 7470567967621399021}
   - component: {fileID: 1243836199832461739}
   - component: {fileID: 4733505234720641837}
   - component: {fileID: 4399275723740269080}
-  - component: {fileID: 8192503593172245298}
   m_Layer: 7
   m_Name: SkeletonGreatsword
   m_TagString: Untagged
@@ -94,7 +94,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -6428129625516625643, guid: fb7203f5be4ba374cac829e206bf6045, type: 3}
+  m_Sprite: {fileID: -28619397, guid: 629e6f90f75567244950326568c7f59e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -174,7 +174,44 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
+--- !u!70 &8192503593172245298
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294678635453260241}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.084315486, y: 0.2077477}
+  m_Size: {x: 0.21946399, y: 0.53233874}
+  m_Direction: 0
 --- !u!114 &2472123834460427011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,43 +333,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortByY
   offset: 10000
---- !u!70 &8192503593172245298
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1294678635453260241}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.084315486, y: 0.2077477}
-  m_Size: {x: 0.21946399, y: 0.53233874}
-  m_Direction: 0
 --- !u!1 &6213499344601499967
 GameObject:
   m_ObjectHideFlags: 0

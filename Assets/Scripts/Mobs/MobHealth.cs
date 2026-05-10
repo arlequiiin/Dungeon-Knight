@@ -52,7 +52,15 @@ public class MobHealth : NetworkBehaviour
         if (!isFrontalAttack) return false;
 
         TakePoiseDamage(incomingDamage);
+        RpcPlayBlockedAnim();
         return true;
+    }
+
+    [ClientRpc]
+    private void RpcPlayBlockedAnim()
+    {
+        var anim = GetComponent<Animator>();
+        if (anim != null) anim.SetTrigger("Blocked");
     }
 
     public UnityEvent onDeath;

@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f08c620d5a5ef1409036419f4f03903, type: 3}
+  m_Name: Werewolf
+  m_EditorClassIdentifier: Assembly-CSharp::MobData
+  mobName: Werewolf
+  maxHealth: 35
+  detectionRange: 6
+  loseRange: 9
+  attackRange: 0.9
+  attackCooldown: 0.9
+  attackDamages:
+  - 12
+  - 15
+  usesAttackSlot: 1
+  attackStaggerDamages:
+  - 5
+  - 8
+  attackWeights:
+  - 70
+  - 30
+  attackTriggers: []
+  patrolRadius: 3
+  patrolWaitMin: 0.7
+  patrolWaitMax: 2
+  moveSpeed: 2.2
+  navAcceleration: 12
+  navAngularSpeed: 720
+  navStoppingDistance: 0.9
+  navRadius: 0.4
+  navPriority: 50
+  navAvoidanceQuality: 2
+  attackWindupDuration: 0.2
+  hitReactionDuration: 0.25
+  recoveryDuration: 0.35
+  canBeInterrupted: 1
+  maxPoise: 20
+  poiseRecoveryRate: 0
+  staggerDuration: 1.3
+  knockbackResistance: 0
+  projectilePrefab: {fileID: 0}
+  coinDropMin: 3
+  coinDropMax: 4

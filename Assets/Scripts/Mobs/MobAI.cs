@@ -653,6 +653,21 @@ public abstract class MobAI : NetworkBehaviour
     }
 
     /// <summary>
+    /// Имя триггера аниматора для атаки index. Берётся из MobData.attackTriggers,
+    /// fallback на "Attack{index+1}".
+    /// </summary>
+    protected string GetAttackTrigger(int index)
+    {
+        if (mobData != null && mobData.attackTriggers != null
+            && index >= 0 && index < mobData.attackTriggers.Length
+            && !string.IsNullOrEmpty(mobData.attackTriggers[index]))
+        {
+            return mobData.attackTriggers[index];
+        }
+        return "Attack" + (index + 1);
+    }
+
+    /// <summary>
     /// Picks a random attack index based on attackWeights.
     /// Returns 0 if only one attack.
     /// </summary>

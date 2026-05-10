@@ -19,6 +19,9 @@ public class MobSpawner : MonoBehaviour
     [Header("Босс")]
     [SerializeField] private GameObject bossPrefab;
 
+    // Переопределяется LevelConfig.bossPrefab если он задан.
+    private GameObject activeBossPrefab;
+
     [Header("Индикатор спавна")]
     [Tooltip("Префаб ArrowUI — стрелка-индикатор, показывается на месте будущего спавна моба.")]
     [SerializeField] private GameObject spawnIndicatorPrefab;
@@ -26,11 +29,13 @@ public class MobSpawner : MonoBehaviour
 
     [Header("Настройки спавна")]
     [SerializeField] private int mobsPerNormalRoom = 1;
+    private int activeMobsPerNormalRoom = 1;
 
     private System.Random rng;
     private int currentPlayerCount;
     private float currentDifficulty;
     private MobSpawnTable activeTable;
+    private LevelConfig activeLevel;
 
     // Boss instance — exposed for UI binding
     private GameObject bossInstance;
@@ -45,12 +50,33 @@ public class MobSpawner : MonoBehaviour
         if (!NetworkServer.active) return;
 
         currentPlayerCount = playerCount;
-        currentDifficulty = difficulty;
+        // LevelConfig.difficulty (если задан) перекрывает аргумент.
+        currentDifficulty = activeLevel != null ? activeLevel.difficulty : difficulty;
 
         // Если SO-таблица назначена — используем её, иначе строим временную из legacy-массива.
         activeTable = spawnTable != null ? spawnTable : BuildLegacyTable();
 
+        // Босс: LevelConfig имеет приоритет над bossPrefab из инспектора.
+        activeBossPrefab = activeLevel != null && activeLevel.bossPrefab != null ? activeLevel.bossPrefab : bossPrefab;
+
+        // Масштаб числа мобов в комнате: базовое значение из инспектора умножается на
+        // LevelConfig.perPlayerMobMultiplier (игроки сверх первого добавляют пропорционально).
+        float mobMul = activeLevel != null ? activeLevel.perPlayerMobMultiplier : 1f;
+        int extraPlayers = Mathf.Max(0, playerCount - 1);
+        float scaled = mobsPerNormalRoom * (1f + mobMul * extraPlayers);
+        activeMobsPerNormalRoom = Mathf.Max(1, Mathf.RoundToInt(scaled));
+
         rng = new System.Random(seed + 42);
+    }
+
+    /// <summary>
+    /// Применить LevelConfig до Initialize: подменяет таблицу мобов и префаб босса.
+    /// </summary>
+    public void ApplyLevelConfig(LevelConfig level)
+    {
+        activeLevel = level;
+        if (level != null && level.mobTable != null)
+            spawnTable = level.mobTable;
     }
 
     /// <summary>
@@ -75,7 +101,7 @@ public class MobSpawner : MonoBehaviour
     /// </summary>
     public Vector2[] PreparePositions(CellData cell, int count = -1)
     {
-        if (count < 0) count = mobsPerNormalRoom;
+        if (count < 0) count = activeMobsPerNormalRoom;
         var arr = new Vector2[count];
         for (int i = 0; i < count; i++)
             arr[i] = GetRandomFloorPosition(cell);
@@ -102,7 +128,7 @@ public class MobSpawner : MonoBehaviour
         groupObj.transform.position = (Vector3)(Vector2)cell.RoomCenter;
         var group = groupObj.AddComponent<MobGroupManager>();
 
-        int spawnCount = presetPositions != null ? presetPositions.Length : mobsPerNormalRoom;
+        int spawnCount = presetPositions != null ? presetPositions.Length : activeMobsPerNormalRoom;
         for (int i = 0; i < spawnCount; i++)
         {
             Vector2 pos = presetPositions != null ? presetPositions[i] : GetRandomFloorPosition(cell);
@@ -133,14 +159,15 @@ public class MobSpawner : MonoBehaviour
     public MobHealth SpawnRoomBoss(CellData cell)
     {
         if (!NetworkServer.active) return null;
-        if (bossPrefab == null)
+        var prefab = activeBossPrefab != null ? activeBossPrefab : bossPrefab;
+        if (prefab == null)
         {
             Debug.LogWarning("[MobSpawner] bossPrefab not assigned!");
             return null;
         }
 
         Vector2 pos = cell.RoomCenter;
-        bossInstance = Instantiate(bossPrefab, pos, Quaternion.identity);
+        bossInstance = Instantiate(prefab, pos, Quaternion.identity);
 
         var ai = bossInstance.GetComponent<MobAI>();
         if (ai != null)

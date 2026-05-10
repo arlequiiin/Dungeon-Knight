@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class DungeonKnightNetworkManager : NetworkManager
 {
-    [Header("Подземелье")]
-    [SerializeField] private GridWalkConfig dungeonConfig;
+    [Header("Уровень")]
+    [Tooltip("Контейнер настроек уровня: геометрия + мобы + сложность.")]
+    [SerializeField] private LevelConfig levelConfig;
+
+    public LevelConfig LevelConfig => levelConfig;
 
     [Header("Герои")]
     [SerializeField] private HeroData defaultHeroData;
@@ -216,13 +219,21 @@ public class DungeonKnightNetworkManager : NetworkManager
 
         // Сид определяется КАЖДЫЙ забег заново. SO не мутируется — флаг useRandomSeed
         // и поле seed остаются такими, как в ассете, и переживают рестарт игры без изменений.
-        authoritativeSeed = dungeonConfig.useRandomSeed
+        if (levelConfig == null || levelConfig.dungeon == null)
+        {
+            Debug.LogError("[Network] LevelConfig или его dungeon не назначены!");
+            return;
+        }
+
+        var cfg = levelConfig.dungeon;
+        authoritativeSeed = cfg.useRandomSeed
             ? System.Environment.TickCount
-            : dungeonConfig.seed;
+            : cfg.seed;
 
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
         if (dungeonGen != null)
         {
+            dungeonGen.ApplyLevelConfig(levelConfig);
             dungeonGen.GenerateDungeon(authoritativeSeed);
             dungeonGenerated = true;
         }
@@ -413,6 +424,7 @@ public class DungeonKnightNetworkManager : NetworkManager
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
         if (dungeonGen != null)
         {
+            dungeonGen.ApplyLevelConfig(levelConfig);
             dungeonGen.GenerateDungeon(msg.seed);
         }
     }
