@@ -381,7 +381,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  hasShield: 0
+  hasShield: 1
   onDeath:
     m_PersistentCalls:
       m_Calls: []

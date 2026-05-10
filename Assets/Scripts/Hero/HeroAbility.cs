@@ -106,7 +106,14 @@ public abstract class HeroAbility : MonoBehaviour
     // Pending data for ranged attacks (set in CmdAttack, used by SpawnProjectile event)
     private bool pendingIsAbility;
     private bool pendingFlipX;
+    private bool pendingSelfCast;
     private bool projectileReady;
+
+    /// <summary>Используется Priest'ом — был ли это self-heal каст.</summary>
+    public bool PendingSelfCast => pendingSelfCast;
+
+    /// <summary>Устанавливается из PlayerController.CmdAbilityAttack.</summary>
+    public void SetSelfCast(bool value) => pendingSelfCast = value;
 
     /// <summary>
     /// Stores data for deferred projectile spawn via Animation Event.

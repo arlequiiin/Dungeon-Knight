@@ -13,19 +13,22 @@ MonoBehaviour:
   m_Name: SkeletonWarrior
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Warrior
-  mobType: 0
-  maxHealth: 40
-  detectionRange: 5
-  loseRange: 8
+  maxHealth: 35
+  detectionRange: 4
+  loseRange: 5
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
   - 10
+  - 12
   usesAttackSlot: 1
   attackStaggerDamages:
   - 5
   - 5
-  attackWeights: []
+  attackWeights:
+  - 80
+  - 20
+  attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
@@ -40,6 +43,7 @@ MonoBehaviour:
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 1
+  hurtAnimDamageThreshold: 0
   maxPoise: 30
   poiseRecoveryRate: 0
   staggerDuration: 1.5

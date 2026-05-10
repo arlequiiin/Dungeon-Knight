@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: SkeletonGreatsword
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Greatsword
-  mobType: 2
   maxHealth: 40
   detectionRange: 5
   loseRange: 8
@@ -32,6 +31,7 @@ MonoBehaviour:
   - 50
   - 50
   - 50
+  attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3
@@ -44,12 +44,13 @@ MonoBehaviour:
   navAvoidanceQuality: 2
   attackWindupDuration: 0.5
   hitReactionDuration: 0.3
-  recoveryDuration: 0.4
+  recoveryDuration: 0.9
   canBeInterrupted: 1
+  hurtAnimDamageThreshold: 0
   maxPoise: 30
   poiseRecoveryRate: 0
   staggerDuration: 2.5
-  knockbackResistance: 0
+  knockbackResistance: 0.05
   projectilePrefab: {fileID: 0}
   coinDropMin: 5
   coinDropMax: 5

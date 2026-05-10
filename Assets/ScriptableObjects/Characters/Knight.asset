@@ -14,22 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroData
   heroName: Knight
   heroType: 1
-  unlockedByDefault: 1
-  maxHealth: 150
+  unlockedByDefault: 0
+  unlockCost: 250
+  maxHealth: 160
   maxEnergy: 100
-  moveSpeed: 1.8
+  moveSpeed: 1.7
   attackCount: 2
   attack1Damage: 25
-  attack2Damage: 15
+  attack2Damage: 17
   attackCooldown: 0.5
   attack1EnergyGain: 5
   attack2EnergyGain: 8
-  attack1StaggerDamage: 5
-  attack2StaggerDamage: 10
+  attack1StaggerDamage: 11
+  attack2StaggerDamage: 7
   maxPoise: 60
   staggerDuration: 1
   hasShield: 1
   blockEnergyPerDamage: 0.5
+  blockMoveSpeedMultiplier: 0.4
   dodgeEnergyCost: 15
   ability1EnergyCost: 25
   targetSearchRadius: 5

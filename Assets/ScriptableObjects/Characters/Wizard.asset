@@ -15,6 +15,7 @@ MonoBehaviour:
   heroName: Wizard
   heroType: 5
   unlockedByDefault: 0
+  unlockCost: 250
   maxHealth: 120
   maxEnergy: 100
   moveSpeed: 2
@@ -30,6 +31,7 @@ MonoBehaviour:
   staggerDuration: 1
   hasShield: 0
   blockEnergyPerDamage: 0.5
+  blockMoveSpeedMultiplier: 0.5
   dodgeEnergyCost: 15
   ability1EnergyCost: 25
   targetSearchRadius: 5

@@ -8,7 +8,7 @@ public class SwordsmanAbility : HeroAbility
     public float attack2Damage = 25f;
 
     [Header("Многократная атака")]
-    public float stabDamage = 12f;
+    public float stabDamage = 16f;
 
     protected override void Awake()
     {

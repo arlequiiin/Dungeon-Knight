@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daab5c1a5c4cbd14dbc2994137d8f581, type: 3}
   m_Name: LevelOrcCamp
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
-  dungeon: {fileID: 11400000, guid: 253337a6d0cc5324496630e0d093d5e6, type: 2}
+  displayName: ORC CAMP
+  dungeon: {fileID: 11400000, guid: 9f586956108c36c4ba59d3cf6521ef1d, type: 2}
   mobTable: {fileID: 11400000, guid: fd83a8a7e9385384fa8dc83b82562b5a, type: 2}
   bossPrefab: {fileID: 2722922200427301075, guid: 513f116e45bfd8845b35647dcc59e7a9, type: 3}
   difficulty: 1
+  mobsPerNormalRoom: 4
   perPlayerMobMultiplier: 1
+  wavesBase: 1
+  extraWavesPerPlayer: 1
+  healOnRoomClear: 0.6

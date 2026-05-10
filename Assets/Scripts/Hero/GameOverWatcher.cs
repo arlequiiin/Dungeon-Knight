@@ -36,6 +36,9 @@ public static class GameOverWatcher
             triggered = true;
             Debug.Log("[GameOver] Все игроки упали — конец игры");
             NetworkServer.SendToAll(new GameOverMessage());
+
+            Analytics.Event("run_end", "result", "defeat", "players", totalPlayers);
+            Analytics.EndRun();
         }
     }
 }

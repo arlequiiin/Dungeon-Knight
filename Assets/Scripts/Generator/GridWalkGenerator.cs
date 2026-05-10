@@ -294,10 +294,39 @@ public class GridWalkGenerator
         BossCell = graph.FindFarthestCell(StartCell);
         BossCell.roomType = RoomType.Boss;
 
-        // Листья графа (1 сосед) → сокровищницы
+        // Листья графа (1 сосед, кроме Start/Boss) → сокровищницы
         var leaves = graph.FindLeaves(StartCell, BossCell);
         foreach (var leaf in leaves)
             leaf.roomType = RoomType.Treasure;
+
+        // Гарантированный минимум сокровищниц: если листьев не хватило — конвертируем
+        // обычные комнаты, отдавая приоритет дальним от старта (логика «сокровище в стороне»).
+        int needed = config.minTreasureRooms - leaves.Count;
+        if (needed > 0)
+        {
+            var distances = graph.BfsDistances(StartCell);
+            var candidates = new List<CellData>();
+            foreach (var cell in graph.cells)
+            {
+                if (cell.roomType != RoomType.Normal) continue;
+                candidates.Add(cell);
+            }
+            // Дальние от старта — выше в списке.
+            candidates.Sort((a, b) =>
+            {
+                int da = distances.TryGetValue(a, out var va) ? va : 0;
+                int db = distances.TryGetValue(b, out var vb) ? vb : 0;
+                return db.CompareTo(da);
+            });
+
+            int converted = 0;
+            foreach (var cell in candidates)
+            {
+                if (converted >= needed) break;
+                cell.roomType = RoomType.Treasure;
+                converted++;
+            }
+        }
 
         // Остальные — Normal (уже по умолчанию)
     }

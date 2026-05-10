@@ -8,6 +8,9 @@ public class HeroData : ScriptableObject
     public HeroType heroType;
     public bool unlockedByDefault;
 
+    [Tooltip("Цена разблокировки в meta-монетах. Игнорируется если unlockedByDefault = true.")]
+    public int unlockCost = 100;
+
     [Header("Характеристики")]
     public float maxHealth = 100f;
     public float maxEnergy = 100f;
@@ -36,6 +39,8 @@ public class HeroData : ScriptableObject
     public bool hasShield = false;
     [Tooltip("Сколько энергии тратится на 1 ед. блокированного урона")]
     public float blockEnergyPerDamage = 0.5f;
+    [Tooltip("Множитель скорости передвижения с поднятым щитом. 1 = без замедления, 0.5 = 50% скорости.")]
+    [Range(0.1f, 1f)] public float blockMoveSpeedMultiplier = 0.5f;
 
     [Header("Стоимость энергии")]
     public float dodgeEnergyCost = 15f;

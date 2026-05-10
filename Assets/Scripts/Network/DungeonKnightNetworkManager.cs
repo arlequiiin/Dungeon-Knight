@@ -5,11 +5,42 @@ using UnityEngine;
 
 public class DungeonKnightNetworkManager : NetworkManager
 {
-    [Header("Уровень")]
-    [Tooltip("Контейнер настроек уровня: геометрия + мобы + сложность.")]
+    [Header("Кампания (последовательность биомов)")]
+    [Tooltip("Биомы по порядку. После победы сервер переходит к следующему. " +
+             "Если пуст — используется только levelConfig ниже как одиночный уровень.")]
+    [SerializeField] private LevelConfig[] campaign;
+
+    [Tooltip("Fallback если campaign пуст: одиночный уровень (legacy).")]
     [SerializeField] private LevelConfig levelConfig;
 
-    public LevelConfig LevelConfig => levelConfig;
+    private int campaignIndex;
+
+    /// <summary>Активный уровень: текущий из кампании, либо одиночный levelConfig.</summary>
+    public LevelConfig LevelConfig
+    {
+        get
+        {
+            if (campaign != null && campaign.Length > 0)
+                return campaign[Mathf.Clamp(campaignIndex, 0, campaign.Length - 1)];
+            return levelConfig;
+        }
+    }
+
+    /// <summary>Сбросить кампанию на первый биом (новый забег с начала).</summary>
+    public void ResetCampaign() => campaignIndex = 0;
+
+    /// <summary>
+    /// Перейти к следующему биому. Возвращает true если есть следующий, false если кампания пройдена.
+    /// </summary>
+    public bool AdvanceCampaign()
+    {
+        if (campaign == null || campaign.Length == 0) return false;
+        campaignIndex++;
+        return campaignIndex < campaign.Length;
+    }
+
+    public bool IsLastCampaignBiome => campaign == null || campaign.Length == 0
+        || campaignIndex >= campaign.Length - 1;
 
     [Header("Герои")]
     [SerializeField] private HeroData defaultHeroData;
@@ -32,6 +63,7 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         base.OnStartServer();
         dungeonGenerated = false;
+        campaignIndex = 0;
         selectedHeroes.Clear();
         clientUnlocks.Clear();
         GameOverWatcher.Reset();
@@ -143,6 +175,18 @@ public class DungeonKnightNetworkManager : NetworkManager
             PlayerHUD.LocalInstance.ShowNotification($"WAVE {msg.wave}/{msg.total}");
     }
 
+    private System.Collections.IEnumerator ShowBiomeWhenReady(string title)
+    {
+        float waited = 0f;
+        while (PlayerHUD.LocalInstance == null && waited < 5f)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+        if (PlayerHUD.LocalInstance != null)
+            PlayerHUD.LocalInstance.ShowNotification(title.ToUpperInvariant(), 3.5f);
+    }
+
     private void OnSpawnIndicators(SpawnIndicatorsMessage msg)
     {
         var spawner = FindAnyObjectByType<MobSpawner>();
@@ -166,8 +210,10 @@ public class DungeonKnightNetworkManager : NetworkManager
         base.OnServerSceneChanged(sceneName);
         dungeonGenerated = false;
 
-        // Сброс состояния game over между забегами
+        // Сброс состояния game over и боссовой координации между забегами
+        // (в т.ч. при переходе SampleScene → SampleScene между биомами кампании).
         GameOverWatcher.Reset();
+        BossRewardCoordinator.Reset();
         Time.timeScale = 1f;
 
         if (!sceneName.Contains("SampleScene")) return;
@@ -217,15 +263,16 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (dungeonGenerated) return;
 
-        // Сид определяется КАЖДЫЙ забег заново. SO не мутируется — флаг useRandomSeed
-        // и поле seed остаются такими, как в ассете, и переживают рестарт игры без изменений.
-        if (levelConfig == null || levelConfig.dungeon == null)
+        var active = LevelConfig;
+        if (active == null || active.dungeon == null)
         {
             Debug.LogError("[Network] LevelConfig или его dungeon не назначены!");
             return;
         }
 
-        var cfg = levelConfig.dungeon;
+        // Сид определяется КАЖДЫЙ забег заново. SO не мутируется — флаг useRandomSeed
+        // и поле seed остаются такими, как в ассете.
+        var cfg = active.dungeon;
         authoritativeSeed = cfg.useRandomSeed
             ? System.Environment.TickCount
             : cfg.seed;
@@ -233,9 +280,23 @@ public class DungeonKnightNetworkManager : NetworkManager
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
         if (dungeonGen != null)
         {
-            dungeonGen.ApplyLevelConfig(levelConfig);
+            dungeonGen.ApplyLevelConfig(active);
             dungeonGen.GenerateDungeon(authoritativeSeed);
             dungeonGenerated = true;
+
+            Analytics.StartRun();
+            Analytics.Event("run_start",
+                "level", active.name,
+                "difficulty", active.difficulty,
+                "players", NetworkServer.connections.Count,
+                "seed", authoritativeSeed);
+
+            // Хост: на хосте OnSeedReceived не вызовется (он сам сервер), показываем уведомление здесь.
+            if (NetworkClient.active)
+            {
+                string title = !string.IsNullOrEmpty(active.displayName) ? active.displayName : active.name;
+                StartCoroutine(ShowBiomeWhenReady(title));
+            }
         }
         else
         {
@@ -407,7 +468,16 @@ public class DungeonKnightNetworkManager : NetworkManager
 
     private void OnClientRequestedSeed(NetworkConnectionToClient conn, RequestSeedMessage msg)
     {
-        conn.Send(new SeedBroadcastMessage { seed = authoritativeSeed });
+        var active = LevelConfig;
+        string title = active != null
+            ? (!string.IsNullOrEmpty(active.displayName) ? active.displayName : active.name)
+            : "";
+        conn.Send(new SeedBroadcastMessage
+        {
+            seed = authoritativeSeed,
+            campaignIndex = campaignIndex,
+            biomeName = title
+        });
     }
 
     private void OnRoomStateReceived(RoomStateMessage msg)
@@ -421,10 +491,17 @@ public class DungeonKnightNetworkManager : NetworkManager
     {
         if (NetworkServer.active) return;
 
+        // Синхронизируем индекс кампании от сервера до выбора активного LevelConfig.
+        campaignIndex = msg.campaignIndex;
+
+        // Показываем уведомление с названием биома (хост получает свою копию через тот же путь).
+        if (!string.IsNullOrEmpty(msg.biomeName))
+            StartCoroutine(ShowBiomeWhenReady(msg.biomeName));
+
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
         if (dungeonGen != null)
         {
-            dungeonGen.ApplyLevelConfig(levelConfig);
+            dungeonGen.ApplyLevelConfig(LevelConfig);
             dungeonGen.GenerateDungeon(msg.seed);
         }
     }
@@ -484,7 +561,19 @@ public class DungeonKnightNetworkManager : NetworkManager
         if (!NetworkServer.active) return;
         // Защита от повторного вызова (например двойной клик по кнопке)
         if (!string.IsNullOrEmpty(networkSceneName) && networkSceneName.Contains("LobbyScene")) return;
+        ResetCampaign();
         ServerChangeScene("LobbyScene");
+    }
+
+    /// <summary>
+    /// Перезагрузить игровую сцену — переход к следующему биому кампании.
+    /// Вызывается только на сервере.
+    /// </summary>
+    [Server]
+    public void RestartGameScene()
+    {
+        if (!NetworkServer.active) return;
+        ServerChangeScene("SampleScene");
     }
 
     /// <summary>

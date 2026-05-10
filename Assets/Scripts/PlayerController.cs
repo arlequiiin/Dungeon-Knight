@@ -321,6 +321,10 @@ public class PlayerController : NetworkBehaviour
                 if (isAttacking)
                     speed *= currentAttackSlowMultiplier;
 
+                // Блок щитом — отдельное замедление, независимо от атаки.
+                if (stats != null && stats.isBlocking && heroData != null)
+                    speed *= heroData.blockMoveSpeedMultiplier;
+
                 rb.linearVelocity = syncMoveInput * speed;
             }
         }
@@ -731,9 +735,10 @@ public class PlayerController : NetworkBehaviour
         if (ab != null)
         {
             ab.PrepareHitboxPublic(hitboxIndex, damage);
-            // Передаём флаг selfCast через bool-параметр PrepareProjectile.flipX
-            // (HeroAbility интерпретирует его как нужно — Priest читает как selfCast)
-            ab.PrepareProjectile(hitboxIndex, damage, 0f, selfCast, true);
+            // Для Priest selfCast флаг важен — передаём через отдельный канал.
+            // Для остальных (Soldier/Archer/Wizard) flipX — реальное направление героя.
+            ab.PrepareProjectile(hitboxIndex, damage, 0f, syncFlipX, true);
+            ab.SetSelfCast(selfCast);
         }
 
         // Для выделенного клиента — запускаем анимацию на сервере

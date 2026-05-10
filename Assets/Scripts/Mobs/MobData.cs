@@ -22,6 +22,11 @@ public class MobData : ScriptableObject
              "Меле — true, дальнобойные (лучник, маг) — false (атакуют с дистанции, слот не нужен).")]
     public bool usesAttackSlot = true;
 
+    [Tooltip("Сбегает из комнаты, если остался один (или с такими же беглецами). " +
+             "Двигается ×2 скорости к выходу, дестроится за пределами комнаты. " +
+             "Комната считается зачищенной как только все живые мобы — fleeing.")]
+    public bool fleesWhenAlone = false;
+
     [Header("Attack Stagger Damage")]
     [Tooltip("Poise damage per attack (same order as attackDamages). If empty, defaults to 5.")]
     public float[] attackStaggerDamages;
@@ -72,6 +77,10 @@ public class MobData : ScriptableObject
     public float hitReactionDuration = 0.3f;
     public float recoveryDuration = 0.4f;
     public bool canBeInterrupted = true;
+
+    [Tooltip("Минимальный процент maxHealth, который должен нанести один удар, чтобы " +
+             "проиграть анимацию Hurt. 0 = всегда (старое поведение), 0.05 = 5% макс HP, и т.д.")]
+    [Range(0f, 0.5f)] public float hurtAnimDamageThreshold = 0f;
 
     [Header("Poise (Stagger)")]
     [Tooltip("Устойчивость. При 0 — стагер (оглушение).")]

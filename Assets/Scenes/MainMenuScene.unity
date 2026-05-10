@@ -3666,6 +3666,10 @@ MonoBehaviour:
   - {fileID: 705937399874536778, guid: 16cc57ceb1bb348468aad995ebaf3348, type: 3}
   - {fileID: 8273833115051504906, guid: 69e7003cf56b3074d88c83d84580bbbe, type: 3}
   - {fileID: 8273833115051504906, guid: be3eb7194f0842e40bd66bc6d85d082a, type: 3}
+  - {fileID: 2722922200427301075, guid: cb858c3701911dd439538e83801d9454, type: 3}
+  - {fileID: 2722922200427301075, guid: 64952a4729866c74680f89e1d87c40b9, type: 3}
+  - {fileID: 2722922200427301075, guid: 7edb0b2c0e7333843b6a0c5012b2078f, type: 3}
+  - {fileID: 2722922200427301075, guid: 513f116e45bfd8845b35647dcc59e7a9, type: 3}
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32
@@ -3680,7 +3684,10 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
-  levelConfig: {fileID: 11400000, guid: 148e31f8f8db2b4449bd3114037ce845, type: 2}
+  campaign:
+  - {fileID: 11400000, guid: b87b72cbfdf7d4648a714a6f34380de3, type: 2}
+  - {fileID: 11400000, guid: 148e31f8f8db2b4449bd3114037ce845, type: 2}
+  levelConfig: {fileID: 0}
   defaultHeroData: {fileID: 11400000, guid: be1916680f05f58428060de21892616d, type: 2}
   allHeroes:
   - {fileID: 11400000, guid: f7e80ac71d15a124084ae9ef9ec9acdf, type: 2}

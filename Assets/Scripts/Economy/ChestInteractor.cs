@@ -42,10 +42,13 @@ public class ChestInteractor : NetworkBehaviour
 
         var chest = FindNearestChest();
         if (chest == null) return;
-        // Обычный сундук — общий, после первого открытия закрыт для всех.
-        if (!chest.isBossChest && chest.IsOpened) return;
-        // Боссовый — индивидуальный, проверяем локальный кэш "уже забирал".
-        if (chest.isBossChest && locallyClosed.Contains(chest.netId)) return;
+
+        // Локальный кэш "я уже открывал этот сундук" — для per-player режима
+        // (boss + обычный с perPlayer=true), т.к. серверный openedBy не SyncVar'ится.
+        if (locallyClosed.Contains(chest.netId)) return;
+
+        // Legacy-режим (perPlayer=false, не boss) — общий сундук, проверяем глобальный isOpened.
+        if (!chest.isBossChest && !chest.perPlayer && chest.IsOpened) return;
 
         TryOpenChest(chest);
     }
@@ -109,12 +112,14 @@ public class ChestInteractor : NetworkBehaviour
 
     private void OnRewardChosen(Chest chest, RewardData[] offered, int idx)
     {
+        bool rewardApplied = false;
         if (idx >= 0)
         {
             var reward = offered[idx];
             if (CurrencyManager.TrySpendRun(reward.price))
             {
                 CmdApplyReward(chest.netIdentity, idx, GetRewardIds(offered));
+                rewardApplied = true;
             }
         }
 
@@ -124,11 +129,20 @@ public class ChestInteractor : NetworkBehaviour
             activeUI = null;
         }
 
-        // Если это был боссовый сундук — сообщаем серверу что мы закончили (выбор сделан или Continue),
-        // сервер ждёт всех клиентов и потом покажет VICTORY.
+        // Обычный сундук: помечаем закрытым ТОЛЬКО если игрок реально взял награду.
+        // Если закрыл без выбора или денег не хватило — может вернуться позже.
+        if (chest != null && !chest.isBossChest && chest.perPlayer && rewardApplied)
+        {
+            locallyClosed.Add(chest.netId);
+            chest.MarkLocallyOpened();
+        }
+
+        // Боссовый сундук: всегда закрываем (Continue = «я готов идти дальше», без возврата),
+        // и уведомляем сервер о готовности для переходного экрана.
         if (chest != null && chest.isBossChest)
         {
             locallyClosed.Add(chest.netId);
+            chest.MarkLocallyOpened();
             BossRewardCoordinator.NotifyLocalPlayerDone();
         }
 
@@ -153,8 +167,11 @@ public class ChestInteractor : NetworkBehaviour
     {
         if (chestId == null) return;
         var chest = chestId.GetComponent<Chest>();
-        if (chest == null || chest.IsOpened) return;
+        if (chest == null) return;
         if (chest.rewardPool == null) return;
+        // В per-player режиме (boss + обычный с perPlayer=true) сервер сам проверяет
+        // в TryOpenServer через openedBy. В legacy-режиме блокируем тут.
+        if (!chest.isBossChest && !chest.perPlayer && chest.IsOpened) return;
 
         // Восстанавливаем массив RewardData по именам — серверная сторона проверяет что они в пуле
         var offered = new RewardData[rewardIds.Length];

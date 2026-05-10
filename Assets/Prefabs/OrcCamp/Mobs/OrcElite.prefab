@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 2388486042373267622}
   - component: {fileID: -2215212085616303983}
   - component: {fileID: -7157592815054952277}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: OrcElite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +218,7 @@ Animator:
   m_GameObject: {fileID: 2722922200427301075}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 1a15bbd1a83d40a4da51ee11f340c50c, type: 2}
+  m_Controller: {fileID: 9100000, guid: d9fc785cdd5819e4897b3876321ea204, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

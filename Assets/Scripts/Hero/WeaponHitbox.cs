@@ -97,6 +97,7 @@ public class WeaponHitbox : MonoBehaviour
             mobHealth.TakeDamage(damage);
             if (staggerDamage > 0f)
                 mobHealth.TakePoiseDamage(staggerDamage);
+            mobHealth.GetComponent<MobAI>()?.NotifyAttacked(owner.transform);
             ApplyHitEffects(mobHealth.gameObject, knockbackDir);
 
             // Восстановление энергии атакующему

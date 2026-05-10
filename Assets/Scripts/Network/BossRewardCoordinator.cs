@@ -52,11 +52,30 @@ public static class BossRewardCoordinator
 
         donePlayers.Add(conn.connectionId);
 
-        // Все подключённые подтвердили — показываем VICTORY всем.
+        // Все подключённые подтвердили — конец биома.
         if (donePlayers.Count >= NetworkServer.connections.Count)
         {
             waiting = false;
-            NetworkServer.SendToAll(new ShowVictoryMessage());
+
+            var nm = NetworkManager.singleton as DungeonKnightNetworkManager;
+            bool hasNextBiome = nm != null && !nm.IsLastCampaignBiome;
+
+            if (hasNextBiome)
+            {
+                // Есть следующий биом — переходим к нему через перезагрузку игровой сцены.
+                Analytics.Event("biome_complete", "players", NetworkServer.connections.Count);
+                Analytics.EndRun();
+
+                nm.AdvanceCampaign();
+                nm.RestartGameScene();
+            }
+            else
+            {
+                // Последний биом — финальная победа.
+                NetworkServer.SendToAll(new ShowVictoryMessage());
+                Analytics.Event("run_end", "result", "victory", "players", NetworkServer.connections.Count);
+                Analytics.EndRun();
+            }
         }
     }
 

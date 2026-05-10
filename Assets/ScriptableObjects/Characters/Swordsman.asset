@@ -15,19 +15,23 @@ MonoBehaviour:
   heroName: Swordsman
   heroType: 3
   unlockedByDefault: 0
-  maxHealth: 1000
-  maxEnergy: 1500
-  moveSpeed: 4.2
+  unlockCost: 250
+  maxHealth: 100
+  maxEnergy: 150
+  moveSpeed: 2.5
   attackCount: 2
-  attack1Damage: 150
-  attack2Damage: 25
+  attack1Damage: 23
+  attack2Damage: 17
   attackCooldown: 0.5
   attack1EnergyGain: 5
   attack2EnergyGain: 8
   attack1StaggerDamage: 5
   attack2StaggerDamage: 10
-  maxPoise: 40
+  maxPoise: 35
   staggerDuration: 1
+  hasShield: 0
+  blockEnergyPerDamage: 0.5
+  blockMoveSpeedMultiplier: 0.5
   dodgeEnergyCost: 15
   ability1EnergyCost: 25
   targetSearchRadius: 5

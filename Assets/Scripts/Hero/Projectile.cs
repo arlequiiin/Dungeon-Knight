@@ -284,6 +284,8 @@ public class Projectile : NetworkBehaviour
                     return;
                 }
                 mobHealth.TakeDamage(damage);
+                if (owner != null)
+                    mobHealth.GetComponent<MobAI>()?.NotifyAttacked(owner.transform);
                 RestoreOwnerEnergy();
             }
             else if (heroStats != null)

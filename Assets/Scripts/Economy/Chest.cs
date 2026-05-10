@@ -16,6 +16,11 @@ public class Chest : NetworkBehaviour
     [Tooltip("Боссовый сундук? (2 Rare + 1 Epic вместо 2 Common + 1 Rare)")]
     public bool isBossChest;
 
+    [Tooltip("Каждый игрок может открыть сундук один раз (индивидуальная награда). " +
+             "Если выключено — сундук открывается всеми вместе и потом закрыт для остальных. " +
+             "Боссовые сундуки игнорируют это поле и всегда per-player.")]
+    public bool perPlayer = true;
+
     [Tooltip("Радиус взаимодействия")]
     public float interactRadius = 1.5f;
 
@@ -36,9 +41,11 @@ public class Chest : NetworkBehaviour
     public bool IsOpenedFor(PlayerController player)
     {
         if (player == null) return isOpened;
-        if (!isBossChest) return isOpened;
-        // Боссовый сундук — индивидуальный для каждого игрока.
-        return openedBy.Contains(player.netId);
+        // Per-player сундук (включая все боссовые) — отслеживаем по netId.
+        if (isBossChest || perPlayer)
+            return openedBy.Contains(player.netId);
+        // Старая логика: один на всех.
+        return isOpened;
     }
 
     // Для боссового сундука — список netId игроков, которые уже забрали награду.
@@ -51,6 +58,29 @@ public class Chest : NetworkBehaviour
     private List<RewardData> cachedRewards;
 
     private SpriteRenderer sr;
+
+    // Клиентский флаг: локальный игрок открыл сундук (для визуала в per-player режиме).
+    private bool locallyOpened;
+
+    /// <summary>
+    /// Вызывается ChestInteractor'ом на клиенте, когда локальный игрок выбрал награду.
+    /// В per-player режиме переключает спрайт визуально только у этого клиента.
+    /// </summary>
+    public void MarkLocallyOpened()
+    {
+        if (locallyOpened) return;
+        locallyOpened = true;
+        ApplyOpenedVisual();
+    }
+
+    private void ApplyOpenedVisual()
+    {
+        if (sr == null) return;
+        if (openedSprite != null)
+            sr.sprite = openedSprite;
+        else
+            sr.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+    }
 
     /// <summary>
     /// Возвращает закэшированные награды или роллит их через rollFunc на первом обращении.
@@ -92,11 +122,8 @@ public class Chest : NetworkBehaviour
 
     private void OnOpenedChanged(bool oldVal, bool newVal)
     {
-        if (!newVal || sr == null) return;
-        if (openedSprite != null)
-            sr.sprite = openedSprite;
-        else
-            sr.color = new Color(0.5f, 0.5f, 0.5f, 1f); // фолбэк — тонировка
+        if (!newVal) return;
+        ApplyOpenedVisual();
     }
 
     /// <summary>
@@ -107,9 +134,10 @@ public class Chest : NetworkBehaviour
     {
         if (player == null) return;
 
-        // Боссовый сундук — отдельная награда для каждого игрока (если ещё не брал);
-        // обычный сундук — один на всех (если уже открыт — отказ).
-        if (isBossChest)
+        // Per-player сундук (включая боссовые) — каждый игрок может открыть один раз.
+        // Иначе — один на всех (legacy режим).
+        bool perPlayerMode = isBossChest || perPlayer;
+        if (perPlayerMode)
         {
             if (openedBy.Contains(player.netId)) return;
         }
@@ -132,7 +160,7 @@ public class Chest : NetworkBehaviour
         var mods = player.GetComponent<RunModifiers>();
         reward.effect.Apply(stats, mods);
 
-        if (isBossChest)
+        if (perPlayerMode)
             openedBy.Add(player.netId);
         else
             isOpened = true;

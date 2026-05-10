@@ -66,6 +66,26 @@ public class DungeonGraph
         return farthest;
     }
 
+    // BFS-расстояния от start до всех остальных ячеек.
+    public Dictionary<CellData, int> BfsDistances(CellData start)
+    {
+        var dist = new Dictionary<CellData, int> { [start] = 0 };
+        var queue = new Queue<CellData>();
+        queue.Enqueue(start);
+        while (queue.Count > 0)
+        {
+            var cur = queue.Dequeue();
+            int d = dist[cur];
+            foreach (var n in cur.neighbors)
+            {
+                if (dist.ContainsKey(n)) continue;
+                dist[n] = d + 1;
+                queue.Enqueue(n);
+            }
+        }
+        return dist;
+    }
+
     // Находит все листья графа (ячейки с 1 ребром)
     public List<CellData> FindLeaves(params CellData[] exclude)
     {

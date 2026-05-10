@@ -6,6 +6,8 @@ public struct RequestSeedMessage : NetworkMessage { }
 public struct SeedBroadcastMessage : NetworkMessage
 {
     public int seed;
+    public int campaignIndex;
+    public string biomeName;
 }
 
 // ── Lobby: Hero Selection ──
