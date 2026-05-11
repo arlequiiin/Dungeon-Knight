@@ -13,16 +13,17 @@ MonoBehaviour:
   m_Name: SkeletonGreatsword
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Greatsword
-  maxHealth: 40
-  detectionRange: 5
-  loseRange: 8
+  maxHealth: 35
+  detectionRange: 4
+  loseRange: 6
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
-  - 30
-  - 30
-  - 30
+  - 25
+  - 25
+  - 25
   usesAttackSlot: 1
+  fleesWhenAlone: 0
   attackStaggerDamages:
   - 10
   - 10

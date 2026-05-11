@@ -35,6 +35,17 @@ public class MobData : ScriptableObject
     [Tooltip("Weights for each attack (same order as attackDamages). If empty, equal probability.")]
     public float[] attackWeights;
 
+    [Header("Attack Geometry")]
+    [Tooltip("Какие атаки бьют по площади/кругу и не требуют выравнивания по Y. " +
+             "Порядок тот же, что у attackDamages. Если массив короче — недостающие считаются " +
+             "направленными (требуют выравнивания).")]
+    public bool[] attackIsAreaAttack;
+
+    [Tooltip("Допуск по Y для выбора направленной атаки (top-down: атаки бьют влево/вправо). " +
+             "Если |targetY - selfY| больше этого значения — моб сначала выравнивается по Y, " +
+             "а не атакует. Игнорируется для area-атак.")]
+    public float yAlignThreshold = 0.6f;
+
     [Header("Animation Triggers")]
     [Tooltip("Имена триггеров аниматора для каждой атаки (тот же порядок, что attackDamages). " +
              "Если пусто — используется Attack1/Attack2/Attack3 по индексу.")]

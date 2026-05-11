@@ -215,11 +215,11 @@ public class HeroSelectionUI : MonoBehaviour
     {
         if (data == null) return;
 
-        // Если герой залочен — попытка купить
+        // Если герой залочен — попытка купить. Если покупка не удалась — выходим.
         if (!HeroUnlockManager.IsUnlocked(data))
         {
-            HeroUnlockManager.TryUnlock(data);
-            return;
+            if (!HeroUnlockManager.TryUnlock(data))
+                return;
         }
 
         var lobby = LobbyManager.Instance;

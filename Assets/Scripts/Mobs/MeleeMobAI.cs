@@ -12,7 +12,12 @@ public class MeleeMobAI : MobAI
     {
         FaceTarget();
 
-        int attack = ChooseWeightedAttack();
+        // Если игрок сильно выше/ниже по Y и у моба есть area-атаки — выбираем только из них.
+        // (До этого UpdateChase уже не пустил бы нас сюда без выравнивания, если area-атак нет.)
+        bool requireArea = !IsYAligned() && HasAnyAreaAttack();
+        int attack = ChooseWeightedAttack(requireArea);
+        if (attack < 0) attack = 0;
+
         PrepareHitbox(attack, GetAttackDamage(attack), GetAttackStaggerDamage(attack));
 
         string trigger = GetAttackTrigger(attack);

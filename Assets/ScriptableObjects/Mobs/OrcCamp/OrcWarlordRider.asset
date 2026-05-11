@@ -14,21 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Orc Warlord Rider
   maxHealth: 360
-  detectionRange: 5
-  loseRange: 8
-  attackRange: 2.4
+  detectionRange: 15
+  loseRange: 20
+  attackRange: 7
   attackCooldown: 1.3
   attackDamages:
-  - 35
-  - 60
-  usesAttackSlot: 1
+  - 40
+  - 30
+  - 50
+  usesAttackSlot: 0
   attackStaggerDamages:
+  - 35
   - 25
-  - 55
+  - 60
   attackWeights:
-  - 75
-  - 25
-  attackTriggers: []
+  - 50
+  - 30
+  - 20
+  attackIsAreaAttack:
+  - 0
+  - 0
+  - 1
+  attackTriggers:
+  - Attack1
+  - Attack2
+  - Attack3
   patrolRadius: 2.5
   patrolWaitMin: 1
   patrolWaitMax: 3

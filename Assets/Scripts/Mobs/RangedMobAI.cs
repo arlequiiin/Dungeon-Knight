@@ -4,8 +4,10 @@ using UnityEngine.AI;
 
 /// <summary>
 /// Универсальный дальнобойный моб. Держит дистанцию, спавнит снаряд по Animation Event.
+/// Стреляет ТОЛЬКО горизонтально (top-down рогалик: герои/мобы атакуют влево/вправо),
+/// поэтому позиционируется так, чтобы цель была на той же Y (с допуском yAlignThreshold).
+/// Если цель выше/ниже — двигается по Y, не стреляет.
 /// Снаряд берётся из MobData.projectilePrefab, имя триггера — из attackTriggers (fallback Attack1).
-/// Отступает если игрок подходит ближе retreatRange.
 /// </summary>
 public class RangedMobAI : MobAI
 {
@@ -14,9 +16,13 @@ public class RangedMobAI : MobAI
     public float shootOffset = 0.3f;
     public float shootHeightOffset = 0.2f;
 
-    [Header("Retreat")]
+    [Header("Positioning")]
     [Tooltip("Если цель ближе этого расстояния — моб отступает.")]
-    public float retreatRange = 2.5f;
+    public float retreatRange = 3.5f;
+
+    [Tooltip("Допуск выравнивания по Y. Стрелять можно только если |targetY - selfY| < этого значения. " +
+             "0.6 ≈ рост персонажа.")]
+    public float yAlignThreshold = 0.6f;
 
     // Направление выстрела фиксируется в PerformAttack (момент старта анимации) —
     // чтобы стрела летела туда, куда моб начал замах, даже если игрок успеет
@@ -34,22 +40,26 @@ public class RangedMobAI : MobAI
             return;
         }
 
-        float dist = Vector2.Distance(transform.position, target.position);
+        Vector2 self = transform.position;
+        Vector2 tgt = target.position;
+        float dx = Mathf.Abs(tgt.x - self.x);
+        float dy = Mathf.Abs(tgt.y - self.y);
+        float dist2D = Vector2.Distance(self, tgt);
 
-        // Слишком далеко — догоняем
-        if (dist > attackRange * 1.2f)
+        // Слишком далеко (по 2D) — догоняем через Chase.
+        if (dist2D > attackRange * 1.2f)
         {
             ResumeAgent();
             state = State.Chase;
             return;
         }
 
-        // Слишком близко — отступаем
-        if (dist < retreatRange)
+        // Слишком близко — отступаем (направление: подальше от цели).
+        if (dist2D < retreatRange)
         {
             ResumeAgent();
-            Vector2 awayDir = ((Vector2)(transform.position - target.position)).normalized;
-            Vector3 retreatPos = transform.position + (Vector3)(awayDir * attackRange);
+            Vector2 awayDir = (self - tgt).normalized;
+            Vector3 retreatPos = (Vector3)(self + awayDir * attackRange);
 
             if (NavMesh.SamplePosition(retreatPos, out NavMeshHit hit, attackRange, NavMesh.AllAreas))
                 agent.SetDestination(hit.position);
@@ -58,7 +68,38 @@ public class RangedMobAI : MobAI
             return;
         }
 
-        // В радиусе — стоим и атакуем
+        // Не на одной горизонтали — выравниваемся по Y, держа дистанцию по X.
+        // Двигаемся к точке (self.x, target.y) с лёгким смещением по X в сторону attackRange,
+        // если по X слишком близко (иначе будем стоять впритык).
+        if (dy > yAlignThreshold)
+        {
+            ResumeAgent();
+            float desiredX = self.x;
+            if (dx < retreatRange)
+            {
+                float sign = self.x >= tgt.x ? 1f : -1f;
+                desiredX = tgt.x + sign * Mathf.Max(retreatRange, attackRange * 0.7f);
+            }
+            Vector3 alignPos = new Vector3(desiredX, tgt.y, 0f);
+            if (NavMesh.SamplePosition(alignPos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+                agent.SetDestination(hit.position);
+
+            FaceTarget();
+            return;
+        }
+
+        // Выровнены по Y и в радиусе. Запрашиваем shoot-slot (лимит одновременных стрелков на цель).
+        if (groupManager != null && !groupManager.RequestShootSlot(this, target))
+        {
+            // Слот занят — лёгкий шафл по Y/X чтобы не стоять статуей; ждём пока освободится.
+            ResumeAgent();
+            FaceTarget();
+            // Стой на месте — слот освободится после выстрела соседа.
+            StopAgent();
+            return;
+        }
+
+        // Слот получен, всё ок — стоим, стреляем.
         StopAgent();
         FaceTarget();
 
@@ -68,6 +109,7 @@ public class RangedMobAI : MobAI
             windupTimer = attackWindupDuration;
         }
     }
+
 
     protected override void PerformAttack()
     {
@@ -105,5 +147,9 @@ public class RangedMobAI : MobAI
             proj.Init(GetAttackDamage(0), dir, projectileSpeed, gameObject);
 
         NetworkServer.Spawn(projectile);
+
+        // Снаряд ушёл — освобождаем shoot-slot, чтобы следующий лучник смог занять его.
+        if (groupManager != null)
+            groupManager.ReleaseShootSlot(this);
     }
 }

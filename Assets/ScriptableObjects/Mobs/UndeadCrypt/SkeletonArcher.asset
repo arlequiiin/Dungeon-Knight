@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: SkeletonArcher
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Archer
-  maxHealth: 35
+  maxHealth: 30
   detectionRange: 6
-  loseRange: 8
-  attackRange: 5
+  loseRange: 10
+  attackRange: 3.5
   attackCooldown: 1.5
   attackDamages:
-  - 10
+  - 7
   usesAttackSlot: 0
   fleesWhenAlone: 1
   attackStaggerDamages:

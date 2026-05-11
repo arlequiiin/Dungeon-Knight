@@ -13,15 +13,16 @@ MonoBehaviour:
   m_Name: SkeletonWarrior
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Skeleton Warrior
-  maxHealth: 35
+  maxHealth: 32
   detectionRange: 4
-  loseRange: 5
+  loseRange: 6
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
-  - 10
-  - 12
+  - 8
+  - 11
   usesAttackSlot: 1
+  fleesWhenAlone: 0
   attackStaggerDamages:
   - 5
   - 5

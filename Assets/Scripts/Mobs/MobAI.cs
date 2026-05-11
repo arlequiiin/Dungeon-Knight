@@ -57,7 +57,7 @@ public abstract class MobAI : NetworkBehaviour
     protected Vector2 roomCenter;
 
     // --- Group AI ---
-    private MobGroupManager groupManager;
+    protected MobGroupManager groupManager;
 
     // --- Timers ---
     protected float attackTimer;
@@ -67,6 +67,10 @@ public abstract class MobAI : NetworkBehaviour
     private float hitReactionTimer;
     private float recoveryTimer;
     private float staggerTimer;
+    private float circleWaitTimer;
+    private const float CircleWaitTimeout = 5f;
+    // Если слот не получен слишком долго — игнорируем слот-систему и атакуем напрямую.
+    private bool forceAttackIgnoringSlot;
 
     // --- SyncVar for client animation ---
     [SyncVar] private bool syncIsMoving;
@@ -239,6 +243,9 @@ public abstract class MobAI : NetworkBehaviour
             SetTarget(player);
             state = State.Chase;
             isWaitingAtPatrolPoint = false;
+            // Альтаж группы: остальные мобы тоже сразу подключаются.
+            if (groupManager != null)
+                groupManager.BroadcastAggro(this, player);
             return;
         }
 
@@ -284,7 +291,7 @@ public abstract class MobAI : NetworkBehaviour
             return;
         }
 
-        bool useSlot = mobData != null && mobData.usesAttackSlot;
+        bool useSlot = mobData != null && mobData.usesAttackSlot && !forceAttackIgnoringSlot;
 
         // Дальнобойные — слот не запрашивают.
         if (!useSlot)
@@ -306,25 +313,59 @@ public abstract class MobAI : NetworkBehaviour
             if (groupManager != null && !groupManager.RequestAttackSlot(this, target))
             {
                 state = State.CircleWait;
+                circleWaitTimer = CircleWaitTimeout;
                 return;
             }
         }
 
-        // В радиусе атаки — атакуем (без жёсткой привязки к точке).
-        if (dist <= attackRange)
+        // В радиусе атаки — атакуем. Добавляем небольшой допуск (0.5),
+        // потому что NavMeshAgent останавливается по stoppingDistance, который часто >= attackRange.
+        // Без допуска моб с stoppingDistance=1 и attackRange=0.8 будет зависать в Chase впритык к игроку.
+        if (dist <= attackRange + 0.5f)
         {
+            // Top-down: направленные атаки бьют влево/вправо. Если игрок сильно выше/ниже —
+            // нет смысла бить в пустоту, надо сначала выровняться по Y.
+            // Исключение: моб умеет area-атаки (круговые) — бьём с любого положения.
+            if (!IsYAligned() && !HasAnyAreaAttack())
+            {
+                MoveToYAlignedPosition();
+                return;
+            }
+
             agent.ResetPath();
             state = State.Attack;
             return;
         }
 
         // Цель назначения: позиция слота (по горизонтали с игроком). Если слот ещё не выдан —
-        // идём прямо на target. NavMeshAgent остановится сам по stoppingDistance.
+        // идём прямо на target.
         Vector2 dest = groupManager != null && (groupManager.IsLeftSlot(this) || groupManager.IsRightSlot(this))
             ? groupManager.GetSlotPosition(this, target, attackRange)
             : (Vector2)target.position;
 
         agent.SetDestination(dest);
+    }
+
+    /// <summary>
+    /// Двигаемся к точке на одной горизонтали с целью, держа дистанцию по X в радиусе атаки.
+    /// Используется когда |Δy| превышает порог — моб не может бить горизонтальной атакой.
+    /// </summary>
+    private void MoveToYAlignedPosition()
+    {
+        if (target == null) return;
+        Vector2 self = transform.position;
+        Vector2 tgt = target.position;
+        float dx = Mathf.Abs(tgt.x - self.x);
+
+        // Удерживаемся в attackRange по X (с лёгким приближением). Если стояли впритык по X —
+        // не двигаемся в сторону игрока, иначе слипнемся.
+        float desiredDx = Mathf.Clamp(dx, attackRange * 0.6f, attackRange);
+        float sign = self.x >= tgt.x ? 1f : -1f;
+        Vector3 alignPos = new Vector3(tgt.x + sign * desiredDx, tgt.y, 0f);
+
+        if (UnityEngine.AI.NavMesh.SamplePosition(alignPos, out var hit, 2f, UnityEngine.AI.NavMesh.AllAreas))
+            agent.SetDestination(hit.position);
+        FaceTarget();
     }
 
     private void UpdateCircleWait()
@@ -339,6 +380,16 @@ public abstract class MobAI : NetworkBehaviour
 
         if (groupManager == null || groupManager.RequestAttackSlot(this, target))
         {
+            state = State.Chase;
+            return;
+        }
+
+        // Тайм-аут защиты от вечной орбиты: если слоты не освобождаются дольше CircleWaitTimeout —
+        // форсируем атаку (игнорируем слот). Иначе моб может орбитить бесконечно.
+        circleWaitTimer -= Time.deltaTime;
+        if (circleWaitTimer <= 0f)
+        {
+            forceAttackIgnoringSlot = true;
             state = State.Chase;
             return;
         }
@@ -364,7 +415,10 @@ public abstract class MobAI : NetworkBehaviour
 
         float dist = Vector2.Distance(transform.position, target.position);
 
-        if (dist > attackRange * 1.2f)
+        // Выход обратно в Chase — чуть дальше точки входа (см. UpdateChase),
+        // чтобы не дёргаться между Chase↔Attack у границы.
+        float leaveRange = attackRange + 0.9f;
+        if (dist > leaveRange)
         {
             if (attackTimer > 0f)
             {
@@ -520,6 +574,30 @@ public abstract class MobAI : NetworkBehaviour
         SetTarget(attacker);
         if (state == State.Patrol)
             state = State.Chase;
+
+        if (groupManager != null)
+            groupManager.BroadcastAggro(this, attacker);
+    }
+
+    /// <summary>
+    /// Сосед по группе засёк цель — мы тоже агримся, если ещё не заняты.
+    /// Пропускаем если уже мёртвы, бежим, оглушены или уже преследуем живую цель.
+    /// </summary>
+    [Server]
+    public void NotifyAggroFromGroup(Transform newTarget)
+    {
+        if (!isServer) return;
+        if (newTarget == null) return;
+        if (health.IsDead) return;
+        if (state == State.Flee || state == State.Stagger) return;
+        if (target != null && IsTargetAlive()) return;
+
+        var hs = newTarget.GetComponent<HeroStats>();
+        if (hs == null || hs.IsDead || hs.IsDowned) return;
+
+        SetTarget(newTarget);
+        if (state == State.Patrol)
+            state = State.Chase;
     }
 
     public void OnHit()
@@ -582,6 +660,7 @@ public abstract class MobAI : NetworkBehaviour
     protected void EnterRecovery()
     {
         ReleaseSlot();
+        forceAttackIgnoringSlot = false; // после удара даём слот-системе снова распределять
         state = State.Recovery;
         recoveryTimer = recoveryDuration;
     }
@@ -649,7 +728,10 @@ public abstract class MobAI : NetworkBehaviour
     private void ReleaseSlot()
     {
         if (groupManager != null)
+        {
             groupManager.ReleaseAttackSlot(this);
+            groupManager.ReleaseShootSlot(this);
+        }
     }
 
     protected void FaceTarget()
@@ -761,30 +843,71 @@ public abstract class MobAI : NetworkBehaviour
     /// <summary>
     /// Picks a random attack index based on attackWeights.
     /// Returns 0 if only one attack.
+    /// Если areaOnly=true — выбираем только из area-атак (см. MobData.attackIsAreaAttack).
+    /// Возвращает -1 если areaOnly=true и подходящих атак нет.
     /// </summary>
-    protected int ChooseWeightedAttack()
+    protected int ChooseWeightedAttack(bool areaOnly = false)
     {
-        if (attackDamages == null || attackDamages.Length <= 1)
-            return 0;
+        if (attackDamages == null || attackDamages.Length == 0) return 0;
 
-        // If no weights defined, equal probability
-        if (attackWeights == null || attackWeights.Length == 0)
-            return Random.Range(0, attackDamages.Length);
+        // Собираем индексы доступных атак.
+        var indices = new System.Collections.Generic.List<int>(attackDamages.Length);
+        for (int i = 0; i < attackDamages.Length; i++)
+        {
+            if (areaOnly && !IsAreaAttack(i)) continue;
+            indices.Add(i);
+        }
 
+        if (indices.Count == 0) return areaOnly ? -1 : 0;
+        if (indices.Count == 1) return indices[0];
+
+        // Считаем вес только для доступных индексов.
+        bool hasWeights = attackWeights != null && attackWeights.Length > 0;
         float total = 0f;
-        for (int i = 0; i < attackWeights.Length; i++)
-            total += attackWeights[i];
+        for (int k = 0; k < indices.Count; k++)
+            total += hasWeights ? GetWeight(indices[k]) : 1f;
 
         float roll = Random.value * total;
         float cumulative = 0f;
-        for (int i = 0; i < attackWeights.Length; i++)
+        for (int k = 0; k < indices.Count; k++)
         {
-            cumulative += attackWeights[i];
-            if (roll < cumulative)
-                return i;
+            cumulative += hasWeights ? GetWeight(indices[k]) : 1f;
+            if (roll < cumulative) return indices[k];
         }
+        return indices[0];
+    }
 
-        return 0;
+    private float GetWeight(int index)
+    {
+        if (attackWeights == null || index < 0 || index >= attackWeights.Length) return 1f;
+        return attackWeights[index];
+    }
+
+    /// <summary>
+    /// Атака с индексом index считается круговой/AoE — игнорирует требование выравнивания по Y.
+    /// </summary>
+    protected bool IsAreaAttack(int index)
+    {
+        var arr = mobData != null ? mobData.attackIsAreaAttack : null;
+        return arr != null && index >= 0 && index < arr.Length && arr[index];
+    }
+
+    protected bool HasAnyAreaAttack()
+    {
+        var arr = mobData != null ? mobData.attackIsAreaAttack : null;
+        if (arr == null) return false;
+        for (int i = 0; i < arr.Length; i++) if (arr[i]) return true;
+        return false;
+    }
+
+    /// <summary>
+    /// |targetY - selfY| меньше порога — можно бить направленной атакой.
+    /// </summary>
+    protected bool IsYAligned()
+    {
+        if (target == null) return false;
+        float thr = mobData != null ? mobData.yAlignThreshold : 0.6f;
+        return Mathf.Abs(target.position.y - transform.position.y) <= thr;
     }
 
     protected void PrepareHitbox(int index, float damage, float staggerDmg = 0f)
