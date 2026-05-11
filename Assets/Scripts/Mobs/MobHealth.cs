@@ -35,15 +35,24 @@ public class MobHealth : NetworkBehaviour
     // === Shield (пассивный фронтальный блок для ArmoredSkeleton и т.п.) ===
     [Header("Shield")]
     public bool hasShield = false;
+    [Tooltip("Шанс блока фронтальной атаки (0..1). 1.0 = всегда блочит, 0.3 = 30% попыток. " +
+             "Игнорируется если hasShield=false.")]
+    [Range(0f, 1f)] public float blockChance = 1f;
+    [Tooltip("Кулдаун блока в секундах — между удачными блоками. Защищает от стан-лока игрока " +
+             "при цепочках атак.")]
+    public float blockCooldown = 0.6f;
+
+    private float blockReadyAt;
 
     /// <summary>
-    /// Пытается заблокировать удар: фронтальный, моб не в стагере.
-    /// Урон полностью идёт в poise. Возвращает true если блок успешен.
+    /// Пытается заблокировать удар: фронтальный, моб не в стагере, прошла проверка шанса и кулдауна.
+    /// При успехе урон идёт в poise. Возвращает true если блок прошёл.
     /// </summary>
     [Server]
     public bool TryBlock(float incomingDamage, Vector2 attackerPos)
     {
         if (!hasShield || isDead || isStaggered) return false;
+        if (Time.time < blockReadyAt) return false;
 
         var sr = GetComponent<SpriteRenderer>();
         bool facingLeft = sr != null && sr.flipX;
@@ -51,6 +60,9 @@ public class MobHealth : NetworkBehaviour
         bool isFrontalAttack = facingLeft == attackerOnLeft;
         if (!isFrontalAttack) return false;
 
+        if (blockChance < 1f && Random.value > blockChance) return false;
+
+        blockReadyAt = Time.time + blockCooldown;
         TakePoiseDamage(incomingDamage);
         RpcPlayBlockedAnim();
         return true;

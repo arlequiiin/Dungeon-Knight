@@ -14,14 +14,22 @@ public class MobGroupManager : MonoBehaviour
     public float circleRadius = 2.5f;
     public float circleSpeed = 1.5f;
 
+    [Header("Ranged Coordination")]
+    [Tooltip("Сколько дальнобойных мобов могут одновременно стрелять в одну цель. " +
+             "Остальные ждут очереди (как melee CircleWait).")]
+    public int maxConcurrentShooters = 2;
+
     private readonly List<MobAI> aliveMobs = new();
 
     // Распределение целей: сколько мобов преследуют каждого игрока
     private readonly Dictionary<Transform, int> targetCounts = new();
 
-    // Два слота: слева и справа от игрока
+    // Два слота: слева и справа от игрока (melee)
     private MobAI leftSlot;
     private MobAI rightSlot;
+
+    // Дальнобойные слоты (по цели): кто сейчас стреляет в данного игрока.
+    private readonly Dictionary<Transform, List<MobAI>> shootSlots = new();
 
     public void Register(MobAI mob)
     {
@@ -34,6 +42,61 @@ public class MobGroupManager : MonoBehaviour
         aliveMobs.Remove(mob);
         if (leftSlot == mob) leftSlot = null;
         if (rightSlot == mob) rightSlot = null;
+        ReleaseShootSlot(mob);
+    }
+
+    // === Shoot slots (ranged) ===
+
+    /// <summary>
+    /// Запросить слот выстрела по цели. Возвращает true если получен (или уже владел).
+    /// Лимит maxConcurrentShooters на цель.
+    /// </summary>
+    public bool RequestShootSlot(MobAI mob, Transform target)
+    {
+        if (target == null) return false;
+
+        if (!shootSlots.TryGetValue(target, out var list))
+        {
+            list = new List<MobAI>();
+            shootSlots[target] = list;
+        }
+
+        if (list.Contains(mob)) return true;
+        if (list.Count >= maxConcurrentShooters) return false;
+
+        list.Add(mob);
+        return true;
+    }
+
+    public void ReleaseShootSlot(MobAI mob)
+    {
+        // Может стрелять не в текущую target, а в любую — снимаем со всех списков.
+        foreach (var kvp in shootSlots)
+            kvp.Value.Remove(mob);
+    }
+
+    public bool HasShootSlot(MobAI mob, Transform target)
+    {
+        return target != null
+            && shootSlots.TryGetValue(target, out var list)
+            && list.Contains(mob);
+    }
+
+    // === Aggro broadcast ===
+
+    /// <summary>
+    /// Один моб засёк цель — оповещаем остальных в группе, чтобы они тоже агрились
+    /// (если ещё без цели). Решает проблему "то один прибежал, то всей толпой".
+    /// </summary>
+    public void BroadcastAggro(MobAI source, Transform target)
+    {
+        if (target == null) return;
+        for (int i = 0; i < aliveMobs.Count; i++)
+        {
+            var m = aliveMobs[i];
+            if (m == null || m == source) continue;
+            m.NotifyAggroFromGroup(target);
+        }
     }
 
     /// <summary>

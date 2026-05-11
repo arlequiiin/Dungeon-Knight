@@ -19,6 +19,10 @@ public static class CurrencyManager
     private static int metaCached = -1;
     private static int runCoins;
     private static bool sceneHookInstalled;
+    // Откуда пришли в текущую сцену. Нужно чтобы отличить "вход в забег из лобби"
+    // от "переход биом → биом" (обе сцены — SampleScene). RunCoins сбрасываются только
+    // в первом случае; во втором — переносятся между биомами одного забега.
+    private static string previousSceneName = "";
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void InstallSceneHook()
@@ -30,10 +34,22 @@ public static class CurrencyManager
 
     private static void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
+        bool fromLobby = previousSceneName.Contains("LobbyScene");
+        bool fromMenu = string.IsNullOrEmpty(previousSceneName) || previousSceneName.Contains("MainMenu");
+
         if (scene.name.Contains("SampleScene"))
-            ResetRunCoins();
+        {
+            // Сброс только при старте нового забега (из лобби или с холодного старта),
+            // а не при переходе между биомами (SampleScene → SampleScene).
+            if (fromLobby || fromMenu)
+                ResetRunCoins();
+        }
         else if (scene.name.Contains("LobbyScene"))
+        {
             ConvertRunToMeta();
+        }
+
+        previousSceneName = scene.name;
     }
 
     // ── Мета-валюта (лобби, разблокировка героев) ──

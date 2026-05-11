@@ -538,13 +538,19 @@ public class DungeonKnightNetworkManager : NetworkManager
         }
 
         // Жизненный цикл валюты забега:
-        //   • Вход в SampleScene (старт забега) — обнуляем RunCoins, чтобы у игрока было 0 на счету.
+        //   • Вход в SampleScene на ПЕРВОМ биоме (campaignIndex == 0) — старт забега, обнуляем RunCoins.
+        //   • Переход между биомами (campaignIndex > 0) — НЕ сбрасываем, валюта переносится.
         //   • Возврат в LobbyScene (конец забега) — переливаем непотраченные RunCoins в мету.
         string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         if (scene.Contains("SampleScene"))
-            CurrencyManager.ResetRunCoins();
+        {
+            if (campaignIndex == 0)
+                CurrencyManager.ResetRunCoins();
+        }
         else if (scene.Contains("LobbyScene"))
+        {
             CurrencyManager.ConvertRunToMeta();
+        }
 
         if (!NetworkServer.active)
         {

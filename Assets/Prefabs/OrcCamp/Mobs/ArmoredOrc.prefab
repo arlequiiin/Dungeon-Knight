@@ -489,6 +489,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   hasShield: 1
+  blockChance: 0.5
+  blockCooldown: 0.6
   onDeath:
     m_PersistentCalls:
       m_Calls: []

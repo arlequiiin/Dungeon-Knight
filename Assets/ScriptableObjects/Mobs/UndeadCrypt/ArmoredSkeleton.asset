@@ -13,22 +13,25 @@ MonoBehaviour:
   m_Name: ArmoredSkeleton
   m_EditorClassIdentifier: Assembly-CSharp::MobData
   mobName: Armored Skeleton
-  maxHealth: 60
+  maxHealth: 55
   detectionRange: 3
   loseRange: 4
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
-  - 15
-  - 10
+  - 14
+  - 8
   usesAttackSlot: 1
   fleesWhenAlone: 0
   attackStaggerDamages:
   - 10
   - 10
   attackWeights:
-  - 75
-  - 25
+  - 85
+  - 15
+  attackIsAreaAttack:
+  - 0
+  - 1
   attackTriggers: []
   patrolRadius: 2
   patrolWaitMin: 2

@@ -31,6 +31,10 @@ MonoBehaviour:
   - 50
   - 30
   - 20
+  attackIsAreaAttack:
+  - 0
+  - 0
+  - 1
   attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1

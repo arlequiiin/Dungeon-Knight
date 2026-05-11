@@ -14,7 +14,12 @@
       "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch:*)",
       "Bash(find:*)",
       "Bash(grep -l \"Rigidbody2D\" \"d:/GitHub/Dungeon Knight/Assets/Prefabs/Undead Crypt/Mobs\"/*.prefab)",
-      "Bash(xargs grep -l \"Collider2D\\\\|Rigidbody2D\")"
+      "Bash(xargs grep -l \"Collider2D\\\\|Rigidbody2D\")",
+      "Bash(Get-ChildItem -Path \"d:\\\\GitHub\\\\Dungeon-Knight\\\\Assets\\\\Scenes\" -Recurse -Include \"*.unity\")",
+      "Bash(Select-Object -First 10)",
+      "Bash(xargs grep -l \"LoadScene\\\\|biome\\\\|next.*scene\" -i)",
+      "Bash(xargs grep -l \"SceneManager.LoadScene\\\\|LoadScene\")",
+      "Bash(xargs grep -l \"AdvanceCampaign\\\\|RestartGameScene\")"
     ],
     "deny": [],
     "ask": []
