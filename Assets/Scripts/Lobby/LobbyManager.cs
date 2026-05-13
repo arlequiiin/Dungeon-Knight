@@ -11,6 +11,14 @@ public class LobbyManager : NetworkBehaviour
 {
     public static LobbyManager Instance { get; private set; }
 
+    [Header("Демо: автоготовность")]
+    [Tooltip("Если > 0 — через это число секунд после старта лобби сервер форсирует ready=true " +
+             "у всех подключённых, чтобы запустить игру (страховка для показа комиссии).")]
+    [SerializeField] private float autoReadyAfterSeconds = 0f;
+
+    private float lobbyStartTime;
+    private bool autoReadyFired;
+
     private DungeonKnightNetworkManager NetManager =>
         (DungeonKnightNetworkManager)NetworkManager.singleton;
 
@@ -39,6 +47,26 @@ public class LobbyManager : NetworkBehaviour
         base.OnStartServer();
         NetworkServer.RegisterHandler<HeroSelectRequest>(OnHeroSelectRequest);
         NetworkServer.RegisterHandler<PlayerReadyMessage>(OnPlayerReadyMessage);
+        lobbyStartTime = Time.time;
+        autoReadyFired = false;
+    }
+
+    private void Update()
+    {
+        if (!NetworkServer.active) return;
+        if (autoReadyFired || autoReadyAfterSeconds <= 0f) return;
+        if (NetworkServer.connections.Count == 0) return;
+        if (Time.time - lobbyStartTime < autoReadyAfterSeconds) return;
+
+        autoReadyFired = true;
+        foreach (var conn in NetworkServer.connections.Values)
+        {
+            if (conn == null || conn.identity == null) continue;
+            if (!heroSelections.ContainsKey(conn)) continue;
+            readyStates[conn] = true;
+        }
+        BroadcastSelections();
+        CheckAllReady();
     }
 
     public override void OnStartClient()

@@ -3685,8 +3685,8 @@ MonoBehaviour:
   evaluationInterval: 3
   timeInterpolationGui: 0
   campaign:
-  - {fileID: 11400000, guid: 148e31f8f8db2b4449bd3114037ce845, type: 2}
-  - {fileID: 11400000, guid: b87b72cbfdf7d4648a714a6f34380de3, type: 2}
+  - {fileID: 11400000, guid: ac77eed878e65d1498858c4ab13cb761, type: 2}
+  - {fileID: 11400000, guid: 0f128af52781bb44e9c0bbdfdc65acb7, type: 2}
   levelConfig: {fileID: 0}
   defaultHeroData: {fileID: 11400000, guid: be1916680f05f58428060de21892616d, type: 2}
   allHeroes:

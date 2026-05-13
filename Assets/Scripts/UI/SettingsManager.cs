@@ -117,5 +117,6 @@ public static class SettingsManager
     {
         CurrencyManager.DebugResetMeta();
         HeroUnlockManager.DebugLockAll();
+        TutorialManager.ResetCompleted();
     }
 }

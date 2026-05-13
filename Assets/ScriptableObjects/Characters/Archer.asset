@@ -16,12 +16,12 @@ MonoBehaviour:
   heroType: 4
   unlockedByDefault: 0
   unlockCost: 200
-  maxHealth: 120
-  maxEnergy: 100
-  moveSpeed: 2
+  maxHealth: 180
+  maxEnergy: 150
+  moveSpeed: 2.1
   attackCount: 1
-  attack1Damage: 15
-  attack2Damage: 45
+  attack1Damage: 23
+  attack2Damage: 55
   attackCooldown: 0.5
   attack1EnergyGain: 5
   attack2EnergyGain: 8

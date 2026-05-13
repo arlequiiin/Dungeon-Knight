@@ -175,6 +175,12 @@ public class DungeonKnightNetworkManager : NetworkManager
             PlayerHUD.LocalInstance.ShowNotification($"WAVE {msg.wave}/{msg.total}");
     }
 
+    private System.Collections.IEnumerator TriggerHintAfter(string hintId, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        TutorialManager.Trigger(hintId);
+    }
+
     private System.Collections.IEnumerator ShowBiomeWhenReady(string title)
     {
         float waited = 0f;
@@ -290,6 +296,14 @@ public class DungeonKnightNetworkManager : NetworkManager
                 "difficulty", active.difficulty,
                 "players", NetworkServer.connections.Count,
                 "seed", authoritativeSeed);
+
+            // Туториал: подсказку движения показываем только на первом биоме забега,
+            // чтобы не повторять её при каждой смене биома.
+            if (campaignIndex == 0)
+            {
+                if (TutorialManager.Instance != null) TutorialManager.Instance.ResetShown();
+                StartCoroutine(TriggerHintAfter("movement", 1.0f));
+            }
 
             // Хост: на хосте OnSeedReceived не вызовется (он сам сервер), показываем уведомление здесь.
             if (NetworkClient.active)

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 225a86078daa9f241b2697cca3044b9d, type: 3}
+  m_Name: BossDefeatedTutorialHint
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialHint
+  id: boss_defeated
+  text: "\u0411\u0438\u043E\u043C \u043F\u0440\u043E\u0439\u0434\u0435\u043D. \u0418\u0434\u0451\u043C
+    \u0434\u0430\u043B\u044C\u0448\u0435"
+  duration: 4.5
+  icon: {fileID: 0}

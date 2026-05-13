@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7617984d6d887e3498e0d165de3bc644, type: 3}
   m_Name: StoneSkin
   m_EditorClassIdentifier: Assembly-CSharp::StoneSkinEffect
-  resistance: 0.15
+  resistance: 0.19

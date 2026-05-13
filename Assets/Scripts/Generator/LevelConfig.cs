@@ -45,4 +45,9 @@ public class LevelConfig : ScriptableObject
     [Tooltip("Процент maxHealth, восстанавливаемый игрокам после зачистки комнаты. " +
              "0 = без хила, 0.25 = 25% от макс HP, 1 = полный хил.")]
     [Range(0f, 1f)] public float healOnRoomClear = 0f;
+
+    [Header("Демо / темп")]
+    [Tooltip("Задержка между показом индикаторов спавна и реальным появлением мобов. " +
+             "Стандарт 2с, для демо можно укоротить до 0.8-1.0с.")]
+    [Range(0.2f, 3f)] public float spawnIndicatorDelay = 2f;
 }

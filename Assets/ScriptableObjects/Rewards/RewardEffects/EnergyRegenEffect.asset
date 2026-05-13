@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5dd0492513ef6c419c30c1f453709f0, type: 3}
   m_Name: EnergyRegenEffect
   m_EditorClassIdentifier: Assembly-CSharp::EnergyRegenEffect
-  regenPerSecond: 1
+  regenPerSecond: 2

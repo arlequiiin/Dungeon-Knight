@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d1fc5fd6b432d47ae2c153d9537b3b, type: 3}
   m_Name: FastAbility
   m_EditorClassIdentifier: Assembly-CSharp::FastAbilityEffect
-  reduction: 0.2
+  reduction: 0.35

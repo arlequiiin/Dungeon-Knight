@@ -164,5 +164,7 @@ public class Chest : NetworkBehaviour
             openedBy.Add(player.netId);
         else
             isOpened = true;
+
+        TutorialManager.Trigger(isBossChest ? "boss_chest_taken" : "chest_taken");
     }
 }
