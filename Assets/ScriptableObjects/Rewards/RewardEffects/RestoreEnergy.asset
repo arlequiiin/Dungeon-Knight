@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aad484e1630e6a946a252277c1ba9135, type: 3}
   m_Name: RestoreEnergy
   m_EditorClassIdentifier: Assembly-CSharp::RestoreEnergyEffect
-  percentOfMax: 0.5
+  percentOfMax: 0.7

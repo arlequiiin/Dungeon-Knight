@@ -75,6 +75,8 @@ public static class BossRewardCoordinator
                 NetworkServer.SendToAll(new ShowVictoryMessage());
                 Analytics.Event("run_end", "result", "victory", "players", NetworkServer.connections.Count);
                 Analytics.EndRun();
+                // Туториал считается пройденным только после полной победы.
+                TutorialManager.MarkCompleted();
             }
         }
     }
@@ -82,6 +84,8 @@ public static class BossRewardCoordinator
     private static void OnShowVictory(ShowVictoryMessage _)
     {
         VictoryScreenUI.TriggerVictory();
+        // У не-хостовых клиентов тоже фиксируем прохождение туториала.
+        TutorialManager.MarkCompleted();
     }
 
     /// <summary>

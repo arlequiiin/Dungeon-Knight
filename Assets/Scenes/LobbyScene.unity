@@ -11327,6 +11327,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  autoReadyAfterSeconds: 30
 --- !u!114 &595044717
 MonoBehaviour:
   m_ObjectHideFlags: 0

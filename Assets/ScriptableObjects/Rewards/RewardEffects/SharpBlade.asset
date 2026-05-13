@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb80109e39bac1f4e94358758e7010e7, type: 3}
   m_Name: SharpBlade
   m_EditorClassIdentifier: Assembly-CSharp::SharpBladeEffect
-  bonusPercent: 0.15
+  bonusPercent: 0.23

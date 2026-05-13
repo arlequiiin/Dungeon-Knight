@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 117c03b2c53ee0149acb9c01af89130c, type: 3}
   m_Name: HealEffect
   m_EditorClassIdentifier: Assembly-CSharp::HealEffect
-  percentOfMax: 0.5
+  percentOfMax: 0.8

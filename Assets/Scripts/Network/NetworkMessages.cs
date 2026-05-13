@@ -88,3 +88,14 @@ public struct BossRewardDoneMessage : NetworkMessage { }
 /// Сервер → всем клиентам: «можно показать VICTORY».
 /// </summary>
 public struct ShowVictoryMessage : NetworkMessage { }
+
+// ── Tutorial ──
+
+/// <summary>
+/// Сервер → всем клиентам: показать туториал-подсказку с указанным id.
+/// Клиент сам ищет TutorialHint SO по id и рендерит её через TutorialHintUI.
+/// </summary>
+public struct ShowHintMessage : NetworkMessage
+{
+    public string hintId;
+}

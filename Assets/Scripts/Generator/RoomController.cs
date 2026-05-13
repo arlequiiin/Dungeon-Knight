@@ -162,6 +162,9 @@ public class RoomController : MonoBehaviour
         // Спавн мобов — только на сервере
         if (NetworkServer.active)
         {
+            // Туториал: первая комната с мобами / первая боссовая.
+            TutorialManager.Trigger(cell.roomType == RoomType.Boss ? "boss_room" : "combat_room");
+
             // Босс-комната всегда 1 волна. Обычные — формула из LevelConfig:
             // wavesBase + extraWavesPerPlayer × (playerCount - 1).
             if (cell.roomType == RoomType.Boss)
@@ -219,7 +222,10 @@ public class RoomController : MonoBehaviour
 
         // Заранее выбираем позиции и шлём клиентам индикаторы (стрелки),
         // через indicatorDelay секунд реально спавним мобов.
-        const float indicatorDelay = 2f;
+        float indicatorDelay = 2f;
+        var nmCfg = Mirror.NetworkManager.singleton as DungeonKnightNetworkManager;
+        if (nmCfg != null && nmCfg.LevelConfig != null)
+            indicatorDelay = nmCfg.LevelConfig.spawnIndicatorDelay;
         var positions = mobSpawner.PreparePositions(cell);
 
         if (mobSpawner.SpawnIndicatorPrefab != null)
@@ -450,7 +456,14 @@ public class RoomController : MonoBehaviour
             PlayerHUD.LocalInstance.ShowNotification(isBoss ? "BOSS DEFEATED" : "ROOM CLEARED");
 
         if (NetworkServer.active && isBoss)
+        {
             BossRewardCoordinator.OnBossDefeatedServer();
+            TutorialManager.Trigger("boss_defeated");
+        }
+        else if (NetworkServer.active)
+        {
+            TutorialManager.Trigger("room_cleared");
+        }
 
         if (NetworkServer.active)
         {

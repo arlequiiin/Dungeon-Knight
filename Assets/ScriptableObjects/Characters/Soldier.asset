@@ -16,28 +16,28 @@ MonoBehaviour:
   heroType: 0
   unlockedByDefault: 1
   unlockCost: 100
-  maxHealth: 120
-  maxEnergy: 100
-  moveSpeed: 2.2
+  maxHealth: 180
+  maxEnergy: 150
+  moveSpeed: 2.3
   attackCount: 2
-  attack1Damage: 15
-  attack2Damage: 25
+  attack1Damage: 18
+  attack2Damage: 27
   attackCooldown: 0.5
-  attack1EnergyGain: 5
-  attack2EnergyGain: 8
+  attack1EnergyGain: 6
+  attack2EnergyGain: 9
   attack1StaggerDamage: 5
   attack2StaggerDamage: 10
-  maxPoise: 40
+  maxPoise: 50
   staggerDuration: 1
   hasShield: 0
   blockEnergyPerDamage: 0.5
   blockMoveSpeedMultiplier: 0.5
-  dodgeEnergyCost: 15
-  ability1EnergyCost: 18
+  dodgeEnergyCost: 12
+  ability1EnergyCost: 15
   targetSearchRadius: 5
-  ability1Cooldown: 5
+  ability1Cooldown: 4
   dodgeForce: 6
-  dodgeCooldown: 1.2
+  dodgeCooldown: 1
   dodgeDuration: 0.25
   weaponHitboxPrefabs:
   - {fileID: 7766938299258767726, guid: 30b73c573ddfe224dbbf283c80e9d4fc, type: 3}
