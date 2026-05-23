@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daab5c1a5c4cbd14dbc2994137d8f581, type: 3}
   m_Name: LevelUndeadCryptTutorial
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
-  displayName: UNDEAD CRYPT
+  displayName: "\u0421\u041A\u041B\u0415\u041F \u041D\u0415\u0416\u0418\u0422\u0418"
   dungeon: {fileID: 11400000, guid: 52032e28c8566d34090cedc63eb42af0, type: 2}
   mobTable: {fileID: 11400000, guid: c98db7d7225991849a637bdd7b10253e, type: 2}
   bossPrefab: {fileID: 1294678635453260241, guid: bfbe365aac3f9af409ce198842987c48, type: 3}
-  difficulty: 3
+  difficulty: 0.8
   mobsPerNormalRoom: 3
   perPlayerMobMultiplier: 1
   wavesBase: 1

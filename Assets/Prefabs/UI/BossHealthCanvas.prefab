@@ -184,10 +184,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: HP BOSS
+  m_text: "\u0425\u041F \u0411\u041E\u0421\u0421\u0410"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 778f0c9aa6bcb784482d93173af2adce, type: 2}
-  m_sharedMaterial: {fileID: -499771119034101337, guid: 778f0c9aa6bcb784482d93173af2adce, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 4a71f6520d18b224fbde6794db0e0e8b, type: 2}
+  m_sharedMaterial: {fileID: 150091382821501702, guid: 4a71f6520d18b224fbde6794db0e0e8b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -211,8 +211,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 56
-  m_fontSizeBase: 56
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -14,8 +14,24 @@ public class HeroSelectionUI : MonoBehaviour
 
     [Header("Кнопки")]
     [SerializeField] private Button confirmButton;
+    [SerializeField] private TMP_Text confirmButtonText;
     [SerializeField] private Button readyButton;
     [SerializeField] private TMP_Text readyButtonText;
+
+    [Header("Плашка информации")]
+    [Tooltip("Корень плашки. Скрывается, если ничего не выбрано.")]
+    [SerializeField] private GameObject infoPanel;
+    [SerializeField] private Image infoIcon;
+    [SerializeField] private TMP_Text infoName;
+    [SerializeField] private TMP_Text infoDescription;
+    [SerializeField] private TMP_Text infoHealth;
+    [SerializeField] private TMP_Text infoEnergy;
+    [SerializeField] private TMP_Text infoDamage;
+    [Tooltip("Опционально — текст урона по устойчивости/доп. защиты. Можно оставить пустым.")]
+    [SerializeField] private TMP_Text infoExtra;
+    [SerializeField] private Image infoAbilityIcon;
+    [SerializeField] private TMP_Text infoAbilityName;
+    [SerializeField] private TMP_Text infoAbilityDescription;
 
     [Header("Префаб карточки")]
     [SerializeField] private GameObject heroCardPrefab;
@@ -40,7 +56,13 @@ public class HeroSelectionUI : MonoBehaviour
     {
         gameObject.SetActive(true);
         isOpen = true;
-        pendingSelection = null;
+
+        // По умолчанию активируем в плашке текущего выбранного героя, если он есть.
+        var currentHero = LobbyManager.Instance != null ? LobbyManager.Instance.GetLocalPlayerHero() : null;
+        pendingSelection = currentHero;
+
+        if (PlayerHUD.LocalInstance != null)
+            PlayerHUD.LocalInstance.SetTopLeftPanelVisible(false);
 
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated += RefreshCards;
@@ -60,6 +82,9 @@ public class HeroSelectionUI : MonoBehaviour
 
     public void Close()
     {
+        if (PlayerHUD.LocalInstance != null)
+            PlayerHUD.LocalInstance.SetTopLeftPanelVisible(true);
+
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated -= RefreshCards;
 
@@ -201,13 +226,90 @@ public class HeroSelectionUI : MonoBehaviour
             }
         }
 
-        // Кнопка Confirm активна только если есть pending выбор
-        if (confirmButton != null)
-            confirmButton.interactable = pendingSelection.HasValue;
+        UpdateConfirmButton(currentHero);
+        UpdateInfoPanel();
 
         // Текст кнопки Ready
         if (readyButtonText != null)
-            readyButtonText.text = localReady ? "Not Ready" : "Ready";
+            readyButtonText.text = localReady ? "Не готов" : "Готов";
+    }
+
+    private void UpdateConfirmButton(HeroType? currentHero)
+    {
+        if (confirmButton == null) return;
+
+        var pendingData = FindHeroData(pendingSelection);
+
+        if (pendingData == null)
+        {
+            confirmButton.interactable = false;
+            if (confirmButtonText != null) confirmButtonText.text = "Подтвердить";
+            return;
+        }
+
+        bool unlocked = HeroUnlockManager.IsUnlocked(pendingData);
+        bool isCurrentHero = currentHero.HasValue && currentHero.Value == pendingData.heroType;
+
+        if (!unlocked)
+        {
+            int cost = HeroUnlockManager.GetUnlockCost(pendingData);
+            if (confirmButtonText != null) confirmButtonText.text = $"Купить ({cost})";
+            confirmButton.interactable = CurrencyManager.CanAffordMeta(cost);
+        }
+        else
+        {
+            if (confirmButtonText != null) confirmButtonText.text = "Подтвердить";
+            // Если уже играем за этого героя — подтверждать нечего.
+            confirmButton.interactable = !isCurrentHero;
+        }
+    }
+
+    private void UpdateInfoPanel()
+    {
+        var data = FindHeroData(pendingSelection);
+
+        if (infoPanel != null)
+            infoPanel.SetActive(data != null);
+
+        if (data == null) return;
+
+        if (infoIcon != null)
+        {
+            infoIcon.sprite = data.icon;
+            infoIcon.enabled = data.icon != null;
+            infoIcon.preserveAspect = true;
+        }
+        if (infoName != null) infoName.text = data.heroName;
+        if (infoDescription != null) infoDescription.text = data.description;
+        if (infoHealth != null) infoHealth.text = Mathf.RoundToInt(data.maxHealth).ToString();
+        if (infoEnergy != null) infoEnergy.text = Mathf.RoundToInt(data.maxEnergy).ToString();
+        if (infoDamage != null)
+        {
+            int dmg1 = Mathf.RoundToInt(data.attack1Damage);
+            infoDamage.text = data.attackCount >= 2
+                ? $"{dmg1}/{Mathf.RoundToInt(data.attack2Damage)}"
+                : dmg1.ToString();
+        }
+        if (infoExtra != null) infoExtra.text = Mathf.RoundToInt(data.maxPoise).ToString();
+
+        if (infoAbilityIcon != null)
+        {
+            infoAbilityIcon.sprite = data.abilityIcon;
+            infoAbilityIcon.enabled = data.abilityIcon != null;
+            infoAbilityIcon.preserveAspect = true;
+        }
+        if (infoAbilityName != null) infoAbilityName.text = data.abilityName;
+        if (infoAbilityDescription != null) infoAbilityDescription.text = data.abilityDescription;
+    }
+
+    private HeroData FindHeroData(HeroType? type)
+    {
+        if (!type.HasValue) return null;
+        var lobby = LobbyManager.Instance;
+        if (lobby == null || lobby.AllHeroes == null) return null;
+        foreach (var h in lobby.AllHeroes)
+            if (h != null && h.heroType == type.Value) return h;
+        return null;
     }
 
 
@@ -215,16 +317,17 @@ public class HeroSelectionUI : MonoBehaviour
     {
         if (data == null) return;
 
-        // Если герой залочен — попытка купить. Если покупка не удалась — выходим.
-        if (!HeroUnlockManager.IsUnlocked(data))
+        // Занятого союзником героя выбирать нельзя.
+        var lobby = LobbyManager.Instance;
+        if (lobby != null && lobby.IsHeroTaken(data.heroType))
         {
-            if (!HeroUnlockManager.TryUnlock(data))
+            var currentHero = lobby.GetLocalPlayerHero();
+            if (!currentHero.HasValue || currentHero.Value != data.heroType)
                 return;
         }
 
-        var lobby = LobbyManager.Instance;
-        if (lobby != null && lobby.IsHeroTaken(data.heroType)) return;
-
+        // Залоченный герой просто становится активным в плашке —
+        // фактическая покупка происходит из кнопки Confirm (она же «Купить»).
         pendingSelection = data.heroType;
         RefreshCards();
     }
@@ -233,19 +336,28 @@ public class HeroSelectionUI : MonoBehaviour
     {
         if (!pendingSelection.HasValue) return;
 
-        // Защита: нельзя подтвердить выбор залоченного героя
-        var lobby = LobbyManager.Instance;
-        if (lobby != null)
+        var data = FindHeroData(pendingSelection);
+        if (data == null) return;
+
+        // Если герой залочен — это режим "Купить". Покупка не подтверждает выбор автоматически:
+        // после успешной покупки игрок остаётся в плашке героя, кнопка превращается в "Подтвердить".
+        if (!HeroUnlockManager.IsUnlocked(data))
         {
-            foreach (var h in lobby.AllHeroes)
-            {
-                if (h != null && h.heroType == pendingSelection.Value && !HeroUnlockManager.IsUnlocked(h))
-                    return;
-            }
+            HeroUnlockManager.TryUnlock(data);
+            RefreshCards();
+            return;
         }
 
-        NetworkClient.Send(new HeroSelectRequest { heroType = pendingSelection.Value });
-        pendingSelection = null;
+        // Защита от занятого героя на стороне клиента (сервер всё равно проверит).
+        var lobby = LobbyManager.Instance;
+        if (lobby != null && lobby.IsHeroTaken(data.heroType))
+        {
+            var currentHero = lobby.GetLocalPlayerHero();
+            if (!currentHero.HasValue || currentHero.Value != data.heroType)
+                return;
+        }
+
+        NetworkClient.Send(new HeroSelectRequest { heroType = data.heroType });
         RefreshCards();
     }
 

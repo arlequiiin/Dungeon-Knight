@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f08c620d5a5ef1409036419f4f03903, type: 3}
   m_Name: SkeletonOverlord
   m_EditorClassIdentifier: Assembly-CSharp::MobData
-  mobName: Skeleton Overlord
+  mobName: "\u041F\u043E\u0432\u0435\u043B\u0438\u0442\u0435\u043B\u044C \u0421\u043A\u0435\u043B\u0435\u0442\u043E\u0432"
   maxHealth: 250
   detectionRange: 7
   loseRange: 9
@@ -29,6 +29,8 @@ MonoBehaviour:
   attackWeights:
   - 80
   - 20
+  attackIsAreaAttack: 
+  yAlignThreshold: 0.6
   attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f08c620d5a5ef1409036419f4f03903, type: 3}
   m_Name: OrcWarlordRider
   m_EditorClassIdentifier: Assembly-CSharp::MobData
-  mobName: Orc Warlord Rider
+  mobName: "\u041E\u0440\u043A \u041F\u043E\u043B\u043A\u043E\u0432\u043E\u0434\u0435\u0446"
   maxHealth: 360
   detectionRange: 15
   loseRange: 20
@@ -23,6 +23,7 @@ MonoBehaviour:
   - 30
   - 50
   usesAttackSlot: 0
+  fleesWhenAlone: 0
   attackStaggerDamages:
   - 35
   - 25
@@ -31,10 +32,8 @@ MonoBehaviour:
   - 50
   - 30
   - 20
-  attackIsAreaAttack:
-  - 0
-  - 0
-  - 1
+  attackIsAreaAttack: 000001
+  yAlignThreshold: 0.6
   attackTriggers:
   - Attack1
   - Attack2

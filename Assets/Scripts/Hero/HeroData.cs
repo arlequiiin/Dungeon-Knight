@@ -11,6 +11,18 @@ public class HeroData : ScriptableObject
     [Tooltip("Цена разблокировки в meta-монетах. Игнорируется если unlockedByDefault = true.")]
     public int unlockCost = 100;
 
+    [Header("Описание (UI выбора героя)")]
+    [TextArea(2, 4)]
+    [Tooltip("Короткое описание героя для плашки выбора.")]
+    public string description;
+    [Tooltip("Название способности (Ability1) для плашки выбора.")]
+    public string abilityName;
+    [TextArea(2, 4)]
+    [Tooltip("Описание способности (Ability1) для плашки выбора.")]
+    public string abilityDescription;
+    [Tooltip("Иконка способности для плашки выбора.")]
+    public Sprite abilityIcon;
+
     [Header("Характеристики")]
     public float maxHealth = 100f;
     public float maxEnergy = 100f;

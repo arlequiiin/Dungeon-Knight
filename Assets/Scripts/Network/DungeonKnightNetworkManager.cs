@@ -27,7 +27,12 @@ public class DungeonKnightNetworkManager : NetworkManager
     }
 
     /// <summary>Сбросить кампанию на первый биом (новый забег с начала).</summary>
-    public void ResetCampaign() => campaignIndex = 0;
+    public void ResetCampaign()
+    {
+        campaignIndex = 0;
+        // Накопленные за прошлый забег модификаторы тоже сбрасываются.
+        savedModifiers.Clear();
+    }
 
     /// <summary>
     /// Перейти к следующему биому. Возвращает true если есть следующий, false если кампания пройдена.
@@ -59,6 +64,10 @@ public class DungeonKnightNetworkManager : NetworkManager
     // Разблокировки героев у каждого клиента (присылаются клиентом при подключении).
     private readonly Dictionary<NetworkConnectionToClient, HashSet<HeroType>> clientUnlocks = new();
 
+    // Снимок RunModifiers каждого игрока — сохраняется при уничтожении старого player object
+    // (переход между биомами кампании) и применяется к новому в OnServerAddPlayer.
+    private readonly Dictionary<NetworkConnectionToClient, RunModifiers.Snapshot> savedModifiers = new();
+
     public override void OnStartServer()
     {
         base.OnStartServer();
@@ -66,6 +75,7 @@ public class DungeonKnightNetworkManager : NetworkManager
         campaignIndex = 0;
         selectedHeroes.Clear();
         clientUnlocks.Clear();
+        savedModifiers.Clear();
         GameOverWatcher.Reset();
         BossRewardCoordinator.Reset();
         NetworkServer.RegisterHandler<RequestSeedMessage>(OnClientRequestedSeed);
@@ -172,7 +182,7 @@ public class DungeonKnightNetworkManager : NetworkManager
     private void OnWaveAnnouncement(WaveAnnouncementMessage msg)
     {
         if (PlayerHUD.LocalInstance != null)
-            PlayerHUD.LocalInstance.ShowNotification($"WAVE {msg.wave}/{msg.total}");
+            PlayerHUD.LocalInstance.ShowNotification($"ВОЛНА {msg.wave}/{msg.total}");
     }
 
     private System.Collections.IEnumerator TriggerHintAfter(string hintId, float delay)
@@ -233,11 +243,17 @@ public class DungeonKnightNetworkManager : NetworkManager
         // Уничтожаем старых игроков (если они перенеслись через DontDestroyOnLoad).
         // НЕ спавним новых сами — клиенты при загрузке сцены пришлют AddPlayerMessage,
         // и OnServerAddPlayer создаст игроков с правильными хиро-данными.
+        // Перед Destroy снимаем Snapshot RunModifiers, чтобы накопленные награды пережили
+        // переход между биомами кампании (иначе SyncVar'ы сбрасываются в дефолт).
         foreach (var conn in NetworkServer.connections.Values)
         {
             if (conn == null) continue;
             if (conn.identity != null)
             {
+                var mods = conn.identity.GetComponent<RunModifiers>();
+                if (mods != null)
+                    savedModifiers[conn] = mods.CaptureSnapshot();
+
                 NetworkServer.Destroy(conn.identity.gameObject);
             }
         }
@@ -360,6 +376,15 @@ public class DungeonKnightNetworkManager : NetworkManager
 
         InitHeroOnPlayer(player, data);
         NetworkServer.AddPlayerForConnection(conn, player);
+
+        // Восстанавливаем накопленные модификаторы забега (вторая атака, бонусы урона и т.д.).
+        // Snapshot был снят в ReinitPlayersForDungeon при уничтожении предыдущего player object.
+        if (savedModifiers.TryGetValue(conn, out var snapshot))
+        {
+            var mods = player.GetComponent<RunModifiers>();
+            if (mods != null) mods.ApplySnapshot(snapshot);
+            savedModifiers.Remove(conn);
+        }
 
         // Синхронизируем выбор героя с LobbyManager (только при первом входе).
         if (!isReturningPlayer)

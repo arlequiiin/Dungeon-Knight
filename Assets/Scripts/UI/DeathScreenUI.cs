@@ -5,8 +5,8 @@ using Mirror;
 
 /// <summary>
 /// Универсальный экран смерти/поражения.
-/// — Локальный игрок упал и союзники живы → "YOU ARE DOWN" (спектатор, ждём revive)
-/// — Все упали → "DEFEATED" + кнопка возврата (только хост)
+/// — Локальный игрок упал и союзники живы → "Вы повержены" (спектатор, ждём revive)
+/// — Все упали → "Поражение" + кнопка возврата (только хост)
 /// — В соло смерть = поражение сразу
 /// Подписывается на DeathScreenUI.ShowGameOver() через статику (вызывается из NetworkManager).
 /// </summary>
@@ -67,8 +67,8 @@ public class DeathScreenUI : MonoBehaviour
 
         deathPanel.SetActive(true);
 
-        if (deathTitle != null) deathTitle.text = "YOU ARE DOWN";
-        if (deathSubtitle != null) deathSubtitle.text = "Waiting for allies to revive you...";
+        if (deathTitle != null) deathTitle.text = "Вы повержены";
+        if (deathSubtitle != null) deathSubtitle.text = "Ожидаем, пока союзники поднимут вас...";
         if (returnToLobbyButton != null) returnToLobbyButton.gameObject.SetActive(false);
     }
 
@@ -86,8 +86,8 @@ public class DeathScreenUI : MonoBehaviour
 
         deathPanel.SetActive(true);
 
-        if (deathTitle != null) deathTitle.text = "DEFEATED";
-        if (deathSubtitle != null) deathSubtitle.text = "The party has fallen...";
+        if (deathTitle != null) deathTitle.text = "Поражение";
+        if (deathSubtitle != null) deathSubtitle.text = "Отряд пал...";
 
         // Кнопка возврата — только у хоста
         if (returnToLobbyButton != null)

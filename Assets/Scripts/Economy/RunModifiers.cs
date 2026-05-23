@@ -70,4 +70,46 @@ public class RunModifiers : NetworkBehaviour
         extraLifeAvailable = false;
         return true;
     }
+
+    /// <summary>
+    /// Снимок всех модификаторов для переноса между биомами кампании.
+    /// При смене сцены сервер уничтожает старый player object и спавнит новый со сброшенными SyncVar —
+    /// чтобы накопленные награды сохранились, нужно сохранить Snapshot до Destroy и восстановить после спавна.
+    /// </summary>
+    public struct Snapshot
+    {
+        public float attackDamageBonus;
+        public float attack2DamageBonus;
+        public float damageResistance;
+        public float abilityPowerBonus;
+        public float abilityCooldownReduction;
+        public float energyRegenPerSecond;
+        public bool attack2Unlocked;
+        public bool extraLifeAvailable;
+    }
+
+    public Snapshot CaptureSnapshot() => new Snapshot
+    {
+        attackDamageBonus = attackDamageBonus,
+        attack2DamageBonus = attack2DamageBonus,
+        damageResistance = damageResistance,
+        abilityPowerBonus = abilityPowerBonus,
+        abilityCooldownReduction = abilityCooldownReduction,
+        energyRegenPerSecond = energyRegenPerSecond,
+        attack2Unlocked = attack2Unlocked,
+        extraLifeAvailable = extraLifeAvailable,
+    };
+
+    [Server]
+    public void ApplySnapshot(Snapshot s)
+    {
+        attackDamageBonus = s.attackDamageBonus;
+        attack2DamageBonus = s.attack2DamageBonus;
+        damageResistance = s.damageResistance;
+        abilityPowerBonus = s.abilityPowerBonus;
+        abilityCooldownReduction = s.abilityCooldownReduction;
+        energyRegenPerSecond = s.energyRegenPerSecond;
+        attack2Unlocked = s.attack2Unlocked;
+        extraLifeAvailable = s.extraLifeAvailable;
+    }
 }

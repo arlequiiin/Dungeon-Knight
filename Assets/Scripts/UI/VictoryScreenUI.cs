@@ -55,10 +55,22 @@ public class VictoryScreenUI : MonoBehaviour
         Time.timeScale = 0f;
 
         if (victoryTitle != null)
-            victoryTitle.text = "VICTORY";
+            victoryTitle.text = "Победа!";
 
         if (victorySubtitle != null)
-            victorySubtitle.text = "The Undead Crypt has been cleansed!";
+        {
+            string biome = null;
+            var netManager = NetworkManager.singleton as DungeonKnightNetworkManager;
+            if (netManager != null && netManager.LevelConfig != null)
+            {
+                biome = !string.IsNullOrEmpty(netManager.LevelConfig.displayName)
+                    ? netManager.LevelConfig.displayName
+                    : netManager.LevelConfig.name;
+            }
+            victorySubtitle.text = string.IsNullOrEmpty(biome)
+                ? "Локация — зачищена!"
+                : $"{biome} — зачищен!";
+        }
 
         if (returnToLobbyButton != null)
             returnToLobbyButton.gameObject.SetActive(NetworkServer.active);

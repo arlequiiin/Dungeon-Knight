@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MovementTutorialHint
   m_EditorClassIdentifier: Assembly-CSharp::TutorialHint
   id: movement
-  text: "WASD \u2014 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0435, \u041B\u041A\u041C
-    \u2014 \u0430\u0442\u0430\u043A\u0430, Space \u2014 \u0440\u044B\u0432\u043E\u043A"
+  text: "WASD - \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0435, \u041B\u041A\u041C
+    - \u0430\u0442\u0430\u043A\u0430, Space - \u0443\u043A\u043B\u043E\u043D\u0435\u043D\u0438\u0435"
   duration: 4.5
   icon: {fileID: 0}

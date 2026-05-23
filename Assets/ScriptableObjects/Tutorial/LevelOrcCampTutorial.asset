@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daab5c1a5c4cbd14dbc2994137d8f581, type: 3}
   m_Name: LevelOrcCampTutorial
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
-  displayName: ORC CAMP
+  displayName: "\u041B\u0410\u0413\u0415\u0420\u042C \u041E\u0420\u041A\u041E\u0412"
   dungeon: {fileID: 11400000, guid: 82ce83e2c43c3e64eb471e0a97510ebf, type: 2}
   mobTable: {fileID: 11400000, guid: c64a7dc6668ae604e94b8684c9c47e77, type: 2}
   bossPrefab: {fileID: 2722922200427301075, guid: 513f116e45bfd8845b35647dcc59e7a9, type: 3}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f08c620d5a5ef1409036419f4f03903, type: 3}
   m_Name: DarkRider
   m_EditorClassIdentifier: Assembly-CSharp::MobData
-  mobName: Dark Rider
+  mobName: "\u0422\u0435\u043C\u043D\u044B\u0439 \u0412\u0441\u0430\u0434\u043D\u0438\u043A"
   maxHealth: 320
   detectionRange: 5
   loseRange: 8
@@ -22,12 +22,15 @@ MonoBehaviour:
   - 35
   - 55
   usesAttackSlot: 1
+  fleesWhenAlone: 0
   attackStaggerDamages:
   - 25
   - 50
   attackWeights:
   - 70
   - 30
+  attackIsAreaAttack: 
+  yAlignThreshold: 0.6
   attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1
@@ -43,6 +46,7 @@ MonoBehaviour:
   hitReactionDuration: 0.3
   recoveryDuration: 0.4
   canBeInterrupted: 0
+  hurtAnimDamageThreshold: 0
   maxPoise: 60
   poiseRecoveryRate: 1
   staggerDuration: 2

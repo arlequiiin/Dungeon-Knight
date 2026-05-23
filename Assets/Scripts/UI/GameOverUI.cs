@@ -46,10 +46,10 @@ public class GameOverUI : MonoBehaviour
         Time.timeScale = 0f;
 
         if (title != null)
-            title.text = "DEFEATED";
+            title.text = "Поражение";
 
         if (subtitle != null)
-            subtitle.text = "The party has fallen...";
+            subtitle.text = "Отряд пал...";
 
         if (returnToLobbyButton != null)
             returnToLobbyButton.gameObject.SetActive(NetworkServer.active);

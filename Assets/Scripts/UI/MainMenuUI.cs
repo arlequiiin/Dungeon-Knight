@@ -54,14 +54,14 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnHostClicked()
     {
-        SetStatus("Creating server...");
+        SetStatus("Создаём сервер...");
         networkManager.maxConnections = 3;
         networkManager.StartHost();
     }
 
     public void OnSoloClicked()
     {
-        SetStatus("Starting solo game...");
+        SetStatus("Запускаем одиночную игру...");
         networkManager.maxConnections = 1;
         networkManager.StartHost();
     }
@@ -86,11 +86,11 @@ public class MainMenuUI : MonoBehaviour
 
         if (string.IsNullOrEmpty(ip))
         {
-            SetStatus("Enter IP address!");
+            SetStatus("Введите IP-адрес!");
             return;
         }
 
-        SetStatus("Connecting to " + ip + "...");
+        SetStatus("Подключение к " + ip + "...");
         networkManager.networkAddress = ip;
         networkManager.StartClient();
     }

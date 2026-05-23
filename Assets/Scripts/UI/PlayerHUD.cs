@@ -8,6 +8,10 @@ using TMPro;
 /// </summary>
 public class PlayerHUD : MonoBehaviour
 {
+    [Header("Top-Left Panel")]
+    [Tooltip("Корень панели с иконкой героя, HP, энергией. Скрывается при открытии окна выбора героя в лобби.")]
+    [SerializeField] private GameObject topLeftPanel;
+
     [Header("Hero Info")]
     [SerializeField] private Image heroIcon;
     [SerializeField] private TMP_Text heroNameText;
@@ -75,6 +79,16 @@ public class PlayerHUD : MonoBehaviour
 
         if (centerNotificationText != null)
             centerNotificationText.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Скрыть/показать верхне-левую панель (иконка героя, HP, энергия).
+    /// Вызывается из HeroSelectionUI при открытии/закрытии окна выбора героя.
+    /// </summary>
+    public void SetTopLeftPanelVisible(bool visible)
+    {
+        if (topLeftPanel != null)
+            topLeftPanel.SetActive(visible);
     }
 
     /// <summary>

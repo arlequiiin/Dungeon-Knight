@@ -12,6 +12,10 @@ public class GridWalkRenderer : MonoBehaviour
     [SerializeField] private TileBase groundTile;
     [SerializeField] private TileBase lavaTile;
 
+    [Header("Граница лавы")]
+    [Tooltip("На сколько тайлов залить лаву за пределами мира с каждой стороны, чтобы камера никогда не видела пустоту.")]
+    [SerializeField] private int lavaBorder = 20;
+
     public HashSet<Vector2Int> GroundPositions { get; private set; }
 
     private void Start()
@@ -51,12 +55,15 @@ public class GridWalkRenderer : MonoBehaviour
                 groundTilemap.SetTile(new Vector3Int(pos.x, pos.y, 0), groundTile);
         }
 
-        // Заливка лавой — только там, где НЕТ пола
+        // Заливка лавой — только там, где НЕТ пола.
+        // Расширяем заливку за пределы мира на lavaBorder тайлов с каждой стороны,
+        // чтобы камера, следующая за игроком, никогда не видела пустоту за краем уровня.
         if (lavaTile != null)
         {
-            for (int x = 0; x < config.WorldWidth; x++)
+            int border = Mathf.Max(0, lavaBorder);
+            for (int x = -border; x < config.WorldWidth + border; x++)
             {
-                for (int y = 0; y < config.WorldHeight; y++)
+                for (int y = -border; y < config.WorldHeight + border; y++)
                 {
                     if (!GroundPositions.Contains(new Vector2Int(x, y)))
                         lavaTilemap.SetTile(new Vector3Int(x, y, 0), lavaTile);
