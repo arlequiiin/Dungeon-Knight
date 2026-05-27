@@ -17,6 +17,7 @@ public class DeathScreenUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI deathTitle;
     [SerializeField] private TextMeshProUGUI deathSubtitle;
     [SerializeField] private Button returnToLobbyButton;
+    [SerializeField] private EndScreenStats stats;
 
     private HeroStats localStats;
     private bool gameOverShown;
@@ -92,6 +93,8 @@ public class DeathScreenUI : MonoBehaviour
         // Кнопка возврата — только у хоста
         if (returnToLobbyButton != null)
             returnToLobbyButton.gameObject.SetActive(NetworkServer.active);
+
+        if (stats != null) stats.Populate();
     }
 
     private void OnReturnToLobbyClicked()

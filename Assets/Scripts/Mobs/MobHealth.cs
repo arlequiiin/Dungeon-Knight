@@ -114,6 +114,16 @@ public class MobHealth : NetworkBehaviour
         staggerDuration = stagDuration;
     }
 
+    // Последний игрок-атакующий — нужен для зачисления убийства в RunStatsTracker.
+    private GameObject lastAttacker;
+
+    [Server]
+    public void TakeDamage(float amount, GameObject attacker)
+    {
+        lastAttacker = attacker;
+        TakeDamage(amount);
+    }
+
     [Server]
     public void TakeDamage(float amount)
     {
@@ -245,6 +255,12 @@ public class MobHealth : NetworkBehaviour
             "mob", data != null ? data.mobName : gameObject.name,
             "boss", isBoss);
 
+        if (lastAttacker != null)
+        {
+            var tracker = lastAttacker.GetComponent<RunStatsTracker>();
+            if (tracker != null) tracker.RegisterKill();
+        }
+
         DropCoins();
         RpcOnDeath();
     }
@@ -259,6 +275,14 @@ public class MobHealth : NetworkBehaviour
         if (amount <= 0) return;
 
         NetworkServer.SendToAll(new CoinDropMessage { amount = amount });
+
+        // Зачисляем монеты в персональный счётчик каждому игроку для итогового экрана.
+        foreach (var conn in NetworkServer.connections.Values)
+        {
+            if (conn == null || conn.identity == null) continue;
+            var tracker = conn.identity.GetComponent<RunStatsTracker>();
+            if (tracker != null) tracker.RegisterCoins(amount);
+        }
     }
 
     [ClientRpc]

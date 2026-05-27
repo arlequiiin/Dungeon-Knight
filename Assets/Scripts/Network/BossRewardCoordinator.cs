@@ -36,10 +36,23 @@ public static class BossRewardCoordinator
 
     /// <summary>
     /// Вызывается на сервере, когда босс убит. Начинаем ждать подтверждений от всех клиентов.
+    /// На последнем биоме кампании сундука/UI наград нет — сразу триггерим финальную победу.
     /// </summary>
     [Server]
     public static void OnBossDefeatedServer()
     {
+        var nm = NetworkManager.singleton as DungeonKnightNetworkManager;
+        if (nm != null && nm.IsLastCampaignBiome)
+        {
+            waiting = false;
+            donePlayers.Clear();
+            NetworkServer.SendToAll(new ShowVictoryMessage());
+            Analytics.Event("run_end", "result", "victory", "players", NetworkServer.connections.Count);
+            Analytics.EndRun();
+            TutorialManager.MarkCompleted();
+            return;
+        }
+
         waiting = true;
         donePlayers.Clear();
     }

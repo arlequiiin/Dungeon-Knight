@@ -45,7 +45,7 @@ public class AoeExplosion : NetworkBehaviour
             if (mobHealth != null && !mobHealth.IsDead)
             {
                 if (ownerIsMob) continue; // мобы не бьют друг друга
-                mobHealth.TakeDamage(damage);
+                mobHealth.TakeDamage(damage, owner);
                 if (owner != null)
                     mobHealth.GetComponent<MobAI>()?.NotifyAttacked(owner.transform);
                 hitAnyMob = true;

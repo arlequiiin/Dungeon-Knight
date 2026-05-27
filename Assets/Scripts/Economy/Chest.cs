@@ -160,6 +160,10 @@ public class Chest : NetworkBehaviour
         var mods = player.GetComponent<RunModifiers>();
         reward.effect.Apply(stats, mods);
 
+        // Записываем в журнал подобранных наград (для HUD-стака).
+        var log = player.GetComponent<RunRewardLog>();
+        if (log != null) log.RecordReward(reward);
+
         if (perPlayerMode)
             openedBy.Add(player.netId);
         else

@@ -15,6 +15,7 @@ public class VictoryScreenUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI victoryTitle;
     [SerializeField] private TextMeshProUGUI victorySubtitle;
     [SerializeField] private Button returnToLobbyButton;
+    [SerializeField] private EndScreenStats stats;
 
     private static VictoryScreenUI instance;
     private bool triggered;
@@ -74,6 +75,8 @@ public class VictoryScreenUI : MonoBehaviour
 
         if (returnToLobbyButton != null)
             returnToLobbyButton.gameObject.SetActive(NetworkServer.active);
+
+        if (stats != null) stats.Populate();
     }
 
     private void OnReturnToLobbyClicked()

@@ -253,7 +253,7 @@ public class Projectile : NetworkBehaviour
                 {
                     if (ownerIsMob) continue;
                     if (mob.TryBlock(damage, transform.position)) continue;
-                    mob.TakeDamage(damage);
+                    mob.TakeDamage(damage, owner);
                     hitAnyMob = true;
                     continue;
                 }
@@ -283,7 +283,7 @@ public class Projectile : NetworkBehaviour
                     NetworkServer.Destroy(gameObject);
                     return;
                 }
-                mobHealth.TakeDamage(damage);
+                mobHealth.TakeDamage(damage, owner);
                 if (owner != null)
                     mobHealth.GetComponent<MobAI>()?.NotifyAttacked(owner.transform);
                 RestoreOwnerEnergy();

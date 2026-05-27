@@ -14,6 +14,7 @@ public class GameOverUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI title;
     [SerializeField] private TextMeshProUGUI subtitle;
     [SerializeField] private Button returnToLobbyButton;
+    [SerializeField] private EndScreenStats stats;
 
     private static GameOverUI instance;
 
@@ -53,6 +54,8 @@ public class GameOverUI : MonoBehaviour
 
         if (returnToLobbyButton != null)
             returnToLobbyButton.gameObject.SetActive(NetworkServer.active);
+
+        if (stats != null) stats.Populate();
     }
 
     private void OnReturnToLobbyClicked()

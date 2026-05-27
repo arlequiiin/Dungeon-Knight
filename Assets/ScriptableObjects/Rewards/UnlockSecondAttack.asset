@@ -12,9 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d19017636251dec499d2d7e392dc3c64, type: 3}
   m_Name: UnlockSecondAttack
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: UnlockSecondAttack
-  description: 
-  icon: {fileID: 0}
+  rewardName: "\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C
+    \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u0443\u044E
+    \u0430\u0442\u0430\u043A\u0443"
+  description: "\u041E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u043D\u043E\u0432\u0443\u044E
+    \u0431\u043E\u0435\u0432\u0443\u044E \u0442\u0435\u0445\u043D\u0438\u043A\u0443
+    \u0434\u043B\u044F \u0431\u043B\u0438\u0436\u043D\u0435\u0433\u043E \u0431\u043E\u044F
+    (\u041F\u041A\u041C)"
+  icon: {fileID: -1796116724, guid: 4670706c49f754a49b3a7eeb38138f05, type: 3}
   rarity: 1
   price: 50
   requiresMeleeWithSecondAttack: 1

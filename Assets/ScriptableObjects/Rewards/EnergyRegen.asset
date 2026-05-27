@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d19017636251dec499d2d7e392dc3c64, type: 3}
   m_Name: EnergyRegen
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: EnergyRegen
-  description: 
-  icon: {fileID: 0}
+  rewardName: "\u0420\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F
+    \u044D\u043D\u0435\u0440\u0433\u0438\u0438"
+  description: "\u041F\u043E\u0441\u0442\u0435\u043F\u0435\u043D\u043D\u043E \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
+    \u044D\u043D\u0435\u0440\u0433\u0438\u044E \u0432\u043E \u0432\u0440\u0435\u043C\u044F
+    \u0431\u043E\u044F"
+  icon: {fileID: -602879276, guid: 4670706c49f754a49b3a7eeb38138f05, type: 3}
   rarity: 0
   price: 25
   requiresMeleeWithSecondAttack: 0

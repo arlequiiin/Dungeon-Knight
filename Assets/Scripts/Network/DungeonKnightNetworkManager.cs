@@ -221,6 +221,36 @@ public class DungeonKnightNetworkManager : NetworkManager
         DeathScreenUI.ShowGameOver();
     }
 
+    /// <summary>
+    /// Вызывается ДО смены сцены на сервере. Mirror уничтожит player object'ы при загрузке новой сцены,
+    /// поэтому Snapshot RunModifiers нужно снимать здесь — позже identity будет уже null.
+    /// </summary>
+    private System.Collections.IEnumerator ApplySnapshotNextFrame(RunModifiers mods, RunModifiers.Snapshot snapshot)
+    {
+        // Ждём 2 кадра, чтобы Mirror точно успел провести initial OnDeserialize host-клиента.
+        yield return null;
+        yield return null;
+        if (mods != null)
+            mods.ApplySnapshot(snapshot);
+    }
+
+    public override void OnServerChangeScene(string newSceneName)
+    {
+        base.OnServerChangeScene(newSceneName);
+
+        // Переносим модификаторы только между игровыми сценами (биом → биом).
+        // При выходе в лобби модификаторы должны сбрасываться — это делает ResetCampaign().
+        if (!newSceneName.Contains("SampleScene")) return;
+
+        foreach (var conn in NetworkServer.connections.Values)
+        {
+            if (conn == null || conn.identity == null) continue;
+            var mods = conn.identity.GetComponent<RunModifiers>();
+            if (mods != null)
+                savedModifiers[conn] = mods.CaptureSnapshot();
+        }
+    }
+
     public override void OnServerSceneChanged(string sceneName)
     {
         base.OnServerSceneChanged(sceneName);
@@ -245,17 +275,14 @@ public class DungeonKnightNetworkManager : NetworkManager
         // и OnServerAddPlayer создаст игроков с правильными хиро-данными.
         // Перед Destroy снимаем Snapshot RunModifiers, чтобы накопленные награды пережили
         // переход между биомами кампании (иначе SyncVar'ы сбрасываются в дефолт).
+        // Snapshot модификаторов снят раньше — в OnServerChangeScene, пока identity ещё существовал.
+        // Mirror к этому моменту уже уничтожил player object'ы; цикл оставлен на случай,
+        // если какие-то identity всё же дожили (DontDestroyOnLoad и т.п.).
         foreach (var conn in NetworkServer.connections.Values)
         {
             if (conn == null) continue;
             if (conn.identity != null)
-            {
-                var mods = conn.identity.GetComponent<RunModifiers>();
-                if (mods != null)
-                    savedModifiers[conn] = mods.CaptureSnapshot();
-
                 NetworkServer.Destroy(conn.identity.gameObject);
-            }
         }
     }
 
@@ -379,10 +406,14 @@ public class DungeonKnightNetworkManager : NetworkManager
 
         // Восстанавливаем накопленные модификаторы забега (вторая атака, бонусы урона и т.д.).
         // Snapshot был снят в ReinitPlayersForDungeon при уничтожении предыдущего player object.
+        // На host-клиенте Mirror после Spawn локально десериализует initial state с дефолтами
+        // (он зафиксирован ДО нашего ApplySnapshot). Поэтому применяем Snapshot со сдвигом
+        // на один кадр — иначе OnDeserialize перепишет наши значения нулями.
         if (savedModifiers.TryGetValue(conn, out var snapshot))
         {
             var mods = player.GetComponent<RunModifiers>();
-            if (mods != null) mods.ApplySnapshot(snapshot);
+            if (mods != null)
+                StartCoroutine(ApplySnapshotNextFrame(mods, snapshot));
             savedModifiers.Remove(conn);
         }
 

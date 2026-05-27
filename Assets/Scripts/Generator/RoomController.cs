@@ -469,7 +469,10 @@ public class RoomController : MonoBehaviour
         {
             // Спавн боссового сундука в центре комнаты — только когда умерли босс И все призванные мобы.
             // (trackedMobs к этому моменту полностью пуст или весь IsDead, проверка в Update гарантирует это.)
-            if (isBoss && bossChestPrefab != null)
+            // На последнем биоме сундук не спавним: BossRewardCoordinator сразу триггерит финальную победу.
+            var nmRef = Mirror.NetworkManager.singleton as DungeonKnightNetworkManager;
+            bool isFinalBoss = nmRef != null && nmRef.IsLastCampaignBiome;
+            if (isBoss && bossChestPrefab != null && !isFinalBoss)
             {
                 var chestObj = Instantiate(bossChestPrefab, cell.RoomCenter, Quaternion.identity);
                 NetworkServer.Spawn(chestObj);

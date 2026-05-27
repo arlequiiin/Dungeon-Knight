@@ -48,6 +48,20 @@ public class PlayerHUD : MonoBehaviour
     [Tooltip("Сколько секунд показывается текст уведомления")]
     [SerializeField] private float notificationDuration = 2.5f;
 
+    [Header("Подобранные награды")]
+    [Tooltip("Контейнер столбика подобранных наград (например, VerticalLayoutGroup в углу экрана).")]
+    [SerializeField] private RectTransform rewardListContainer;
+    [Tooltip("Префаб строки журнала наград. Должен содержать Image \"Icon\", TMP_Text \"Name\", TMP_Text \"Count\".")]
+    [SerializeField] private GameObject rewardEntryPrefab;
+
+    [Header("Лента событий")]
+    [Tooltip("Контейнер для коротких уведомлений (\"Паладин повержен\" и т.п.).")]
+    [SerializeField] private RectTransform eventFeedContainer;
+    [Tooltip("Префаб строки события: корневой объект с TMP_Text. Создаётся при каждом событии, уничтожается через eventFeedDuration сек.")]
+    [SerializeField] private GameObject eventFeedEntryPrefab;
+    [Tooltip("Сколько секунд держится одно событие в ленте")]
+    [SerializeField] private float eventFeedDuration = 5f;
+
     public static PlayerHUD LocalInstance { get; private set; }
 
     private HeroStats stats;
@@ -63,6 +77,8 @@ public class PlayerHUD : MonoBehaviour
 
     private HeroData heroData;
     private readonly System.Collections.Generic.List<AllyPanel> allyPanels = new();
+
+    private RunRewardLog rewardLog;
 
     private bool ShowingMeta =>
         UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.Contains("LobbyScene");
@@ -147,6 +163,14 @@ public class PlayerHUD : MonoBehaviour
         ghostHealth = stats.HealthNormalized;
         UpdateEnergyBar(stats.EnergyNormalized);
         UpdateDownedOverlay();
+
+        // Журнал подобранных наград (для столбика в углу).
+        rewardLog = stats.GetComponent<RunRewardLog>();
+        if (rewardLog != null)
+        {
+            rewardLog.OnLogChanged += RefreshRewardList;
+            RefreshRewardList();
+        }
     }
 
     private void OnDestroy()
@@ -161,6 +185,9 @@ public class PlayerHUD : MonoBehaviour
         }
         CurrencyManager.OnRunCoinsChanged -= OnRunCoinsChanged;
         CurrencyManager.OnMetaCoinsChanged -= OnMetaCoinsChanged;
+
+        if (rewardLog != null)
+            rewardLog.OnLogChanged -= RefreshRewardList;
 
         if (LocalInstance == this) LocalInstance = null;
     }
@@ -356,5 +383,52 @@ public class PlayerHUD : MonoBehaviour
         }
 
         coinText.transform.localScale = original;
+    }
+
+    // --- Event Feed ---
+
+    /// <summary>
+    /// Добавить короткое сообщение в ленту событий. Вызывается из RunModifiers.RpcAddEvent.
+    /// </summary>
+    public void AddFeedEvent(string text)
+    {
+        if (eventFeedContainer == null || eventFeedEntryPrefab == null) return;
+        var entry = Instantiate(eventFeedEntryPrefab, eventFeedContainer);
+        var label = entry.GetComponentInChildren<TMP_Text>();
+        if (label != null) label.text = text;
+        Destroy(entry, eventFeedDuration);
+    }
+
+    // --- Reward Log ---
+
+    private void RefreshRewardList()
+    {
+        if (rewardListContainer == null || rewardEntryPrefab == null || rewardLog == null) return;
+
+        // Полная перерисовка: проще, чем диффить — наград за забег не больше десятка.
+        for (int i = rewardListContainer.childCount - 1; i >= 0; i--)
+            Destroy(rewardListContainer.GetChild(i).gameObject);
+
+        var stacks = rewardLog.GetStackedRewards();
+        foreach (var (reward, count) in stacks)
+        {
+            var entry = Instantiate(rewardEntryPrefab, rewardListContainer);
+            var icon = entry.transform.Find("Icon")?.GetComponent<Image>();
+            var name = entry.transform.Find("Name")?.GetComponent<TMP_Text>();
+            var countText = entry.transform.Find("Count")?.GetComponent<TMP_Text>();
+
+            if (icon != null)
+            {
+                icon.sprite = reward.icon;
+                icon.enabled = reward.icon != null;
+                icon.preserveAspect = true;
+            }
+            if (name != null) name.text = reward.rewardName;
+            if (countText != null)
+            {
+                countText.gameObject.SetActive(count > 1);
+                countText.text = $"x{count}";
+            }
+        }
     }
 }

@@ -94,7 +94,7 @@ public class WeaponHitbox : MonoBehaviour
             if (mobHealth.TryBlock(damage, owner.transform.position))
                 return;
 
-            mobHealth.TakeDamage(damage);
+            mobHealth.TakeDamage(damage, owner);
             if (staggerDamage > 0f)
                 mobHealth.TakePoiseDamage(staggerDamage);
             mobHealth.GetComponent<MobAI>()?.NotifyAttacked(owner.transform);

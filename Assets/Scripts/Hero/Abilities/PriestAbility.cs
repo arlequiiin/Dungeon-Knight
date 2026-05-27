@@ -49,7 +49,7 @@ public class PriestAbility : HeroAbility
         var mob = target.GetComponent<MobHealth>();
         if (mob == null || mob.IsDead) return;
 
-        mob.TakeDamage(damage);
+        mob.TakeDamage(damage, gameObject);
 
         // Энергия атакующему
         if (energyGain > 0f)

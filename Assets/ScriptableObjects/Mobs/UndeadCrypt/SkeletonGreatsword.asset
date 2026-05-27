@@ -32,6 +32,8 @@ MonoBehaviour:
   - 50
   - 50
   - 50
+  attackIsAreaAttack: 
+  yAlignThreshold: 0.6
   attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1
@@ -53,5 +55,5 @@ MonoBehaviour:
   staggerDuration: 2.5
   knockbackResistance: 0.05
   projectilePrefab: {fileID: 0}
-  coinDropMin: 5
-  coinDropMax: 5
+  coinDropMin: 7
+  coinDropMax: 7

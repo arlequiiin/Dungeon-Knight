@@ -68,7 +68,30 @@ public class RunModifiers : NetworkBehaviour
     {
         if (!extraLifeAvailable) return false;
         extraLifeAvailable = false;
+
+        // Снимаем запись из журнала наград, чтобы плашка ExtraLife пропала из HUD.
+        var log = GetComponent<RunRewardLog>();
+        if (log != null) log.RemoveRewardByEffectType<ExtraLifeEffect>();
+
         return true;
+    }
+
+    /// <summary>
+    /// Сервер рассылает сообщение в ленту событий HUD всем игрокам.
+    /// Используется для «союзник упал/поднят/взял награду» и т.п.
+    /// </summary>
+    [Server]
+    public void BroadcastEventFeed(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        RpcAddEvent(text);
+    }
+
+    [ClientRpc]
+    private void RpcAddEvent(string text)
+    {
+        if (PlayerHUD.LocalInstance != null)
+            PlayerHUD.LocalInstance.AddFeedEvent(text);
     }
 
     /// <summary>
@@ -86,19 +109,34 @@ public class RunModifiers : NetworkBehaviour
         public float energyRegenPerSecond;
         public bool attack2Unlocked;
         public bool extraLifeAvailable;
+        public string[] rewardLogNames;
+        public RunStatsTracker.Snapshot stats;
     }
 
-    public Snapshot CaptureSnapshot() => new Snapshot
+    public Snapshot CaptureSnapshot()
     {
-        attackDamageBonus = attackDamageBonus,
-        attack2DamageBonus = attack2DamageBonus,
-        damageResistance = damageResistance,
-        abilityPowerBonus = abilityPowerBonus,
-        abilityCooldownReduction = abilityCooldownReduction,
-        energyRegenPerSecond = energyRegenPerSecond,
-        attack2Unlocked = attack2Unlocked,
-        extraLifeAvailable = extraLifeAvailable,
-    };
+        var log = GetComponent<RunRewardLog>();
+        string[] names = null;
+        if (log != null)
+        {
+            names = new string[log.RewardNames.Count];
+            for (int i = 0; i < log.RewardNames.Count; i++) names[i] = log.RewardNames[i];
+        }
+        var tracker = GetComponent<RunStatsTracker>();
+        return new Snapshot
+        {
+            attackDamageBonus = attackDamageBonus,
+            attack2DamageBonus = attack2DamageBonus,
+            damageResistance = damageResistance,
+            abilityPowerBonus = abilityPowerBonus,
+            abilityCooldownReduction = abilityCooldownReduction,
+            energyRegenPerSecond = energyRegenPerSecond,
+            attack2Unlocked = attack2Unlocked,
+            extraLifeAvailable = extraLifeAvailable,
+            rewardLogNames = names,
+            stats = tracker != null ? tracker.CaptureSnapshot() : default,
+        };
+    }
 
     [Server]
     public void ApplySnapshot(Snapshot s)
@@ -111,5 +149,14 @@ public class RunModifiers : NetworkBehaviour
         energyRegenPerSecond = s.energyRegenPerSecond;
         attack2Unlocked = s.attack2Unlocked;
         extraLifeAvailable = s.extraLifeAvailable;
+
+        var log = GetComponent<RunRewardLog>();
+        if (log != null && s.rewardLogNames != null)
+        {
+            log.RewardNames.Clear();
+            foreach (var n in s.rewardLogNames) log.RewardNames.Add(n);
+        }
+        var tracker = GetComponent<RunStatsTracker>();
+        if (tracker != null) tracker.ApplySnapshot(s.stats);
     }
 }

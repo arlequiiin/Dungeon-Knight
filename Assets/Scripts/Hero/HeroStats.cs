@@ -166,6 +166,20 @@ public class HeroStats : NetworkBehaviour
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
 
+    /// <summary>
+    /// Увеличить максимум здоровья на величину amount и подлечить героя на ту же величину
+    /// (текущее ОЗ не превышает новый максимум). Используется наградой MaxHealth.
+    /// </summary>
+    [Server]
+    public void IncreaseMaxHealth(float amount)
+    {
+        if (isDead) return;
+        if (amount <= 0f) return;
+        maxHealth += amount;
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        onHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
     // Трата энергии — возвращает true если хватило энергии
     [Server]
     public bool SpendEnergy(float amount)
@@ -293,11 +307,17 @@ public class HeroStats : NetworkBehaviour
         if (mods != null && mods.ConsumeExtraLife())
         {
             currentHealth = maxHealth;
+            var ctrl = GetComponent<PlayerController>();
+            string heroName = ctrl != null && ctrl.heroData != null ? ctrl.heroData.heroName : "Союзник";
+            mods.BroadcastEventFeed($"{heroName} использует вторую жизнь");
             return;
         }
 
         isDowned = true;
         downedHealth = DOWNED_MAX_HEALTH;
+
+        var tracker = GetComponent<RunStatsTracker>();
+        if (tracker != null) tracker.RegisterDowned();
 
         var pc = GetComponent<PlayerController>();
         Analytics.Event("player_downed",
