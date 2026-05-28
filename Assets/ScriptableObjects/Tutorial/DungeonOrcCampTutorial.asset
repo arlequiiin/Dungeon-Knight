@@ -22,5 +22,5 @@ MonoBehaviour:
   extraEdges: 2
   minTreasureRooms: 1
   shapeModifyChance: 0
-  seed: 103
+  seed: 104
   useRandomSeed: 0

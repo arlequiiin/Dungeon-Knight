@@ -22,12 +22,15 @@ MonoBehaviour:
   - 12
   - 15
   usesAttackSlot: 1
+  fleesWhenAlone: 0
   attackStaggerDamages:
   - 5
   - 8
   attackWeights:
   - 70
   - 30
+  attackIsAreaAttack: 
+  yAlignThreshold: 0.6
   attackTriggers: []
   patrolRadius: 3
   patrolWaitMin: 0.7
@@ -43,10 +46,11 @@ MonoBehaviour:
   hitReactionDuration: 0.25
   recoveryDuration: 0.35
   canBeInterrupted: 1
+  hurtAnimDamageThreshold: 0
   maxPoise: 20
   poiseRecoveryRate: 0
   staggerDuration: 1.3
   knockbackResistance: 0
   projectilePrefab: {fileID: 0}
-  coinDropMin: 3
-  coinDropMax: 4
+  coinDropMin: 6
+  coinDropMax: 7

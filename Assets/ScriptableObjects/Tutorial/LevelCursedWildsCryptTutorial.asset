@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daab5c1a5c4cbd14dbc2994137d8f581, type: 3}
+  m_Name: LevelCursedWildsCryptTutorial
+  m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
+  displayName: "\u041F\u0420\u041E\u041A\u041B\u042F\u0422\u042B\u0415 \u0417\u0415\u041C\u041B\u0418"
+  dungeon: {fileID: 11400000, guid: e4224e8f7673b7e4db68fe70916cb45b, type: 2}
+  mobTable: {fileID: 11400000, guid: 8b207072ae123444e8447a2412098e74, type: 2}
+  bossPrefab: {fileID: 2722922200427301075, guid: 40ee25961a39f724c843a2a348313af8, type: 3}
+  difficulty: 0.8
+  mobsPerNormalRoom: 3
+  perPlayerMobMultiplier: 1
+  wavesBase: 1
+  extraWavesPerPlayer: 0
+  healOnRoomClear: 0.6
+  spawnIndicatorDelay: 1

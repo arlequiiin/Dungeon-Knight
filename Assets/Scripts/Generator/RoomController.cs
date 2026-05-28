@@ -26,6 +26,8 @@ public class RoomController : MonoBehaviour
     private readonly List<MobHealth> trackedMobs = new();
     private readonly List<GameObject> doorBlockers = new();
     private GameObject bossChestPrefab;
+    private GameObject pikePrefab;
+    private float pikeSpacing = 0.5f;
 
     // Волны: для обычных комнат totalWaves = max(1, playerCount).
     // Босс-комната всегда 1 "волна" (босс + его призывы).
@@ -62,7 +64,7 @@ public class RoomController : MonoBehaviour
         rc.state = (RoomState)newState;
     }
 
-    public void Init(int index, CellData cell, DungeonGraph graph, int corridorHalfWidth, MobSpawner spawner, GameObject bossChestPrefab = null)
+    public void Init(int index, CellData cell, DungeonGraph graph, int corridorHalfWidth, MobSpawner spawner, GameObject bossChestPrefab = null, GameObject pikePrefab = null, float pikeSpacing = 0.5f)
     {
         roomIndex = index;
         this.cell = cell;
@@ -70,6 +72,8 @@ public class RoomController : MonoBehaviour
         this.corridorHalfWidth = corridorHalfWidth;
         mobSpawner = spawner;
         this.bossChestPrefab = bossChestPrefab;
+        this.pikePrefab = pikePrefab;
+        this.pikeSpacing = Mathf.Max(0.05f, pikeSpacing);
 
         // Trigger-коллайдер покрывает всю площадь комнаты
         var col = gameObject.AddComponent<BoxCollider2D>();
@@ -526,7 +530,40 @@ public class RoomController : MonoBehaviour
             obstacle.shape = NavMeshObstacleShape.Box;
             obstacle.size = new Vector3(door.size.x, door.size.y, 1f);
 
+            SpawnPikesForDoor(blocker.transform, door);
+
             doorBlockers.Add(blocker);
+        }
+    }
+
+    private void SpawnPikesForDoor(Transform parent, DoorInfo door)
+    {
+        if (pikePrefab == null) return;
+
+        // Ширина проёма коридора (без двух тайлов запаса от блокировщика — пики ставим только напротив самого коридора)
+        int corridorTiles = corridorHalfWidth * 2 + 1;
+        float openingWidth = corridorTiles;
+
+        // На одну пику меньше — крайние не упираются в самый край проёма
+        int count = Mathf.Max(1, Mathf.RoundToInt(openingWidth / pikeSpacing) - 1);
+        // Дистанция между пиками так, чтобы ряд был симметричным относительно центра проёма
+        float step = count > 1 ? openingWidth / count : 0f;
+        float rowWidth = step * (count - 1);
+        float startOffset = -rowWidth * 0.5f;
+
+        for (int i = 0; i < count; i++)
+        {
+            // Горизонтальный коридор (слева/справа) → вертикальный ряд пик.
+            // Убираем самую нижнюю пику (наименьший Y, i == 0).
+            if (door.isHorizontal && i == 0) continue;
+
+            float offset = startOffset + step * i;
+            Vector3 worldPos = door.isHorizontal
+                ? new Vector3(door.roomEdgeCoord, door.crossCenter + offset, 0f)
+                : new Vector3(door.crossCenter + offset, door.roomEdgeCoord, 0f);
+
+            var pike = Instantiate(pikePrefab, worldPos, Quaternion.identity, parent);
+            pike.name = $"Pike_{i}";
         }
     }
 
@@ -546,6 +583,13 @@ public class RoomController : MonoBehaviour
     {
         public Vector2 center;
         public Vector2 size;
+        // Направление прохода: true — коридор идёт по X (стена комнаты вертикальная)
+        public bool isHorizontal;
+        // Координата стены комнаты вдоль оси прохода (X для горизонтального, Y для вертикального).
+        // Это место, где пики прижимаются к стене комнаты.
+        public float roomEdgeCoord;
+        // Центр коридора по поперечной оси (Y для горизонтального, X для вертикального).
+        public float crossCenter;
     }
 
     /// <summary>
@@ -579,11 +623,17 @@ public class RoomController : MonoBehaviour
                 float doorX = diff.x > 0
                     ? cell.roomOrigin.x + cell.roomSize.x  // правая стена → первый тайл коридора
                     : cell.roomOrigin.x - 1;                // левая стена → последний тайл коридора
+                float roomEdgeX = diff.x > 0
+                    ? cell.roomOrigin.x + cell.roomSize.x
+                    : cell.roomOrigin.x;
 
                 doors.Add(new DoorInfo
                 {
                     center = new Vector2(doorX + 0.5f, centerY + 0.5f),
-                    size = new Vector2(thickness, crossWidth)
+                    size = new Vector2(thickness, crossWidth),
+                    isHorizontal = true,
+                    roomEdgeCoord = roomEdgeX,
+                    crossCenter = centerY + 0.5f
                 });
             }
             else if (diff.y != 0)
@@ -593,11 +643,17 @@ public class RoomController : MonoBehaviour
                 float doorY = diff.y > 0
                     ? cell.roomOrigin.y + cell.roomSize.y  // верхняя стена
                     : cell.roomOrigin.y - 1;                // нижняя стена
+                float roomEdgeY = diff.y > 0
+                    ? cell.roomOrigin.y + cell.roomSize.y
+                    : cell.roomOrigin.y;
 
                 doors.Add(new DoorInfo
                 {
                     center = new Vector2(centerX + 0.5f, doorY + 0.5f),
-                    size = new Vector2(crossWidth, thickness)
+                    size = new Vector2(crossWidth, thickness),
+                    isHorizontal = false,
+                    roomEdgeCoord = roomEdgeY,
+                    crossCenter = centerX + 0.5f
                 });
             }
         }

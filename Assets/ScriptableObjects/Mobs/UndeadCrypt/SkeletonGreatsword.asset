@@ -19,18 +19,18 @@ MonoBehaviour:
   attackRange: 0.8
   attackCooldown: 1.2
   attackDamages:
-  - 25
-  - 25
-  - 25
+  - 19
+  - 24
+  - 21
   usesAttackSlot: 1
   fleesWhenAlone: 0
   attackStaggerDamages:
+  - 12
   - 10
-  - 10
-  - 10
+  - 5
   attackWeights:
-  - 50
-  - 50
+  - 20
+  - 30
   - 50
   attackIsAreaAttack: 
   yAlignThreshold: 0.6

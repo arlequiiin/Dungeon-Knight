@@ -447,8 +447,7 @@ public class HeroStats : NetworkBehaviour
                 controller.ClientClearLocalInput();
             controller.enabled = false;
         }
-
-        onDowned?.Invoke();
+        // onDowned инвокается из SyncVar-хука OnDownedChanged — не дублируем здесь.
     }
 
     [ClientRpc]
@@ -465,12 +464,15 @@ public class HeroStats : NetworkBehaviour
         var controller = GetComponent<PlayerController>();
         if (controller != null)
             controller.enabled = true;
-
-        onRevived?.Invoke();
+        // onRevived инвокается из SyncVar-хука OnDownedChanged — не дублируем здесь.
     }
 
     private void OnDownedChanged(bool oldVal, bool newVal)
     {
+        // При первичной синхронизации SyncVar (спавн в лобби/старте) hook прилетает
+        // без реального изменения значения — не шлём ложные события в ленту HUD.
+        if (oldVal == newVal) return;
+
         if (newVal)
             onDowned?.Invoke();
         else

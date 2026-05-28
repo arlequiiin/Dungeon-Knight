@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a483b83eb6702cf4ab1f82858fae3a74, type: 3}
+  m_Name: TutorialCursedWildsTable
+  m_EditorClassIdentifier: Assembly-CSharp::MobSpawnTable
+  entries:
+  - prefab: {fileID: 2722922200427301075, guid: c7bb7c40e8117da4f9530add20596008, type: 3}
+    weight: 15
+  - prefab: {fileID: 2722922200427301075, guid: 43a4e64188cd8f44b8027f6e351b0c48, type: 3}
+    weight: 25
+  - prefab: {fileID: 2722922200427301075, guid: 5aa62bd13e115514aae1e9a1cfc23107, type: 3}
+    weight: 60

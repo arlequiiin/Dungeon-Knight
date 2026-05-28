@@ -29,10 +29,17 @@ public class RangedMobAI : MobAI
     // обежать его за время анимации.
     private Vector2 lockedShotDirection = Vector2.right;
 
+    // Тайм-аут ожидания shoot-слота: если слот не освобождается слишком долго
+    // (занявший стрелок умер без освобождения / не сработал Animation Event выстрела),
+    // стреляем игнорируя слот, чтобы не застыть навсегда.
+    private const float ShootSlotTimeout = 3f;
+    private float shootSlotWaitTimer;
+
     protected override void UpdateAttack()
     {
         if (target == null || !IsTargetAlive())
         {
+            shootSlotWaitTimer = 0f;
             SetTarget(null);
             ResumeAgent();
             state = State.Patrol;
@@ -49,6 +56,7 @@ public class RangedMobAI : MobAI
         // Слишком далеко (по 2D) — догоняем через Chase.
         if (dist2D > attackRange * 1.2f)
         {
+            shootSlotWaitTimer = 0f;
             ResumeAgent();
             state = State.Chase;
             return;
@@ -57,6 +65,7 @@ public class RangedMobAI : MobAI
         // Слишком близко — отступаем (направление: подальше от цели).
         if (dist2D < retreatRange)
         {
+            shootSlotWaitTimer = 0f;
             ResumeAgent();
             Vector2 awayDir = (self - tgt).normalized;
             Vector3 retreatPos = (Vector3)(self + awayDir * attackRange);
@@ -73,6 +82,7 @@ public class RangedMobAI : MobAI
         // если по X слишком близко (иначе будем стоять впритык).
         if (dy > yAlignThreshold)
         {
+            shootSlotWaitTimer = 0f;
             ResumeAgent();
             float desiredX = self.x;
             if (dx < retreatRange)
@@ -91,15 +101,19 @@ public class RangedMobAI : MobAI
         // Выровнены по Y и в радиусе. Запрашиваем shoot-slot (лимит одновременных стрелков на цель).
         if (groupManager != null && !groupManager.RequestShootSlot(this, target))
         {
-            // Слот занят — лёгкий шафл по Y/X чтобы не стоять статуей; ждём пока освободится.
-            ResumeAgent();
-            FaceTarget();
-            // Стой на месте — слот освободится после выстрела соседа.
-            StopAgent();
-            return;
+            // Слот занят — ждём, но не вечно: по тайм-ауту стреляем игнорируя слот.
+            shootSlotWaitTimer += Time.deltaTime;
+            if (shootSlotWaitTimer < ShootSlotTimeout)
+            {
+                FaceTarget();
+                StopAgent();
+                return;
+            }
+            // Тайм-аут вышел — проваливаемся к выстрелу без слота.
         }
 
-        // Слот получен, всё ок — стоим, стреляем.
+        // Слот получен (или форсируем по тайм-ауту) — стоим, стреляем.
+        shootSlotWaitTimer = 0f;
         StopAgent();
         FaceTarget();
 

@@ -16,13 +16,14 @@ MonoBehaviour:
   maxHealth: 120
   detectionRange: 5
   loseRange: 8
-  attackRange: 1.1
+  attackRange: 1.3
   attackCooldown: 1.4
   attackDamages:
   - 30
   - 35
   - 45
   usesAttackSlot: 1
+  fleesWhenAlone: 0
   attackStaggerDamages:
   - 15
   - 18
@@ -31,6 +32,8 @@ MonoBehaviour:
   - 50
   - 30
   - 20
+  attackIsAreaAttack: 
+  yAlignThreshold: 1.2
   attackTriggers: []
   patrolRadius: 2.5
   patrolWaitMin: 1
@@ -38,7 +41,7 @@ MonoBehaviour:
   moveSpeed: 1
   navAcceleration: 5
   navAngularSpeed: 540
-  navStoppingDistance: 1.1
+  navStoppingDistance: 0.5
   navRadius: 0.5
   navPriority: 40
   navAvoidanceQuality: 2
@@ -46,6 +49,7 @@ MonoBehaviour:
   hitReactionDuration: 0.3
   recoveryDuration: 0.5
   canBeInterrupted: 1
+  hurtAnimDamageThreshold: 0
   maxPoise: 70
   poiseRecoveryRate: 0
   staggerDuration: 2.5

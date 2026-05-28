@@ -69,6 +69,11 @@ public abstract class MobAI : NetworkBehaviour
     private float staggerTimer;
     private float circleWaitTimer;
     private const float CircleWaitTimeout = 5f;
+    // Тайм-аут выравнивания по Y: если за это время моб не смог встать на горизонталь
+    // с целью (NavMesh не даёт точку, упёрся в игрока/стену), атакует как есть —
+    // иначе он вечно «решает выравниваться» и застывает в Idle вплотную к игроку.
+    private float yAlignTimer;
+    private const float YAlignTimeout = 1.5f;
     // Если слот не получен слишком долго — игнорируем слот-систему и атакуем напрямую.
     private bool forceAttackIgnoringSlot;
 
@@ -321,50 +326,71 @@ public abstract class MobAI : NetworkBehaviour
         // В радиусе атаки — атакуем. Добавляем небольшой допуск (0.5),
         // потому что NavMeshAgent останавливается по stoppingDistance, который часто >= attackRange.
         // Без допуска моб с stoppingDistance=1 и attackRange=0.8 будет зависать в Chase впритык к игроку.
-        if (dist <= attackRange + 0.5f)
-        {
-            // Top-down: направленные атаки бьют влево/вправо. Если игрок сильно выше/ниже —
-            // нет смысла бить в пустоту, надо сначала выровняться по Y.
-            // Исключение: моб умеет area-атаки (круговые) — бьём с любого положения.
-            if (!IsYAligned() && !HasAnyAreaAttack())
-            {
-                MoveToYAlignedPosition();
-                return;
-            }
+        // Готовность к направленной атаке: выровнен по Y И в пределах attackRange по X.
+        // area-атаки (круговые) не требуют выравнивания.
+        bool canAttackNow = HasAnyAreaAttack()
+            || (IsYAligned() && Mathf.Abs(target.position.x - transform.position.x) <= attackRange + 0.1f);
 
+        if (canAttackNow)
+        {
+            yAlignTimer = 0f;
             agent.ResetPath();
             state = State.Attack;
             return;
         }
 
-        // Цель назначения: позиция слота (по горизонтали с игроком). Если слот ещё не выдан —
-        // идём прямо на target.
-        Vector2 dest = groupManager != null && (groupManager.IsLeftSlot(this) || groupManager.IsRightSlot(this))
-            ? groupManager.GetSlotPosition(this, target, attackRange)
-            : (Vector2)target.position;
+        // Не готов бить (игрок выше/ниже по Y или далеко по X в пределах общей дистанции) —
+        // идём к боковой точке вплотную к игроку на его горизонтали. Это и сближает по X,
+        // и выравнивает по Y одновременно.
+        MoveToAttackPosition();
 
-        agent.SetDestination(dest);
+        // Страховка от вечного «не могу подойти»: если уже близко (dist <= attackRange+0.5),
+        // но всё не готов дольше тайм-аута (NavMesh не пускает, упёрся) — бьём как есть.
+        if (dist <= attackRange + 0.5f)
+        {
+            yAlignTimer += Time.deltaTime;
+            if (yAlignTimer >= YAlignTimeout)
+            {
+                yAlignTimer = 0f;
+                agent.ResetPath();
+                state = State.Attack;
+            }
+        }
+        else
+        {
+            yAlignTimer = 0f;
+        }
     }
 
     /// <summary>
-    /// Двигаемся к точке на одной горизонтали с целью, держа дистанцию по X в радиусе атаки.
-    /// Используется когда |Δy| превышает порог — моб не может бить горизонтальной атакой.
+    /// Двигаемся к точке вплотную сбоку от цели на её горизонтали (tgt.y, tgt.x ± attackRange).
+    /// Одновременно сближает по X и выравнивает по Y, чтобы направленная атака попала.
+    /// Сторона выбирается по текущему положению (с какой стороны моб ближе).
     /// </summary>
-    private void MoveToYAlignedPosition()
+    private void MoveToAttackPosition()
     {
         if (target == null) return;
         Vector2 self = transform.position;
         Vector2 tgt = target.position;
-        float dx = Mathf.Abs(tgt.x - self.x);
 
-        // Удерживаемся в attackRange по X (с лёгким приближением). Если стояли впритык по X —
-        // не двигаемся в сторону игрока, иначе слипнемся.
-        float desiredDx = Mathf.Clamp(dx, attackRange * 0.6f, attackRange);
+        // Учитываем слот группы, если выдан — иначе подходим с ближней стороны.
+        if (groupManager != null && (groupManager.IsLeftSlot(this) || groupManager.IsRightSlot(this)))
+        {
+            agent.SetDestination(groupManager.GetSlotPosition(this, target, attackRange));
+            FaceTarget();
+            return;
+        }
+
         float sign = self.x >= tgt.x ? 1f : -1f;
-        Vector3 alignPos = new Vector3(tgt.x + sign * desiredDx, tgt.y, 0f);
+        // Целимся чуть ближе attackRange, чтобы гарантированно войти в радиус удара.
+        Vector3 attackPos = new Vector3(tgt.x + sign * attackRange * 0.85f, tgt.y, 0f);
 
-        if (UnityEngine.AI.NavMesh.SamplePosition(alignPos, out var hit, 2f, UnityEngine.AI.NavMesh.AllAreas))
+        // Широкий sample-радиус; если точка невалидна — идём прямо на игрока (точно на навмеше).
+        if (UnityEngine.AI.NavMesh.SamplePosition(attackPos, out var hit, attackRange + 1f, UnityEngine.AI.NavMesh.AllAreas))
             agent.SetDestination(hit.position);
+        else
+            agent.SetDestination(tgt);
+
         FaceTarget();
     }
 
@@ -436,7 +462,18 @@ public abstract class MobAI : NetworkBehaviour
 
         if (attackTimer <= 0f)
         {
-            // Enter windup before performing the actual attack
+            // Игрок мог сместиться по Y/X за время кулдауна. Бьём только если удар попадёт
+            // (выровнены по Y и в радиусе по X), иначе возвращаемся в Chase перепозиционироваться —
+            // чтобы не молотить направленной атакой в пустоту. area-атаки бьют всегда.
+            bool canHit = HasAnyAreaAttack()
+                || (IsYAligned() && Mathf.Abs(target.position.x - transform.position.x) <= attackRange + 0.1f);
+            if (!canHit)
+            {
+                ResumeAgent();
+                state = State.Chase;
+                return;
+            }
+
             state = State.AttackWindup;
             windupTimer = attackWindupDuration;
         }
@@ -612,6 +649,9 @@ public abstract class MobAI : NetworkBehaviour
         // Deactivate hitbox if attack was interrupted
         DisableHitbox();
 
+        // Прерывание сбрасывает форс-атаку, иначе моб навсегда игнорирует слот-систему группы.
+        forceAttackIgnoringSlot = false;
+
         state = State.HitReaction;
         hitReactionTimer = hitReactionDuration;
         StopAgent();
@@ -626,6 +666,7 @@ public abstract class MobAI : NetworkBehaviour
         if (health.IsDead) return;
 
         DisableHitbox();
+        forceAttackIgnoringSlot = false;
         state = State.Stagger;
         staggerTimer = duration;
         StopAgent();

@@ -3968,6 +3968,11 @@ MonoBehaviour:
   - {fileID: 2722922200427301075, guid: 64952a4729866c74680f89e1d87c40b9, type: 3}
   - {fileID: 2722922200427301075, guid: 7edb0b2c0e7333843b6a0c5012b2078f, type: 3}
   - {fileID: 2722922200427301075, guid: 513f116e45bfd8845b35647dcc59e7a9, type: 3}
+  - {fileID: 2722922200427301075, guid: 5aa62bd13e115514aae1e9a1cfc23107, type: 3}
+  - {fileID: 2722922200427301075, guid: c7bb7c40e8117da4f9530add20596008, type: 3}
+  - {fileID: 2722922200427301075, guid: 43a4e64188cd8f44b8027f6e351b0c48, type: 3}
+  - {fileID: 2722922200427301075, guid: 40ee25961a39f724c843a2a348313af8, type: 3}
+  - {fileID: 1066876977030457965, guid: c63cc9fe70ed923468b98c4caf7db1e0, type: 3}
   snapshotSettings:
     bufferTimeMultiplier: 2
     bufferLimit: 32
@@ -3983,6 +3988,7 @@ MonoBehaviour:
   evaluationInterval: 3
   timeInterpolationGui: 0
   campaign:
+  - {fileID: 11400000, guid: e40934d819fe3cc4dbd16000d6d322e2, type: 2}
   - {fileID: 11400000, guid: ac77eed878e65d1498858c4ab13cb761, type: 2}
   - {fileID: 11400000, guid: 0f128af52781bb44e9c0bbdfdc65acb7, type: 2}
   levelConfig: {fileID: 0}

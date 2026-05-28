@@ -105,8 +105,8 @@ public class ChestInteractor : NetworkBehaviour
         // Блокируем управление и способности игрока, пока открыто UI выбора награды
         player.IsInputBlocked = true;
 
-        // Боссовый сундук — кнопка закрытия пишет "Continue", обычный — "Close".
-        string closeLabel = chest.isBossChest ? "Continue" : "Close";
+        // Боссовый сундук — кнопка закрытия пишет "Продолжить", обычный — "Закрыть".
+        string closeLabel = chest.isBossChest ? "Продолжить" : "Закрыть";
         activeUI.Show(rewards.ToArray(), chosenIndex => OnRewardChosen(chest, rewards.ToArray(), chosenIndex), closeLabel);
     }
 

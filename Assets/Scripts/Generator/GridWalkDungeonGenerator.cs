@@ -25,6 +25,11 @@ public class GridWalkDungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject chestPrefab;
     [SerializeField] private GameObject bossChestPrefab;
 
+    [Header("Визуал блокировки дверей")]
+    [SerializeField] private GameObject pikePrefab;
+    [Min(0.05f)]
+    [SerializeField] private float pikeSpacing = 0.5f;
+
     private GridWalkGenerator generator;
     private Transform decorContainer;
     private Transform treeContainer;
@@ -201,7 +206,7 @@ public class GridWalkDungeonGenerator : MonoBehaviour
             go.transform.SetParent(roomContainer);
 
             var rc = go.AddComponent<RoomController>();
-            rc.Init(i, cell, graph, halfWidth, mobSpawner, bossChestPrefab);
+            rc.Init(i, cell, graph, halfWidth, mobSpawner, bossChestPrefab, pikePrefab, pikeSpacing);
         }
 
     }
