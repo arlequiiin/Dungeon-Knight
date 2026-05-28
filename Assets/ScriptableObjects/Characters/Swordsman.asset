@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroData
   heroName: "\u0414\u0443\u044D\u043B\u044F\u043D\u0442\u043A\u0430"
   heroType: 3
-  unlockedByDefault: 0
+  unlockedByDefault: 1
   unlockCost: 250
   description: "\u041B\u043E\u0432\u043A\u0430\u044F \u0444\u0435\u0445\u0442\u043E\u0432\u0430\u043B\u044C\u0449\u0438\u0446\u0430,
     \u043F\u043E\u043B\u0430\u0433\u0430\u044E\u0449\u0430\u044F\u0441\u044F \u043D\u0430
