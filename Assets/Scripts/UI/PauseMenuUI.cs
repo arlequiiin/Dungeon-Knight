@@ -25,6 +25,10 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Update()
     {
+        // Пока открыто окно выбора награды — ESC обрабатывает само окно (закрывает сундук),
+        // меню паузы не трогаем, иначе оно откроется поверх сундука.
+        if (ChestRewardUI.AnyOpen) return;
+
         if (UnityEngine.InputSystem.Keyboard.current != null &&
             UnityEngine.InputSystem.Keyboard.current.escapeKey.wasPressedThisFrame)
         {

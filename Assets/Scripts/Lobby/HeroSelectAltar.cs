@@ -47,9 +47,19 @@ public class HeroSelectAltar : MonoBehaviour
         if (selectionUI == null) return;
 
         if (selectionUI.IsOpen)
+        {
             selectionUI.Close();
+            // Окно закрыто, но игрок всё ещё в зоне — возвращаем подсказку «Press F».
+            if (interactPrompt != null && localPlayer != null)
+                interactPrompt.SetActive(true);
+        }
         else
+        {
             selectionUI.Open();
+            // Пока окно открыто, подсказка взаимодействия не нужна.
+            if (interactPrompt != null)
+                interactPrompt.SetActive(false);
+        }
     }
 
     private void OnDisable()

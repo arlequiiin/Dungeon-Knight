@@ -24,9 +24,16 @@ public class ChestRewardUI : MonoBehaviour
 
     private Action<int> onChosen;
 
+    /// <summary>
+    /// Открыто ли сейчас какое-либо окно выбора награды. Используется PauseMenuUI,
+    /// чтобы ESC закрывал сундук, а не открывал меню паузы поверх него.
+    /// </summary>
+    public static bool AnyOpen { get; private set; }
+
     public void Show(RewardData[] rewards, Action<int> callback, string closeLabel = "Close")
     {
         onChosen = callback;
+        AnyOpen = true;
 
         if (closeButtonLabel != null)
             closeButtonLabel.text = closeLabel;
@@ -65,8 +72,25 @@ public class ChestRewardUI : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // ESC закрывает окно награды (эквивалент кнопки «Закрыть»). Меню паузы при этом
+        // не открывается — PauseMenuUI проверяет AnyOpen.
+        var kb = UnityEngine.InputSystem.Keyboard.current;
+        if (kb != null && kb.escapeKey.wasPressedThisFrame)
+            Choose(-1);
+    }
+
     private void Choose(int index)
     {
+        AnyOpen = false;
         onChosen?.Invoke(index);
+    }
+
+    private void OnDestroy()
+    {
+        // Подстраховка: если объект уничтожили в обход Choose (например при смене сцены),
+        // флаг не должен остаться «залипшим».
+        AnyOpen = false;
     }
 }

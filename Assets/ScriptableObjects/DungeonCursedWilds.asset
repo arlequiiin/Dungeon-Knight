@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: DungeonCursedWilds
   m_EditorClassIdentifier: Assembly-CSharp::GridWalkConfig
   roomCount: 9
-  gridSize: {x: 4, y: 5}
-  cellSize: {x: 7, y: 10}
-  cellGap: 3
-  roomMinSize: {x: 5, y: 6}
-  roomMaxSize: {x: 7, y: 10}
+  gridSize: {x: 5, y: 4}
+  cellSize: {x: 10, y: 7}
+  cellGap: 2
+  roomMinSize: {x: 6, y: 5}
+  roomMaxSize: {x: 10, y: 7}
   corridorWidth: 2
   extraEdges: 2
   minTreasureRooms: 2

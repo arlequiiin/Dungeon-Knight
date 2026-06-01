@@ -51,6 +51,16 @@ public class TutorialHintUI : MonoBehaviour
         activeRoutine = StartCoroutine(ShowRoutine(hint.duration));
     }
 
+    /// <summary>
+    /// Немедленно скрыть активную подсказку (например, когда игрок открыл окно выбора героя).
+    /// </summary>
+    public void Hide()
+    {
+        if (group == null) return;
+        if (activeRoutine != null) StopCoroutine(activeRoutine);
+        activeRoutine = StartCoroutine(FadeTo(0f));
+    }
+
     private IEnumerator ShowRoutine(float duration)
     {
         yield return FadeTo(1f);

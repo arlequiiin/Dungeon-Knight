@@ -12,11 +12,11 @@ public class HeroSelectionUI : MonoBehaviour
     [Header("Контейнер карточек")]
     [SerializeField] private Transform cardContainer;
 
-    [Header("Кнопки")]
-    [SerializeField] private Button confirmButton;
-    [SerializeField] private TMP_Text confirmButtonText;
-    [SerializeField] private Button readyButton;
-    [SerializeField] private TMP_Text readyButtonText;
+    [Header("Кнопка действия")]
+    [Tooltip("Единая контекстная кнопка: «Купить» для залоченного героя, иначе «Готов»/«Не готов». " +
+             "Сам выбор героя происходит по клику на карточку.")]
+    [SerializeField] private Button actionButton;
+    [SerializeField] private TMP_Text actionButtonText;
 
     [Header("Плашка информации")]
     [Tooltip("Корень плашки. Скрывается, если ничего не выбрано.")]
@@ -64,6 +64,10 @@ public class HeroSelectionUI : MonoBehaviour
         if (PlayerHUD.LocalInstance != null)
             PlayerHUD.LocalInstance.SetTopLeftPanelVisible(false);
 
+        // Прячем активную туториал-подсказку, чтобы она не перекрывала окно выбора героя.
+        if (TutorialHintUI.Instance != null)
+            TutorialHintUI.Instance.Hide();
+
         if (LobbyManager.Instance != null)
             LobbyManager.Instance.OnSelectionsUpdated += RefreshCards;
 
@@ -74,10 +78,8 @@ public class HeroSelectionUI : MonoBehaviour
         BuildCards();
         RefreshCards();
 
-        if (confirmButton != null)
-            confirmButton.onClick.AddListener(OnConfirmClicked);
-        if (readyButton != null)
-            readyButton.onClick.AddListener(OnReadyClicked);
+        if (actionButton != null)
+            actionButton.onClick.AddListener(OnActionClicked);
     }
 
     public void Close()
@@ -91,10 +93,8 @@ public class HeroSelectionUI : MonoBehaviour
         CurrencyManager.OnMetaCoinsChanged -= OnCoinsChanged;
         HeroUnlockManager.OnUnlocksChanged -= RefreshCards;
 
-        if (confirmButton != null)
-            confirmButton.onClick.RemoveListener(OnConfirmClicked);
-        if (readyButton != null)
-            readyButton.onClick.RemoveListener(OnReadyClicked);
+        if (actionButton != null)
+            actionButton.onClick.RemoveListener(OnActionClicked);
 
         isOpen = false;
         gameObject.SetActive(false);
@@ -226,42 +226,34 @@ public class HeroSelectionUI : MonoBehaviour
             }
         }
 
-        UpdateConfirmButton(currentHero);
+        UpdateActionButton(currentHero, localReady);
         UpdateInfoPanel();
-
-        // Текст кнопки Ready
-        if (readyButtonText != null)
-            readyButtonText.text = localReady ? "Не готов" : "Готов";
     }
 
-    private void UpdateConfirmButton(HeroType? currentHero)
+    /// <summary>
+    /// Единая контекстная кнопка. Выбор героя теперь делается кликом по карточке,
+    /// поэтому кнопке остаётся два режима:
+    ///   • залоченный герой в плашке → «Купить (cost)»;
+    ///   • иначе → «Готов» / «Не готов» (toggle готовности).
+    /// </summary>
+    private void UpdateActionButton(HeroType? currentHero, bool localReady)
     {
-        if (confirmButton == null) return;
+        if (actionButton == null) return;
 
         var pendingData = FindHeroData(pendingSelection);
+        bool pendingLocked = pendingData != null && !HeroUnlockManager.IsUnlocked(pendingData);
 
-        if (pendingData == null)
+        if (pendingLocked)
         {
-            confirmButton.interactable = false;
-            if (confirmButtonText != null) confirmButtonText.text = "Подтвердить";
+            int cost = HeroUnlockManager.GetUnlockCost(pendingData);
+            if (actionButtonText != null) actionButtonText.text = $"Купить ({cost})";
+            actionButton.interactable = CurrencyManager.CanAffordMeta(cost);
             return;
         }
 
-        bool unlocked = HeroUnlockManager.IsUnlocked(pendingData);
-        bool isCurrentHero = currentHero.HasValue && currentHero.Value == pendingData.heroType;
-
-        if (!unlocked)
-        {
-            int cost = HeroUnlockManager.GetUnlockCost(pendingData);
-            if (confirmButtonText != null) confirmButtonText.text = $"Купить ({cost})";
-            confirmButton.interactable = CurrencyManager.CanAffordMeta(cost);
-        }
-        else
-        {
-            if (confirmButtonText != null) confirmButtonText.text = "Подтвердить";
-            // Если уже играем за этого героя — подтверждать нечего.
-            confirmButton.interactable = !isCurrentHero;
-        }
+        // Готовым можно стать только выбрав героя.
+        if (actionButtonText != null) actionButtonText.text = localReady ? "Не готов" : "Готов";
+        actionButton.interactable = currentHero.HasValue;
     }
 
     private void UpdateInfoPanel()
@@ -317,52 +309,52 @@ public class HeroSelectionUI : MonoBehaviour
     {
         if (data == null) return;
 
-        // Занятого союзником героя выбирать нельзя.
-        var lobby = LobbyManager.Instance;
-        if (lobby != null && lobby.IsHeroTaken(data.heroType))
-        {
-            var currentHero = lobby.GetLocalPlayerHero();
-            if (!currentHero.HasValue || currentHero.Value != data.heroType)
-                return;
-        }
-
-        // Залоченный герой просто становится активным в плашке —
-        // фактическая покупка происходит из кнопки Confirm (она же «Купить»).
         pendingSelection = data.heroType;
-        RefreshCards();
-    }
 
-    private void OnConfirmClicked()
-    {
-        if (!pendingSelection.HasValue) return;
-
-        var data = FindHeroData(pendingSelection);
-        if (data == null) return;
-
-        // Если герой залочен — это режим "Купить". Покупка не подтверждает выбор автоматически:
-        // после успешной покупки игрок остаётся в плашке героя, кнопка превращается в "Подтвердить".
+        // Залоченного героя нельзя выбрать — он только подсвечивается в плашке,
+        // а покупка происходит через контекстную кнопку «Купить».
         if (!HeroUnlockManager.IsUnlocked(data))
         {
-            HeroUnlockManager.TryUnlock(data);
             RefreshCards();
             return;
         }
 
-        // Защита от занятого героя на стороне клиента (сервер всё равно проверит).
+        // Занятого союзником героя выбирать нельзя (но плашку всё равно показываем).
         var lobby = LobbyManager.Instance;
         if (lobby != null && lobby.IsHeroTaken(data.heroType))
         {
             var currentHero = lobby.GetLocalPlayerHero();
             if (!currentHero.HasValue || currentHero.Value != data.heroType)
+            {
+                RefreshCards();
                 return;
+            }
         }
 
+        // Клик по доступной карточке сразу выбирает героя (сервер валидирует повторно).
         NetworkClient.Send(new HeroSelectRequest { heroType = data.heroType });
         RefreshCards();
     }
 
-    private void OnReadyClicked()
+    private void OnActionClicked()
     {
+        var data = FindHeroData(pendingSelection);
+
+        // Режим «Купить»: герой в плашке залочен.
+        if (data != null && !HeroUnlockManager.IsUnlocked(data))
+        {
+            if (HeroUnlockManager.TryUnlock(data))
+            {
+                // Сообщаем серверу о новой разблокировке, иначе он отклонит выбор
+                // только что купленного героя (clientUnlocks был бы устаревшим).
+                var nm = NetworkManager.singleton as DungeonKnightNetworkManager;
+                if (nm != null) nm.SendUnlocksToServer();
+            }
+            RefreshCards();
+            return;
+        }
+
+        // Иначе — toggle готовности (сервер отклонит, если герой не выбран).
         NetworkClient.Send(new PlayerReadyMessage());
     }
 

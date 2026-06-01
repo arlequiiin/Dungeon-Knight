@@ -296,8 +296,14 @@ public class DungeonKnightNetworkManager : NetworkManager
         SendUnlocksToServer();
     }
 
-    private void SendUnlocksToServer()
+    /// <summary>
+    /// Отправляет серверу актуальный список разблокированных героев.
+    /// Вызывается при подключении и после покупки героя в лобби — иначе серверный
+    /// clientUnlocks остаётся устаревшим и отклоняет выбор только что купленного героя.
+    /// </summary>
+    public void SendUnlocksToServer()
     {
+        if (!NetworkClient.active || NetworkClient.connection == null) return;
         if (allHeroes == null) return;
         var unlocked = new System.Collections.Generic.List<HeroType>();
         foreach (var h in allHeroes)
@@ -564,8 +570,12 @@ public class DungeonKnightNetworkManager : NetworkManager
         // Синхронизируем индекс кампании от сервера до выбора активного LevelConfig.
         campaignIndex = msg.campaignIndex;
 
-        // Показываем уведомление с названием биома (хост получает свою копию через тот же путь).
-        if (!string.IsNullOrEmpty(msg.biomeName))
+        // Показываем уведомление с названием биома только в сцене забега.
+        // RequestSeedMessage клиент отправляет на КАЖДОЙ смене сцены (в т.ч. при первом
+        // входе в лобби), поэтому без этой проверки название биома всплывало бы сразу
+        // после подключения к лобби.
+        string activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (activeScene.Contains("SampleScene") && !string.IsNullOrEmpty(msg.biomeName))
             StartCoroutine(ShowBiomeWhenReady(msg.biomeName));
 
         var dungeonGen = FindAnyObjectByType<GridWalkDungeonGenerator>();
@@ -591,6 +601,11 @@ public class DungeonKnightNetworkManager : NetworkManager
 
     public override void OnClientSceneChanged()
     {
+        // Экраны победы/поражения ставят Time.timeScale = 0. У клиентов нет кнопки
+        // «В лобби» (она только у хоста), поэтому при принудительной смене сцены сервером
+        // timeScale оставался нулевым и клиент «зависал». Сбрасываем при любой смене сцены.
+        Time.timeScale = 1f;
+
         // Делаем клиента ready, чтобы он принимал spawned-сообщения.
         if (NetworkClient.connection != null && NetworkClient.connection.isAuthenticated && !NetworkClient.ready)
             NetworkClient.Ready();

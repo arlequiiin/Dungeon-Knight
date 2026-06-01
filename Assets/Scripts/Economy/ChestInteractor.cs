@@ -53,6 +53,23 @@ public class ChestInteractor : NetworkBehaviour
         TryOpenChest(chest);
     }
 
+    /// <summary>
+    /// Принудительно закрыть открытое окно награды у этого игрока (вызывается сервером,
+    /// когда игрока телепортируют в боевую комнату). Сундук НЕ помечается открытым —
+    /// награду можно будет забрать позже.
+    /// </summary>
+    [TargetRpc]
+    public void TargetForceCloseChest()
+    {
+        if (activeUI != null)
+        {
+            Destroy(activeUI.gameObject);
+            activeUI = null;
+        }
+        if (player != null)
+            player.IsInputBlocked = false;
+    }
+
     private Chest FindNearestChest()
     {
         Chest best = null;

@@ -155,6 +155,13 @@ public class RoomController : MonoBehaviour
 
             var rb = pc.GetComponent<Rigidbody2D>();
             if (rb != null) rb.linearVelocity = Vector2.zero;
+
+            // Игрока втянуло в боевую комнату — закрываем у него окно выбора награды,
+            // чтобы он не остался с заблокированным управлением под атаками мобов.
+            // Сундук не помечается открытым: награду можно забрать позже.
+            var chestInteractor = pc.GetComponent<ChestInteractor>();
+            if (chestInteractor != null)
+                chestInteractor.TargetForceCloseChest();
         }
     }
 
