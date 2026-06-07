@@ -77,6 +77,11 @@ public abstract class MobAI : NetworkBehaviour
     // Если слот не получен слишком долго — игнорируем слот-систему и атакуем напрямую.
     private bool forceAttackIgnoringSlot;
 
+    // Периодический ретаргетинг: пока моб преследует, раз в RetargetInterval он спрашивает
+    // у группы более сбалансированную/близкую цель. Решает «фиксацию на одной цели» в кооперативе.
+    private float retargetTimer;
+    private const float RetargetInterval = 1.5f;
+
     // --- SyncVar for client animation ---
     [SyncVar] private bool syncIsMoving;
     [SyncVar] private bool syncFlipX;
@@ -287,7 +292,11 @@ public abstract class MobAI : NetworkBehaviour
 
         float dist = Vector2.Distance(transform.position, target.position);
 
-        if (dist > loseRange)
+        // Мобы в боевой комнате (есть groupManager) НИКОГДА не теряют цель по дальности:
+        // дальнобойный герой не должен иметь возможности «откинуться» за loseRange и безнаказанно
+        // расстреливать стоящих мобов. Цель сбрасывается только если она умерла/пала (проверка выше).
+        // Одиночные/боссовые мобы (group == null) сохраняют прежнее поведение с loseRange.
+        if (groupManager == null && dist > loseRange)
         {
             SetTarget(null);
             ReleaseSlot();
@@ -295,6 +304,10 @@ public abstract class MobAI : NetworkBehaviour
             SetPatrolDestination();
             return;
         }
+
+        // Пока преследуем — периодически пересматриваем цель, чтобы мобы не «залипали»
+        // всей толпой на одном игроке (особенно в кооперативе).
+        ConsiderRetarget();
 
         bool useSlot = mobData != null && mobData.usesAttackSlot && !forceAttackIgnoringSlot;
 
@@ -345,13 +358,16 @@ public abstract class MobAI : NetworkBehaviour
         MoveToAttackPosition();
 
         // Страховка от вечного «не могу подойти»: если уже близко (dist <= attackRange+0.5),
-        // но всё не готов дольше тайм-аута (NavMesh не пускает, упёрся) — бьём как есть.
+        // но всё не готов дольше тайм-аута (NavMesh не пускает, упёрся в игрока) — бьём.
+        // ВАЖНО: чтобы не «молотить чуть выше героя в пустоту», при форс-атаке подтягиваем
+        // моба на горизонталь цели (snap по Y), тогда направленная атака реально попадёт.
         if (dist <= attackRange + 0.5f)
         {
             yAlignTimer += Time.deltaTime;
             if (yAlignTimer >= YAlignTimeout)
             {
                 yAlignTimer = 0f;
+                SnapToTargetHorizontal();
                 agent.ResetPath();
                 state = State.Attack;
             }
@@ -360,6 +376,32 @@ public abstract class MobAI : NetworkBehaviour
         {
             yAlignTimer = 0f;
         }
+    }
+
+    /// <summary>
+    /// Мгновенно подтягивает моба на Y цели (в пределах attackRange по X), когда он застрял
+    /// вплотную, но чуть выше/ниже. Использует телепорт NavMeshAgent, чтобы клиенты не
+    /// интерполировали рывок. Решает баг «моб встал чуть выше героя и бесконечно бьёт мимо».
+    /// </summary>
+    private void SnapToTargetHorizontal()
+    {
+        if (target == null) return;
+        Vector2 self = transform.position;
+        Vector2 tgt = target.position;
+
+        float sign = self.x >= tgt.x ? 1f : -1f;
+        float clampedX = Mathf.Abs(tgt.x - self.x) > attackRange
+            ? tgt.x + sign * attackRange * 0.85f
+            : self.x;
+        Vector3 snapped = new Vector3(clampedX, tgt.y, 0f);
+
+        if (UnityEngine.AI.NavMesh.SamplePosition(snapped, out var hit, 1.0f, UnityEngine.AI.NavMesh.AllAreas))
+            snapped = hit.position;
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+            agent.Warp(snapped);
+        else
+            transform.position = snapped;
     }
 
     /// <summary>
@@ -791,6 +833,28 @@ public abstract class MobAI : NetworkBehaviour
     }
 
     /// <summary>
+    /// Периодически (раз в RetargetInterval) пересматривает цель через групповой балансировщик.
+    /// Переключается только если группа предложит ДРУГУЮ цель — иначе оставляет текущую.
+    /// Без группы ничего не делает (одиночные мобы держат цель). Решает фиксацию на одной цели.
+    /// </summary>
+    private void ConsiderRetarget()
+    {
+        if (groupManager == null) return;
+
+        retargetTimer -= Time.deltaTime;
+        if (retargetTimer > 0f) return;
+        retargetTimer = RetargetInterval;
+
+        var better = groupManager.ReassignTarget(this, target, detectionRange);
+        if (better != null && better != target)
+        {
+            SetTarget(better);
+            ReleaseSlot();           // слот привязан к стороне относительно старой цели
+            forceAttackIgnoringSlot = false;
+        }
+    }
+
+    /// <summary>
     /// Выбирает цель с учётом распределения по группе (если есть менеджер).
     /// Без менеджера — ближайший игрок.
     /// </summary>
@@ -831,6 +895,8 @@ public abstract class MobAI : NetworkBehaviour
         if (target == newTarget) return;
         var oldTarget = target;
         target = newTarget;
+        // Сбрасываем таймер, чтобы только что выбранную цель не пересмотреть в тот же миг.
+        retargetTimer = RetargetInterval;
         if (groupManager != null)
             groupManager.NotifyTargetChanged(this, oldTarget, newTarget);
     }

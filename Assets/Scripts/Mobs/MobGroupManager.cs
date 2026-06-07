@@ -222,6 +222,57 @@ public class MobGroupManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Пересмотр цели для уже преследующего моба (вызывается периодически из MobAI).
+    /// Балансирует толпу по игрокам: если другого живого игрока преследует заметно меньше
+    /// мобов, переключаемся на него. Иначе оставляем текущую цель (возврат current).
+    /// Это устраняет «фиксацию всей пачки на одном игроке» в кооперативе.
+    /// </summary>
+    public Transform ReassignTarget(MobAI mob, Transform current, float detectionRange)
+    {
+        // Собираем живых игроков (без ограничения дистанции: в активной комнате мобы
+        // не должны терять игрока по дальности — иначе дальник кайтит безнаказанно).
+        var players = new List<Transform>();
+        foreach (var identity in NetworkServer.spawned.Values)
+        {
+            if (identity == null) continue;
+            var hs = identity.GetComponent<HeroStats>();
+            if (hs == null || hs.IsDead || hs.IsDowned) continue;
+            players.Add(identity.transform);
+        }
+
+        if (players.Count <= 1)
+            return players.Count == 1 ? players[0] : current;
+
+        // Считаем, сколько мобов уже нацелено на каждого игрока.
+        // Находим наименее «загруженного» игрока и нагрузку текущей цели.
+        Transform leastLoaded = null;
+        int leastCount = int.MaxValue;
+        foreach (var p in players)
+        {
+            targetCounts.TryGetValue(p, out int c);
+            if (c < leastCount)
+            {
+                leastCount = c;
+                leastLoaded = p;
+            }
+        }
+
+        int currentCount = int.MaxValue;
+        if (current != null) targetCounts.TryGetValue(current, out currentCount);
+
+        // Переключаемся только если дисбаланс существенный (разница ≥ 2),
+        // чтобы мобы не дёргались между целями туда-сюда каждые полторы секунды.
+        if (leastLoaded != null && leastLoaded != current && currentCount - leastCount >= 2)
+            return leastLoaded;
+
+        // Если текущая цель пропала из списка живых — берём наименее загруженного.
+        if (current == null || !players.Contains(current))
+            return leastLoaded;
+
+        return current;
+    }
+
+    /// <summary>
     /// Моб начал преследовать цель — обновляем счётчик.
     /// </summary>
     public void NotifyTargetChanged(MobAI mob, Transform oldTarget, Transform newTarget)
