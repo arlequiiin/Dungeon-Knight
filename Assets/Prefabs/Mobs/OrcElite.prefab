@@ -387,6 +387,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   hasShield: 0
+  blockChance: 1
+  blockCooldown: 0.6
   onDeath:
     m_PersistentCalls:
       m_Calls: []
@@ -483,7 +485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
   knockbackForce: 5
-  hitstopDuration: 0.04
+  hitstopDuration: 0.2
 --- !u!60 &3824926839252593194
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -586,7 +588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
   knockbackForce: 9
-  hitstopDuration: 0.06
+  hitstopDuration: 0.04
 --- !u!70 &888950557032614654
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

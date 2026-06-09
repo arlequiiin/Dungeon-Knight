@@ -10,4 +10,7 @@ public class AbilityPowerEffect : RewardEffect
         if (mods == null) return;
         mods.abilityPowerBonus += bonusPercent;
     }
+
+    public override string DescribeTotal(int count) =>
+        "+" + Mathf.RoundToInt(bonusPercent * count * 100f) + "%";
 }

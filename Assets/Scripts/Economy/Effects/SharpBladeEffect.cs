@@ -10,4 +10,7 @@ public class SharpBladeEffect : RewardEffect
         if (mods == null) return;
         mods.attackDamageBonus += bonusPercent;
     }
+
+    public override string DescribeTotal(int count) =>
+        "+" + Mathf.RoundToInt(bonusPercent * count * 100f) + "%";
 }

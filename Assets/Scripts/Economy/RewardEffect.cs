@@ -8,4 +8,11 @@ using UnityEngine;
 public abstract class RewardEffect : ScriptableObject
 {
     public abstract void Apply(HeroStats stats, RunModifiers mods);
+
+    /// <summary>
+    /// Краткое числовое описание суммарного вклада при count стаках — для строки бонуса в HUD
+    /// (вместо «x2»). Например «+30%» для двух «Острых клинков» по 15%.
+    /// Возвращает null если у эффекта нет осмысленного числа — тогда HUD показывает «xN».
+    /// </summary>
+    public virtual string DescribeTotal(int count) => null;
 }

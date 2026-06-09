@@ -10,4 +10,7 @@ public class FastAbilityEffect : RewardEffect
         if (mods == null) return;
         mods.abilityCooldownReduction = Mathf.Min(0.9f, mods.abilityCooldownReduction + reduction);
     }
+
+    public override string DescribeTotal(int count) =>
+        "-" + Mathf.RoundToInt(Mathf.Min(0.9f, reduction * count) * 100f) + "%";
 }

@@ -10,4 +10,7 @@ public class EnergyRegenEffect : RewardEffect
         if (mods == null) return;
         mods.energyRegenPerSecond += regenPerSecond;
     }
+
+    public override string DescribeTotal(int count) =>
+        "+" + (regenPerSecond * count).ToString("0.#") + "/с";
 }

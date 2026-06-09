@@ -16,17 +16,23 @@ public class RunRewardLog : NetworkBehaviour
     // Имена RewardData в порядке подбора. Дубликаты разрешены — клиент сам считает стаки.
     public readonly SyncList<string> RewardNames = new();
 
+    // Текстовые описания модификаторов казино (нет RewardData-ассета, у них только текст).
+    // Напр. "+15% Урон", "−8% Защита". Отрисовываются в журнале HUD отдельными строками без иконки.
+    public readonly SyncList<string> CasinoModifiers = new();
+
     /// <summary>Событие на клиенте при изменении списка. Подписывается PlayerHUD.</summary>
     public event System.Action OnLogChanged;
 
     public override void OnStartClient()
     {
         RewardNames.OnChange += HandleChange;
+        CasinoModifiers.OnChange += HandleChange;
     }
 
     public override void OnStopClient()
     {
         RewardNames.OnChange -= HandleChange;
+        CasinoModifiers.OnChange -= HandleChange;
     }
 
     private void HandleChange(SyncList<string>.Operation op, int index, string oldValue)
@@ -66,6 +72,16 @@ public class RunRewardLog : NetworkBehaviour
         string heroName = pc != null && pc.heroData != null ? pc.heroData.heroName : "Союзник";
         if (mods != null)
             mods.BroadcastEventFeed($"{heroName} получает: {reward.rewardName}");
+    }
+
+    /// <summary>
+    /// Записать модификатор казино (готовая строка-описание) для отображения в журнале HUD.
+    /// </summary>
+    [Server]
+    public void RecordCasinoModifier(string description)
+    {
+        if (string.IsNullOrEmpty(description)) return;
+        CasinoModifiers.Add(description);
     }
 
     public override void OnStartServer()

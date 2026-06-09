@@ -273,16 +273,18 @@ public class HeroSelectionUI : MonoBehaviour
         }
         if (infoName != null) infoName.text = data.heroName;
         if (infoDescription != null) infoDescription.text = data.description;
-        if (infoHealth != null) infoHealth.text = Mathf.RoundToInt(data.maxHealth).ToString();
-        if (infoEnergy != null) infoEnergy.text = Mathf.RoundToInt(data.maxEnergy).ToString();
+        // Подписываем каждую характеристику, чтобы было ясно, где какое число.
+        if (infoHealth != null) infoHealth.text = $"ХП: {Mathf.RoundToInt(data.maxHealth)}";
+        if (infoEnergy != null) infoEnergy.text = $"Энергия: {Mathf.RoundToInt(data.maxEnergy)}";
         if (infoDamage != null)
         {
             int dmg1 = Mathf.RoundToInt(data.attack1Damage);
-            infoDamage.text = data.attackCount >= 2
+            string dmg = data.attackCount >= 2
                 ? $"{dmg1}/{Mathf.RoundToInt(data.attack2Damage)}"
                 : dmg1.ToString();
+            infoDamage.text = $"Урон: {dmg}";
         }
-        if (infoExtra != null) infoExtra.text = Mathf.RoundToInt(data.maxPoise).ToString();
+        if (infoExtra != null) infoExtra.text = $"Устойчивость: {Mathf.RoundToInt(data.maxPoise)}";
 
         if (infoAbilityIcon != null)
         {

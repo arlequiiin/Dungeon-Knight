@@ -29,6 +29,17 @@ public struct ClientUnlocksMessage : NetworkMessage
 
 public struct PlayerReadyMessage : NetworkMessage { }
 
+/// <summary>
+/// Клиент → сервер при старте забега: выигранные в «казино» баффы.
+/// Параллельные массивы (Mirror сериализует примитивы из коробки): тип бафа и его величина.
+/// Сервер применяет их к RunModifiers этого игрока один раз на старте забега.
+/// </summary>
+public struct CasinoBuffsMessage : NetworkMessage
+{
+    public byte[] buffTypes;     // CasinoManager.BuffType как byte
+    public float[] magnitudes;   // соответствующая величина
+}
+
 public struct HeroSelection
 {
     public uint netId;

@@ -389,7 +389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
   knockbackForce: 12
-  hitstopDuration: 0.2
+  hitstopDuration: 0.1
 --- !u!60 &3416413957930836387
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -495,7 +495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
   knockbackForce: 17
-  hitstopDuration: 0.5
+  hitstopDuration: 0.1
 --- !u!60 &863013029768895722
 PolygonCollider2D:
   m_ObjectHideFlags: 0

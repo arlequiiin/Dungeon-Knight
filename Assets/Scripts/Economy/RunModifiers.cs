@@ -36,28 +36,53 @@ public class RunModifiers : NetworkBehaviour
     [SyncVar] public bool extraLifeAvailable;
 
     /// <summary>
+    /// Сервер: применяет один бафф из «казино» к соответствующему полю модификаторов.
+    /// Баффы стакаются с наградами из сундуков (те же поля).
+    /// </summary>
+    [Server]
+    public void ApplyCasinoBuff(CasinoManager.BuffType type, float magnitude)
+    {
+        // magnitude может быть отрицательной (дебафф казино). Не клампим здесь —
+        // итоговые множители ограничиваются в Modify*-методах (с допуском для штрафов).
+        switch (type)
+        {
+            case CasinoManager.BuffType.AttackDamage:     attackDamageBonus += magnitude; break;
+            case CasinoManager.BuffType.DamageResistance: damageResistance += magnitude; break;
+            case CasinoManager.BuffType.AbilityPower:     abilityPowerBonus += magnitude; break;
+            case CasinoManager.BuffType.AbilityCooldown:  abilityCooldownReduction += magnitude; break;
+            case CasinoManager.BuffType.EnergyRegen:      energyRegenPerSecond += magnitude; break;
+        }
+    }
+
+    /// <summary>
     /// Серверный helper: применяет финальный множитель урона.
     /// </summary>
     public float ModifyOutgoingDamage(float baseDamage, int attackIndex)
     {
         float mult = 1f + attackDamageBonus;
         if (attackIndex == 1) mult += attack2DamageBonus;
-        return baseDamage * mult;
+        // Пол множителя 0.3 — дебафф урона (казино) не обнуляет атаку полностью.
+        return baseDamage * Mathf.Max(0.3f, mult);
     }
 
     public float ModifyIncomingDamage(float baseDamage)
     {
-        return baseDamage * Mathf.Clamp(1f - damageResistance, 0.1f, 1f);
+        // Верхний предел 1.5 (а не 1.0) — чтобы отрицательное сопротивление (дебафф казино)
+        // действительно увеличивало входящий урон, но не более +50%.
+        return baseDamage * Mathf.Clamp(1f - damageResistance, 0.1f, 1.5f);
     }
 
     public float ModifyAbilityPower(float baseValue)
     {
-        return baseValue * (1f + abilityPowerBonus);
+        // Нижний предел 0.5 — дебафф силы способности не уводит её ниже половины.
+        return baseValue * Mathf.Max(0.5f, 1f + abilityPowerBonus);
     }
 
     public float ModifyAbilityCooldown(float baseCd)
     {
-        return baseCd * Mathf.Clamp(1f - abilityCooldownReduction, 0.1f, 1f);
+        // Верхний предел 1.5 — отрицательное reduction (дебафф казино) удлиняет кулдаун,
+        // но не более чем в полтора раза.
+        return baseCd * Mathf.Clamp(1f - abilityCooldownReduction, 0.1f, 1.5f);
     }
 
     /// <summary>
@@ -110,6 +135,7 @@ public class RunModifiers : NetworkBehaviour
         public bool attack2Unlocked;
         public bool extraLifeAvailable;
         public string[] rewardLogNames;
+        public string[] casinoModifiers;
         public RunStatsTracker.Snapshot stats;
     }
 
@@ -117,10 +143,13 @@ public class RunModifiers : NetworkBehaviour
     {
         var log = GetComponent<RunRewardLog>();
         string[] names = null;
+        string[] casino = null;
         if (log != null)
         {
             names = new string[log.RewardNames.Count];
             for (int i = 0; i < log.RewardNames.Count; i++) names[i] = log.RewardNames[i];
+            casino = new string[log.CasinoModifiers.Count];
+            for (int i = 0; i < log.CasinoModifiers.Count; i++) casino[i] = log.CasinoModifiers[i];
         }
         var tracker = GetComponent<RunStatsTracker>();
         return new Snapshot
@@ -134,6 +163,7 @@ public class RunModifiers : NetworkBehaviour
             attack2Unlocked = attack2Unlocked,
             extraLifeAvailable = extraLifeAvailable,
             rewardLogNames = names,
+            casinoModifiers = casino,
             stats = tracker != null ? tracker.CaptureSnapshot() : default,
         };
     }
@@ -155,6 +185,11 @@ public class RunModifiers : NetworkBehaviour
         {
             log.RewardNames.Clear();
             foreach (var n in s.rewardLogNames) log.RewardNames.Add(n);
+        }
+        if (log != null && s.casinoModifiers != null)
+        {
+            log.CasinoModifiers.Clear();
+            foreach (var c in s.casinoModifiers) log.CasinoModifiers.Add(c);
         }
         var tracker = GetComponent<RunStatsTracker>();
         if (tracker != null) tracker.ApplySnapshot(s.stats);

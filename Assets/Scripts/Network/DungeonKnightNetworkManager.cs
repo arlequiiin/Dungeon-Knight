@@ -68,6 +68,10 @@ public class DungeonKnightNetworkManager : NetworkManager
     // (переход между биомами кампании) и применяется к новому в OnServerAddPlayer.
     private readonly Dictionary<NetworkConnectionToClient, RunModifiers.Snapshot> savedModifiers = new();
 
+    // Баффы из «казино» лобби, присланные клиентом. Применяются один раз на старте забега
+    // (campaignIndex == 0) и затем удаляются — на следующих биомах не действуют повторно.
+    private readonly Dictionary<NetworkConnectionToClient, List<CasinoManager.Buff>> pendingCasinoBuffs = new();
+
     public override void OnStartServer()
     {
         base.OnStartServer();
@@ -76,10 +80,12 @@ public class DungeonKnightNetworkManager : NetworkManager
         selectedHeroes.Clear();
         clientUnlocks.Clear();
         savedModifiers.Clear();
+        pendingCasinoBuffs.Clear();
         GameOverWatcher.Reset();
         BossRewardCoordinator.Reset();
         NetworkServer.RegisterHandler<RequestSeedMessage>(OnClientRequestedSeed);
         NetworkServer.RegisterHandler<ClientUnlocksMessage>(OnClientUnlocksReceived);
+        NetworkServer.RegisterHandler<CasinoBuffsMessage>(OnCasinoBuffsReceived);
         BossRewardCoordinator.RegisterServerHandlers();
     }
 
@@ -106,6 +112,55 @@ public class DungeonKnightNetworkManager : NetworkManager
                 if (lobbyManager != null) lobbyManager.RegisterInitialHero(conn, swap);
             }
         }
+    }
+
+    [Server]
+    private void OnCasinoBuffsReceived(NetworkConnectionToClient conn, CasinoBuffsMessage msg)
+    {
+        var list = new List<CasinoManager.Buff>();
+        if (msg.buffTypes != null && msg.magnitudes != null)
+        {
+            int n = Mathf.Min(msg.buffTypes.Length, msg.magnitudes.Length);
+            for (int i = 0; i < n; i++)
+            {
+                list.Add(new CasinoManager.Buff
+                {
+                    type = (CasinoManager.BuffType)msg.buffTypes[i],
+                    magnitude = msg.magnitudes[i],
+                });
+            }
+        }
+        pendingCasinoBuffs[conn] = list;
+
+        // Если игрок уже в забеге (сообщение пришло ПОСЛЕ спавна — обычный порядок, т.к.
+        // AddPlayer отправляется раньше) — применяем со сдвигом на кадр. Иначе host-клиент
+        // при initial OnDeserialize свежезаспавненного объекта перезатрёт SyncVar/SyncList
+        // дефолтами, и баффы с записями в журнале «пропадут» (ровно симптом «не отображается»).
+        if (conn.identity != null)
+        {
+            var mods = conn.identity.GetComponent<RunModifiers>();
+            if (mods != null) StartCoroutine(ApplyCasinoBuffsNextFrame(conn, mods));
+        }
+    }
+
+    /// <summary>
+    /// Применяет отложенные баффы казино к RunModifiers игрока и удаляет их (одноразовые).
+    /// </summary>
+    [Server]
+    private void ApplyCasinoBuffsTo(NetworkConnectionToClient conn, RunModifiers mods)
+    {
+        if (mods == null) return;
+        if (!pendingCasinoBuffs.TryGetValue(conn, out var buffs) || buffs.Count == 0) return;
+
+        var log = mods.GetComponent<RunRewardLog>();
+        foreach (var b in buffs)
+        {
+            mods.ApplyCasinoBuff(b.type, b.magnitude);
+            if (log != null)
+                log.RecordCasinoModifier(CasinoManager.DescribeModifier(b.type, b.magnitude));
+        }
+
+        pendingCasinoBuffs.Remove(conn);
     }
 
     private bool IsUnlockedByDefault(HeroType type)
@@ -234,6 +289,14 @@ public class DungeonKnightNetworkManager : NetworkManager
             mods.ApplySnapshot(snapshot);
     }
 
+    private System.Collections.IEnumerator ApplyCasinoBuffsNextFrame(NetworkConnectionToClient conn, RunModifiers mods)
+    {
+        // Та же причина задержки, что и в ApplySnapshotNextFrame: ждём initial OnDeserialize.
+        yield return null;
+        yield return null;
+        ApplyCasinoBuffsTo(conn, mods);
+    }
+
     public override void OnServerChangeScene(string newSceneName)
     {
         base.OnServerChangeScene(newSceneName);
@@ -312,6 +375,24 @@ public class DungeonKnightNetworkManager : NetworkManager
             if (HeroUnlockManager.IsUnlocked(h)) unlocked.Add(h.heroType);
         }
         NetworkClient.Send(new ClientUnlocksMessage { unlockedHeroes = unlocked.ToArray() });
+    }
+
+    /// <summary>
+    /// Отправляет серверу выигранные в «казино» баффы и забирает их из локального хранилища
+    /// (одноразовые — действуют только на стартующий забег).
+    /// </summary>
+    public void SendCasinoBuffsToServer()
+    {
+        if (!NetworkClient.active || NetworkClient.connection == null) return;
+
+        if (!CasinoManager.ConsumeCurrent(out var deal)) return;
+
+        // Сделка казино = бафф + дебафф (две записи на разные характеристики).
+        NetworkClient.Send(new CasinoBuffsMessage
+        {
+            buffTypes = new[] { (byte)deal.buff.type, (byte)deal.debuff.type },
+            magnitudes = new[] { deal.buff.magnitude, deal.debuff.magnitude },
+        });
     }
 
     private void GenerateDungeonOnServer()
@@ -421,6 +502,15 @@ public class DungeonKnightNetworkManager : NetworkManager
             if (mods != null)
                 StartCoroutine(ApplySnapshotNextFrame(mods, snapshot));
             savedModifiers.Remove(conn);
+        }
+        else if (campaignIndex == 0)
+        {
+            // Старт нового забега (первый биом, без снапшота с прошлого биома) —
+            // применяем выигранные в лобби баффы казино. На host-клиенте, как и со снапшотом,
+            // initial OnDeserialize мог зафиксировать дефолты, поэтому применяем со сдвигом на кадр.
+            var mods = player.GetComponent<RunModifiers>();
+            if (mods != null && pendingCasinoBuffs.ContainsKey(conn))
+                StartCoroutine(ApplyCasinoBuffsNextFrame(conn, mods));
         }
 
         // Синхронизируем выбор героя с LobbyManager (только при первом входе).
@@ -630,7 +720,10 @@ public class DungeonKnightNetworkManager : NetworkManager
         if (scene.Contains("SampleScene"))
         {
             if (campaignIndex == 0)
+            {
                 CurrencyManager.ResetRunCoins();
+                SendCasinoBuffsToServer();
+            }
         }
         else if (scene.Contains("LobbyScene"))
         {

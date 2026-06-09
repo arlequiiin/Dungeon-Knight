@@ -76,6 +76,7 @@ public class PlayerHUD : MonoBehaviour
     private int displayedCoins;
 
     private HeroData heroData;
+    private PlayerController localPC;
     private readonly System.Collections.Generic.List<AllyPanel> allyPanels = new();
 
     private RunRewardLog rewardLog;
@@ -107,25 +108,55 @@ public class PlayerHUD : MonoBehaviour
             topLeftPanel.SetActive(visible);
     }
 
+    // Базовый размер шрифта уведомления (из инспектора). Запоминается при первом показе,
+    // чтобы можно было временно уменьшать шрифт для длинных уведомлений и затем восстанавливать.
+    private float baseNotificationFontSize = -1f;
+    // Базовая anchoredPosition текста уведомления — чтобы можно было временно сместить по Y
+    // (напр. уведомление казино выше) и затем вернуть на место.
+    private Vector2 baseNotificationPos;
+    private bool baseNotificationPosCaptured;
+
     /// <summary>
     /// Показать большой текст по центру экрана на duration секунд.
+    /// fontSize > 0 задаёт временный размер шрифта (например для длинных многострочных
+    /// уведомлений казино); иначе используется размер из инспектора.
+    /// yOffset смещает текст по вертикали относительно базовой позиции (для конкретного
+    /// уведомления, напр. казино — чуть выше); 0 = базовая позиция.
     /// </summary>
-    public void ShowNotification(string text, float duration = -1f)
+    public void ShowNotification(string text, float duration = -1f, float fontSize = -1f, float yOffset = 0f)
     {
         if (centerNotificationText == null) return;
         if (duration < 0f) duration = notificationDuration;
 
-        StopCoroutine(nameof(NotificationRoutine));
+        if (baseNotificationFontSize < 0f)
+            baseNotificationFontSize = centerNotificationText.fontSize;
+        centerNotificationText.fontSize = fontSize > 0f ? fontSize : baseNotificationFontSize;
+
+        var rt = centerNotificationText.rectTransform;
+        if (!baseNotificationPosCaptured)
+        {
+            baseNotificationPos = rt.anchoredPosition;
+            baseNotificationPosCaptured = true;
+        }
+        rt.anchoredPosition = baseNotificationPos + new Vector2(0f, yOffset);
+
+        // Останавливаем предыдущую корутину по ХЭНДЛУ. StopCoroutine(nameof(...)) по строке
+        // не останавливает корутину, запущенную по IEnumerator, — из-за этого таймер прошлого
+        // уведомления досчитывал и прятал новый текст раньше времени.
+        if (notificationRoutine != null) StopCoroutine(notificationRoutine);
         centerNotificationText.text = text;
         centerNotificationText.gameObject.SetActive(true);
-        StartCoroutine(NotificationRoutine(duration));
+        notificationRoutine = StartCoroutine(NotificationRoutine(duration));
     }
+
+    private Coroutine notificationRoutine;
 
     private System.Collections.IEnumerator NotificationRoutine(float duration)
     {
         yield return new WaitForSeconds(duration);
         if (centerNotificationText != null)
             centerNotificationText.gameObject.SetActive(false);
+        notificationRoutine = null;
     }
 
     private void OnRunCoinsChanged(int amount)
@@ -151,12 +182,13 @@ public class PlayerHUD : MonoBehaviour
         stats.onRevived.AddListener(OnRevived);
 
         // Иконка и имя героя
-        var pc = stats.GetComponent<PlayerController>();
-        heroData = pc != null ? pc.heroData : null;
-        if (heroIcon != null)
-            heroIcon.sprite = heroData != null ? heroData.icon : null;
-        if (heroNameText != null)
-            heroNameText.text = heroData != null ? heroData.heroName : "";
+        localPC = stats.GetComponent<PlayerController>();
+        heroData = localPC != null ? localPC.heroData : null;
+        ApplyHeroVisual(heroData);
+
+        // Смена героя в лобби меняет heroData позже — обновляем имя/иконку по событию.
+        if (localPC != null)
+            localPC.onHeroDataChanged += ApplyHeroVisual;
 
         // Начальные значения
         UpdateHealthBar(stats.HealthNormalized);
@@ -173,8 +205,21 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
+    /// <summary>Обновляет иконку и имя героя в HUD. Вызывается при инициализации и при смене героя.</summary>
+    private void ApplyHeroVisual(HeroData data)
+    {
+        heroData = data;
+        if (heroIcon != null)
+            heroIcon.sprite = data != null ? data.icon : null;
+        if (heroNameText != null)
+            heroNameText.text = data != null ? data.heroName : "";
+    }
+
     private void OnDestroy()
     {
+        if (localPC != null)
+            localPC.onHeroDataChanged -= ApplyHeroVisual;
+
         if (stats != null)
         {
             stats.onHealthChanged.RemoveListener(OnHealthChanged);
@@ -426,9 +471,34 @@ public class PlayerHUD : MonoBehaviour
             if (name != null) name.text = reward.rewardName;
             if (countText != null)
             {
-                countText.gameObject.SetActive(count > 1);
-                countText.text = $"x{count}";
+                // Если эффект умеет показать суммарное числовое значение (урон/защита/КД/реген) —
+                // показываем его вместо «xN». Иначе — привычный счётчик стаков.
+                string total = reward.effect != null ? reward.effect.DescribeTotal(count) : null;
+                if (!string.IsNullOrEmpty(total))
+                {
+                    countText.gameObject.SetActive(true);
+                    countText.text = total;
+                }
+                else
+                {
+                    countText.gameObject.SetActive(count > 1);
+                    countText.text = $"x{count}";
+                }
             }
+        }
+
+        // Модификаторы казино — отдельные строки без иконки (готовый ScriptableObject отсутствует).
+        foreach (var mod in rewardLog.CasinoModifiers)
+        {
+            if (string.IsNullOrEmpty(mod)) continue;
+            var entry = Instantiate(rewardEntryPrefab, rewardListContainer);
+            var icon = entry.transform.Find("Icon")?.GetComponent<Image>();
+            var name = entry.transform.Find("Name")?.GetComponent<TMP_Text>();
+            var countText = entry.transform.Find("Count")?.GetComponent<TMP_Text>();
+
+            if (icon != null) icon.enabled = false;           // иконки у казино-записей нет
+            if (name != null) name.text = mod;
+            if (countText != null) countText.gameObject.SetActive(false);
         }
     }
 }

@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitbox
   knockbackForce: 6
-  hitstopDuration: 0.9
+  hitstopDuration: 0.04
 --- !u!58 &8233690951854306744
 CircleCollider2D:
   m_ObjectHideFlags: 0

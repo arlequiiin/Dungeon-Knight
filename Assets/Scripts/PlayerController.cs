@@ -46,6 +46,12 @@ public class PlayerController : NetworkBehaviour
     public event System.Action onInteract;
 
     /// <summary>
+    /// Вызывается при смене героя (heroData обновился). Нужно UI (PlayerHUD/AllyPanel),
+    /// чтобы перечитать имя/иконку — иначе в лобби при смене героя имя остаётся старым.
+    /// </summary>
+    public event System.Action<HeroData> onHeroDataChanged;
+
+    /// <summary>
     /// Блокировка ввода (например, когда открыто UI выбора награды сундука).
     /// Игрок не может двигаться, атаковать, использовать способности и dodge,
     /// но события interact продолжают работать (нужно для закрытия UI).
@@ -127,6 +133,9 @@ public class PlayerController : NetworkBehaviour
                 ability.RefreshHitboxes();
             }
         }
+
+        // Уведомляем UI (на всех — в т.ч. host-сервере), чтобы имя/иконка обновились.
+        onHeroDataChanged?.Invoke(data);
     }
 
     // Вызывается после спавна — применяет данные выбранного героя
@@ -158,6 +167,8 @@ public class PlayerController : NetworkBehaviour
             ability.ApplyHeroData(data);
             ability.RefreshHitboxes();
         }
+
+        onHeroDataChanged?.Invoke(data);
     }
 
     private void EnsureInputInitialized()

@@ -10,4 +10,7 @@ public class StoneSkinEffect : RewardEffect
         if (mods == null) return;
         mods.damageResistance = Mathf.Min(0.9f, mods.damageResistance + resistance);
     }
+
+    public override string DescribeTotal(int count) =>
+        Mathf.RoundToInt(Mathf.Min(0.9f, resistance * count) * 100f) + "%";
 }

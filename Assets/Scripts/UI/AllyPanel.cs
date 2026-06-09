@@ -17,6 +17,7 @@ public class AllyPanel : MonoBehaviour
     [SerializeField] private GameObject downedBarRoot;
 
     private HeroStats stats;
+    private PlayerController pc;
 
     public HeroStats Stats => stats;
 
@@ -25,11 +26,12 @@ public class AllyPanel : MonoBehaviour
         Unbind();
         stats = heroStats;
 
-        if (iconImage != null)
-            iconImage.sprite = data != null ? data.icon : null;
+        ApplyHeroVisual(data);
 
-        if (nameText != null)
-            nameText.text = data != null ? data.heroName : "";
+        // Смена героя союзником в лобби должна обновлять имя/иконку плашки.
+        pc = stats.GetComponent<PlayerController>();
+        if (pc != null)
+            pc.onHeroDataChanged += ApplyHeroVisual;
 
         stats.onHealthChanged.AddListener(OnHealthChanged);
         stats.onDownedHealthChanged.AddListener(OnDownedHealthChanged);
@@ -39,8 +41,21 @@ public class AllyPanel : MonoBehaviour
         Refresh();
     }
 
+    private void ApplyHeroVisual(HeroData data)
+    {
+        if (iconImage != null)
+            iconImage.sprite = data != null ? data.icon : null;
+        if (nameText != null)
+            nameText.text = data != null ? data.heroName : "";
+    }
+
     public void Unbind()
     {
+        if (pc != null)
+        {
+            pc.onHeroDataChanged -= ApplyHeroVisual;
+            pc = null;
+        }
         if (stats != null)
         {
             stats.onHealthChanged.RemoveListener(OnHealthChanged);

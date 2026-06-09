@@ -16,10 +16,10 @@ MonoBehaviour:
   dungeon: {fileID: 11400000, guid: 52032e28c8566d34090cedc63eb42af0, type: 2}
   mobTable: {fileID: 11400000, guid: c98db7d7225991849a637bdd7b10253e, type: 2}
   bossPrefab: {fileID: 1294678635453260241, guid: bfbe365aac3f9af409ce198842987c48, type: 3}
-  difficulty: 0.8
+  difficulty: 1
   mobsPerNormalRoom: 3
   perPlayerMobMultiplier: 1
   wavesBase: 1
   extraWavesPerPlayer: 0
-  healOnRoomClear: 0.6
+  healOnRoomClear: 0.4
   spawnIndicatorDelay: 1
