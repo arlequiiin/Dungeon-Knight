@@ -26,6 +26,9 @@
 # IDE's cache directory
 .vs/
 .vscode/
+.claude/
+CLAUDE.md
+AGENTS.md
 
 # Gradle cache directory
 .gradle/
